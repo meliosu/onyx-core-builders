@@ -66,21 +66,13 @@ pub struct DepartmentApiDetailsTemplate {
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentUpdateForm {
     pub name: String,
-    pub supervisor_id: i64,
+    pub supervisor_id: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentCreateForm {
     pub name: String,
-    pub supervisor_id: i64,
-}
-
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "departments/api/notification.html")]
-pub struct NotificationTemplate {
-    pub result: String,
-    pub message: String,
-    pub redirect: String,
+    pub supervisor_id: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -105,8 +97,8 @@ pub struct DepartmentListTemplate {
 pub struct DepartmentListItem {
     pub id: i64,
     pub name: String,
-    pub supervisor_id: i64,
-    pub supervisor_name: String,
+    pub supervisor_id: Option<i64>,
+    pub supervisor_name: Option<String>,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -142,8 +134,8 @@ pub struct EquipmentListItem {
 #[template(path = "departments/api/sites.html")]
 pub struct DepartmentSitesTemplate {
     pub sites: Vec<SiteListItem>,
-    pub page_number: u32,
-    pub page_size: u32,
+    #[serde(flatten)]
+    pub pagination: Pagination,
 }
 
 #[derive(Serialize, Deserialize)]
