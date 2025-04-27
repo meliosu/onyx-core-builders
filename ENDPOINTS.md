@@ -14,12 +14,6 @@ Each endpoint is specified in the following format:
 Each endpoint is either a Full Page Endpoint, or an HTMX endpoint (starts with /api).
 HTMX endpoints are listed after Full Page Endpoints.
 
-### GET /api/selectors/departments
-- **Description**: 
-- **Returns**:
-- **Query**:
-- **Template**:
-
 ## Helper Endpoints
 
 ### HTMX Endpoints
