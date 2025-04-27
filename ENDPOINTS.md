@@ -21,6 +21,12 @@ HTMX endpoints are listed after Full Page Endpoints.
 ### GET /api/selectors/departments
 - **Description**: Get filtered list of departments
 - **Returns**: HTML Fragment - list of departments
+- **Form**:
+```json
+{
+    "name": "Filter departments by name"
+}
+```
 - **Template**:
 ```json
 {
@@ -42,6 +48,12 @@ HTMX endpoints are listed after Full Page Endpoints.
     "department_id": "Dept. ID"
 }
 ```
+- **Form**:
+```json
+{
+    "name": "Filter areas by name"
+}
+```
 - **Template**:
 ```json
 {
@@ -57,6 +69,12 @@ HTMX endpoints are listed after Full Page Endpoints.
 ### GET /api/selectors/clients
 - **Description**: Get filtered list of clients
 - **Returns**: HTML Fragment - list of clients
+- **Form**:
+```json
+{
+    "name": "Filter clients by name"
+}
+```
 - **Template**:
 ```json
 {
@@ -64,6 +82,207 @@ HTMX endpoints are listed after Full Page Endpoints.
         {
             "id": "Client ID",
             "name": "Client Name"
+        }
+    ]
+}
+```
+
+### GET /api/selectors/technical-personnel
+- **Description**: Get filtered list of technical personnel
+- **Returns**: HTML Fragment - list of technical personnel
+- **Query**:
+```json
+{
+    "qualification": "Filter by qualification (technician|technologist|engineer)",
+    "position": "Filter by position (master|foreman)",
+    "department_id": "Filter by department",
+    "area_id": "Filter by area"
+}
+```
+- **Form**:
+```json
+{
+    "name": "Filter technical personnel by name"
+}
+```
+- **Template**:
+```json
+{
+    "personnel": [
+        {
+            "id": "Personnel ID",
+            "name": "Full Name",
+            "qualification": "Qualification"
+        }
+    ]
+}
+```
+
+### GET /api/selectors/workers
+- **Description**: Get filtered list of workers
+- **Returns**: HTML Fragment - list of workers
+- **Query**:
+```json
+{
+    "profession": "Filter by profession (electrician|plumber|welder|driver|mason)",
+    "brigade_id": "Filter by brigade",
+    "is_brigadier": "Filter brigadiers only (true|false)"
+}
+```
+- **Form**:
+```json
+{
+    "name": "Filter workers by name"
+}
+```
+- **Template**:
+```json
+{
+    "workers": [
+        {
+            "id": "Worker ID",
+            "name": "Full Name",
+            "profession": "Profession"
+        }
+    ]
+}
+```
+
+### GET /api/selectors/brigades
+- **Description**: Get filtered list of brigades
+- **Returns**: HTML Fragment - list of brigades
+- **Query**:
+```json
+{
+    "site_id": "Filter by site assignment",
+    "available": "Filter available brigades only (true|false)"
+}
+```
+- **Form**:
+```json
+{
+    "brigadier_name": "Filter by brigadier name"
+}
+```
+- **Template**:
+```json
+{
+    "brigades": [
+        {
+            "id": "Brigade ID",
+            "brigadier_name": "Brigadier Name",
+            "worker_count": "Number of Workers"
+        }
+    ]
+}
+```
+
+### GET /api/selectors/sites
+- **Description**: Get filtered list of sites
+- **Returns**: HTML Fragment - list of sites
+- **Query**:
+```json
+{
+    "area_id": "Filter by area",
+    "department_id": "Filter by department",
+    "client_id": "Filter by client",
+    "type": "Filter by site type"
+}
+```
+- **Form**:
+```json
+{
+    "name": "Filter sites by name"
+}
+```
+- **Template**:
+```json
+{
+    "sites": [
+        {
+            "id": "Site ID",
+            "name": "Site Name",
+            "type": "Site Type"
+        }
+    ]
+}
+```
+
+### GET /api/selectors/equipment
+- **Description**: Get filtered list of equipment
+- **Returns**: HTML Fragment - list of equipment
+- **Query**:
+```json
+{
+    "available": "Filter by availability (true|false)"
+}
+```
+- **Form**:
+```json
+{
+    "name": "Filter equipment by name"
+}
+```
+- **Template**:
+```json
+{
+    "equipment": [
+        {
+            "id": "Equipment ID",
+            "name": "Equipment Name",
+            "available_amount": "Available Amount"
+        }
+    ]
+}
+```
+
+### GET /api/selectors/materials
+- **Description**: Get filtered list of materials
+- **Returns**: HTML Fragment - list of materials
+- **Form**:
+```json
+{
+    "name": "Filter materials by name"
+}
+```
+- **Template**:
+```json
+{
+    "materials": [
+        {
+            "id": "Material ID",
+            "name": "Material Name",
+            "units": "Units"
+        }
+    ]
+}
+```
+
+### GET /api/selectors/tasks
+- **Description**: Get filtered list of tasks
+- **Returns**: HTML Fragment - list of tasks
+- **Query**:
+```json
+{
+    "site_id": "Filter by site",
+    "brigade_id": "Filter by brigade",
+    "status": "Filter by status (Planned|In Progress|Completed)"
+}
+```
+- **Form**:
+```json
+{
+    "name": "Filter tasks by name"
+}
+```
+- **Template**:
+```json
+{
+    "tasks": [
+        {
+            "id": "Task ID",
+            "name": "Task Name",
+            "site_name": "Site Name"
         }
     ]
 }
