@@ -84,12 +84,15 @@ pub struct QueryInfo {
 
 // Template types
 #[derive(Template)]
+#[template(path = "general/index.html")]
 pub struct IndexTemplate;
 
 #[derive(Template)]
+#[template(path = "general/404.html")]
 pub struct NotFoundTemplate;
 
 #[derive(Template)]
+#[template(path = "general/500.html")]
 pub struct ServerErrorTemplate {
     pub message: String,
 }
