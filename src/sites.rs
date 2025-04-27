@@ -125,7 +125,6 @@ pub struct SiteApiDetailsTemplate {
     pub location: String,
     pub risk_level: RiskLevel,
     pub description: Option<String>,
-    pub type_specific_fields: String, // JSON string of type-specific fields
     pub tab: SiteTab,
     #[serde(flatten)]
     pub type_fields: SiteFields,
