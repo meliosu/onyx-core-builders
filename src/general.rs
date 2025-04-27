@@ -1,4 +1,8 @@
 use serde::{Serialize, Deserialize};
+use axum::{
+    extract::{Query, State}, http::StatusCode, response::Html, routing::get, Json
+};
+use askama::Template;
 
 use crate::database::Database;
 
@@ -78,6 +82,39 @@ pub struct QueryInfo {
     pub num_items: u32,
 }
 
+// Template types
+#[derive(Template)]
+pub struct IndexTemplate;
+
+#[derive(Template)]
+pub struct NotFoundTemplate;
+
+#[derive(Template)]
+pub struct ServerErrorTemplate {
+    pub message: String,
+}
+
+// Handler functions
+async fn index_handler(State(db): State<Database>) -> Html<String> {
+    // Should return IndexTemplate (empty page for now)
+    todo!()
+}
+
+async fn not_found_handler(State(db): State<Database>) -> Html<String> {
+    // Should return NotFoundTemplate
+    todo!()
+}
+
+async fn server_error_handler(
+    State(db): State<Database>,
+) -> Html<String> {
+    // Should return ServerErrorTemplate with error message
+    todo!()
+}
+
 pub fn router() -> axum::Router<Database> {
     axum::Router::new()
+        .route("/", get(index_handler))
+        .route("/404", get(not_found_handler))
+        .route("/500", get(server_error_handler))
 }
