@@ -57,6 +57,15 @@ pub enum Position {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum FuelType {
+    Gasoline,
+    Diesel,
+    Electric,
+    Hybrid,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub enum SortDirection {
     #[serde(rename = "asc")]
     Ascending,
