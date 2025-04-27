@@ -64,6 +64,13 @@ pub enum SortDirection {
     Descending,
 }
 
+#[derive(Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum NotificationResult {
+    Success,
+    Error,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Pagination {
     pub page_number: u32,
@@ -95,6 +102,14 @@ pub struct NotFoundTemplate;
 #[template(path = "general/500.html")]
 pub struct ServerErrorTemplate {
     pub message: String,
+}
+
+#[derive(Template)]
+#[template(path = "general/notification.html")]
+pub struct NotificationTemplate {
+    pub result: NotificationResult,
+    pub message: Option<String>,
+    pub redirect: Option<String>,
 }
 
 // Handler functions
