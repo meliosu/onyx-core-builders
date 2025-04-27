@@ -7,6 +7,7 @@ CREATE TYPE worker_profession AS ENUM ('electrician', 'plumber', 'welder', 'driv
 CREATE TYPE personnel_qualification AS ENUM ('technician', 'technologist', 'engineer');
 CREATE TYPE personnel_position AS ENUM ('master', 'foreman');
 CREATE TYPE employee_class AS ENUM ('worker', 'technical_personnel');
+CREATE TYPE fuel_type AS ENUM ('gasoline', 'diesel', 'electric', 'hybrid');
 
 -- Main Tables
 
@@ -82,7 +83,7 @@ CREATE TABLE equipment (
     amount INTEGER NOT NULL CHECK (amount >= 0),
     purchase_date DATE NOT NULL,
     purchase_cost NUMERIC(10, 2) NOT NULL,
-    fuel_type TEXT
+    fuel_type fuel_type
 );
 
 CREATE TABLE material (
@@ -193,7 +194,7 @@ CREATE TABLE assignment (
 CREATE TABLE equipment_allocation (
     equipment_id INTEGER NOT NULL REFERENCES equipment(id),
     department_id INTEGER NOT NULL REFERENCES department(id),
-    site_id INTEGER REFERENCES site(id),
+    site_id INTEGER NOT NULL REFERENCES site(id),
     amount INTEGER NOT NULL CHECK (amount > 0),
     period_start DATE NOT NULL,
     period_end DATE NOT NULL,
