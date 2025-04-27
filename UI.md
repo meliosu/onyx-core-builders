@@ -99,7 +99,8 @@ TODO...
 
 **Actions:**
 - Create New Department button
-- Filter by name or supervisor
+- Filter by supervisor
+- Search by name
 - Sort by any column
 - View/Edit/Delete buttons for each row
 
