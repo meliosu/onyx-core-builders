@@ -1,5 +1,5 @@
 use onyx_core_builders::database::Database;
-use onyx_core_builders::router::router;
+use onyx_core_builders::router;
 
 #[tokio::main]
 async fn main() {
