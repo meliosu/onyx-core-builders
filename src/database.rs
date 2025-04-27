@@ -13,8 +13,12 @@ impl Database {
             sqlx::Postgres::create_database(pg_url).await?;
         }
 
+        let pool = PgPool::connect(pg_url).await?;
+
+        sqlx::migrate!("./migrations").run(&pool).await?;
+
         Ok(Self {
-            pool: Arc::new(PgPool::connect(pg_url).await?),
+            pool: Arc::new(pool),
         })
     }
 }
