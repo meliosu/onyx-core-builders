@@ -198,7 +198,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
 }
 ```
 - **Form Data**:
@@ -222,7 +222,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
     "num_pages": "Number of pages",
     "num_items": "Number of items"
 }
@@ -254,7 +254,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -278,7 +278,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -291,7 +291,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 ```
 
 #### GET /api/departments/{id}/sites
@@ -301,7 +301,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -314,7 +314,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 ```
 
 #### GET /api/departments/{id}/personnel
@@ -324,7 +324,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**: 
@@ -337,7 +337,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 ```
 
 ## 4. Area Endpoints
@@ -442,7 +442,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Items Per Page"
+    "page_size": "Items Per Page"
 }
 ```
 - **Form Data**:
@@ -469,7 +469,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
     "num_pages": "Number of pages",
     "num_items": "Number of items"
 }
@@ -502,7 +502,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -518,7 +518,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -529,7 +529,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -544,7 +544,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -677,7 +677,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Items Per Page"
+    "page_size": "Items Per Page"
 }
 ```
 - **Form Data**:
@@ -711,7 +711,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
     "num_pages": "Number of pages",
     "num_items": "Number of items"
 }
@@ -749,7 +749,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -768,7 +768,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -779,7 +779,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -797,7 +797,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -808,7 +808,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -824,7 +824,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -835,7 +835,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -851,7 +851,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -862,7 +862,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -880,7 +880,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -1008,7 +1008,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Items Per Page"
+    "page_size": "Items Per Page"
 }
 ```
 - **Form Data**:
@@ -1037,7 +1037,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
     "num_pages": "Number of pages",
     "num_items": "Number of items"
 }
@@ -1201,7 +1201,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Items Per Page"
+    "page_size": "Items Per Page"
 }
 ```
 - **Form Data**:
@@ -1233,7 +1233,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
     "num_pages": "Number of pages",
     "num_items": "Number of items"
 }
@@ -1366,7 +1366,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Items Per Page"
+    "page_size": "Items Per Page"
 }
 ```
 - **Form Data**:
@@ -1394,7 +1394,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
     "num_pages": "Number of pages",
     "num_items": "Number of items"
 }
@@ -1429,7 +1429,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -1448,7 +1448,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -1579,7 +1579,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Items Per Page"
+    "page_size": "Items Per Page"
 }
 ```
 - **Form Data**:
@@ -1604,7 +1604,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
     "num_pages": "Number of pages",
     "num_items": "Number of items"
 }
@@ -1732,7 +1732,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Items Per Page"
+    "page_size": "Items Per Page"
 }
 ```
 - **Form Data**:
@@ -1759,7 +1759,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
     "num_pages": "Number of pages", 
     "num_items": "Number of items"
 }
@@ -1790,7 +1790,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -1806,7 +1806,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -1847,7 +1847,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page",
+    "page_size": "Number of items per page",
     "time_from": "Start date for filtering",
     "time_to": "End date for filtering"
 }
@@ -1867,7 +1867,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -1981,7 +1981,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Items Per Page"
+    "page_size": "Items Per Page"
 }
 ```
 - **Form Data**:
@@ -2017,7 +2017,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
     "num_pages": "Number of pages",
     "num_items": "Number of items"
 }
@@ -2053,7 +2053,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -2072,7 +2072,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
@@ -2225,7 +2225,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Items Per Page"
+    "page_size": "Items Per Page"
 }
 ```
 - **Form Data**:
@@ -2254,7 +2254,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Items Per Page",
+    "page_size": "Items Per Page",
     "num_pages": "Number of pages",
     "num_items": "Number of items"
 }
@@ -2287,7 +2287,7 @@ HTMX endpoints are listed after Full Page Endpoints.
 ```json
 {
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 - **Template**:
@@ -2306,7 +2306,7 @@ HTMX endpoints are listed after Full Page Endpoints.
         }
     ],
     "page_number": "Page Number",
-    "page_limit": "Number of items per page"
+    "page_size": "Number of items per page"
 }
 ```
 
