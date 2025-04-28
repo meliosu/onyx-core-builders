@@ -16,106 +16,135 @@
 
     <title>Onyx Core Builders</title>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0F1621',   // Deep onyx
-                        secondary: '#FFC107', // Gold/amber
-                        background: '#F5F7FA', // Light gray
-                        text: '#333333',      // Dark gray
-                        success: '#4CAF50',   // Green
-                        warning: '#FFBF00',   // Amber
-                        error: '#F44336'      // Red
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    }
-                }
-            }
+    <style>
+        :root {
+            --color-primary: #0F1621;    /* Deep onyx */
+            --color-secondary: #FFC107;  /* Gold/amber */
+            --color-background: #F5F7FA; /* Light gray */
+            --color-text: #333333;       /* Dark gray */
+            --color-success: #4CAF50;    /* Green */
+            --color-warning: #FFBF00;    /* Amber */
+            --color-error: #F44336;      /* Red */
+            --color-gray-700: #4B5563;
+            --color-gray-800: #1F2937;
         }
-    </script>
+
+        .bg-custom-primary {
+            background-color: var(--color-primary);
+        }
+
+        .bg-custom-secondary {
+            background-color: var(--color-secondary);
+        }
+
+        .bg-custom-background {
+            background-color: var(--color-background);
+        }
+
+        .text-custom-primary {
+            color: var(--color-primary);
+        }
+
+        .text-custom-secondary {
+            color: var(--color-secondary);
+        }
+
+        .text-custom-text {
+            color: var(--color-text);
+        }
+
+        .text-white {
+            color: white;
+        }
+
+        .border-custom-gray-700 {
+            border-color: var(--color-gray-700);
+        }
+
+        .hover-bg-gray-800:hover {
+            background-color: var(--color-gray-800);
+        }
+    </style>
 </head>
 
-<body class="bg-background font-sans text-text">
+<body class="bg-custom-background font-sans text-custom-text">
     <div class="flex h-screen">
         <!-- Sidebar Navigation -->
-        <div class="w-64 bg-primary text-white shadow-lg">
-            <div class="p-4 border-b border-gray-700">
-                <h2 class="text-2xl font-bold text-secondary">Onyx Core</h2>
+        <div class="w-64 bg-custom-primary text-white shadow-lg">
+            <div class="p-4 border-b border-custom-gray-700">
+                <h2 class="text-2xl font-bold text-custom-secondary">Onyx Core</h2>
                 <p class="text-sm">Builders</p>
             </div>
             <nav class="p-4">
                 <ul>
                     <li class="mb-2">
-                        <a href="/" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-tachometer-alt w-6"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/departments" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/departments" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-building w-6"></i>
                             <span>Departments</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/areas" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/areas" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-map-marked-alt w-6"></i>
                             <span>Areas</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/sites" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/sites" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-hard-hat w-6"></i>
                             <span>Sites</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/workers" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/workers" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-users w-6"></i>
                             <span>Workers</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/technical-personnel" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/technical-personnel" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-user-tie w-6"></i>
                             <span>Technical Personnel</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/equipment" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/equipment" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-truck w-6"></i>
                             <span>Equipment</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/clients" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/clients" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-briefcase w-6"></i>
                             <span>Clients</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/brigades" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/brigades" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-people-group w-6"></i>
                             <span>Brigades</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/tasks" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/tasks" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-tasks w-6"></i>
                             <span>Tasks</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/materials" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/materials" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-boxes w-6"></i>
                             <span>Materials</span>
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="/reports" class="flex items-center p-2 rounded hover:bg-gray-800">
+                        <a href="/reports" class="flex items-center p-2 rounded hover-bg-gray-800">
                             <i class="fas fa-chart-bar w-6"></i>
                             <span>Reports</span>
                         </a>
