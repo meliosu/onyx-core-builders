@@ -459,7 +459,7 @@ async fn departments_list_api_handler(
     let query = query_builder.build_query_as::<DepartmentListRow>();
     let departments = match query.fetch_all(&*db.pool).await {
         Ok(deps) => deps,
-        Err(_) => return Html::from(format!("<p>Error fetching departments</p>")),
+        Err(e) => return Html::from(format!("<p>Error fetching departments: {e}</p>")),
     };
 
     // Convert to template items
