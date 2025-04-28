@@ -32,7 +32,7 @@ pub struct DepartmentsListTemplate;
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "departments/details.html")]
 pub struct DepartmentDetailsTemplate {
-    pub id: i64,
+    pub id: i32,
 }
 
 #[derive(Template)]
@@ -42,9 +42,9 @@ pub struct DepartmentNewTemplate;
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "departments/edit.html")]
 pub struct DepartmentEditTemplate {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
-    pub supervisor_id: Option<i64>,
+    pub supervisor_id: Option<i32>,
     pub supervisor_name: Option<String>
 }
 
@@ -58,9 +58,9 @@ pub struct DepartmentTabQuery {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "departments/api/details.html")]
 pub struct DepartmentApiDetailsTemplate {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
-    pub supervisor_id: Option<i64>,
+    pub supervisor_id: Option<i32>,
     pub supervisor_name: Option<String>,
     pub tab: DepartmentTab,
 }
@@ -69,21 +69,21 @@ pub struct DepartmentApiDetailsTemplate {
 pub struct DepartmentUpdateForm {
     pub name: String,
     #[serde(default)]
-    pub supervisor_id: Option<i64>,
+    pub supervisor_id: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentCreateForm {
     pub name: String,
     #[serde(default)]
-    pub supervisor_id: Option<i64>,
+    pub supervisor_id: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentListFilter {
     #[serde(flatten)]
     pub sort: Sort,
-    pub supervisor_id: Option<i64>,
+    pub supervisor_id: Option<i32>,
     pub name: Option<String>,
 }
 
@@ -99,9 +99,9 @@ pub struct DepartmentListTemplate {
 
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentListItem {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
-    pub supervisor_id: Option<i64>,
+    pub supervisor_id: Option<i32>,
     pub supervisor_name: Option<String>,
 }
 
@@ -113,16 +113,16 @@ pub struct DepartmentAreasTemplate {
 
 #[derive(Serialize, Deserialize)]
 pub struct AreaListItem {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
-    pub supervisor_id: Option<i64>,
+    pub supervisor_id: Option<i32>,
     pub supervisor_name: Option<String>,
 }
 
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "departments/api/equipment.html")]
 pub struct DepartmentEquipmentTemplate {
-    pub id: i64,
+    pub id: i32,
     pub equipment: Vec<EquipmentListItem>,
     #[serde(flatten)]
     pub pagination: Pagination,
@@ -130,7 +130,7 @@ pub struct DepartmentEquipmentTemplate {
 
 #[derive(Serialize, Deserialize)]
 pub struct EquipmentListItem {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
     pub amount: u32,
 }
@@ -138,7 +138,7 @@ pub struct EquipmentListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "departments/api/sites.html")]
 pub struct DepartmentSitesTemplate {
-    pub id: i64,
+    pub id: i32,
     pub sites: Vec<SiteListItem>,
     #[serde(flatten)]
     pub pagination: Pagination,
@@ -146,7 +146,7 @@ pub struct DepartmentSitesTemplate {
 
 #[derive(Serialize, Deserialize)]
 pub struct SiteListItem {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
     pub type_: SiteType, 
 }
@@ -154,7 +154,7 @@ pub struct SiteListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "departments/api/personnel.html")]
 pub struct DepartmentPersonnelTemplate {
-    pub id: i64,
+    pub id: i32,
     pub personnel: Vec<PersonnelListItem>,
     #[serde(flatten)]
     pub pagination: Pagination,
@@ -162,7 +162,7 @@ pub struct DepartmentPersonnelTemplate {
 
 #[derive(Serialize, Deserialize)]
 pub struct PersonnelListItem {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
     pub qualification: Qualification,
 }
@@ -180,7 +180,7 @@ async fn departments_list_handler(State(db): State<Database>) -> Html<String> {
 
 async fn department_details_handler(
     State(db): State<Database>,
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
 ) -> Html<String> {
     // Render the department details page with the department ID
     let template = DepartmentDetailsTemplate { id };
@@ -201,15 +201,15 @@ async fn department_new_handler(State(db): State<Database>) -> Html<String> {
 
 #[derive(FromRow)]
 struct DepartmentEditData {
-    id: i64,
+    id: i32,
     name: String,
-    supervisor_id: Option<i64>,
+    supervisor_id: Option<i32>,
     supervisor_name: Option<String>,
 }
 
 async fn department_edit_handler(
     State(db): State<Database>,
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
 ) -> Html<String> {
     // Get department data from database
     let query = sqlx::query_as::<_, DepartmentEditData>(
@@ -249,15 +249,15 @@ async fn department_edit_handler(
 
 #[derive(FromRow)]
 struct DepartmentDetails {
-    id: i64,
+    id: i32,
     name: String,
-    supervisor_id: Option<i64>,
+    supervisor_id: Option<i32>,
     supervisor_name: Option<String>,
 }
 
 async fn department_api_details_handler(
     State(db): State<Database>,
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
     Query(query): Query<DepartmentTabQuery>,
 ) -> Html<String> {
     // Fetch the department details from database
@@ -299,7 +299,7 @@ async fn department_api_details_handler(
 
 async fn department_update_handler(
     State(db): State<Database>,
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
     Form(form): Form<DepartmentUpdateForm>,
 ) -> Html<String> {
     // Update department in the database
@@ -334,7 +334,7 @@ async fn department_update_handler(
 
 async fn department_delete_handler(
     State(db): State<Database>,
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
 ) -> Html<String> {
     // Check if department has areas, if yes, can't delete
     let has_areas = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM area WHERE department_id = $1")
@@ -384,9 +384,9 @@ async fn department_delete_handler(
 
 #[derive(FromRow)]
 struct DepartmentListRow {
-    id: i64,
+    id: i32,
     name: String,
-    supervisor_id: Option<i64>,
+    supervisor_id: Option<i32>,
     supervisor_name: Option<String>,
 }
 
@@ -420,7 +420,7 @@ async fn departments_list_api_handler(
             query_builder.push(" WHERE d.supervisor_id = ");
             where_added = true;
         }
-        query_builder.push_bind(*supervisor_id as i32);
+        query_builder.push_bind(supervisor_id);
     }
 
     // Count total results for pagination
@@ -535,15 +535,15 @@ async fn department_create_handler(
 
 #[derive(FromRow)]
 struct DepartmentAreaRow {
-    id: i64,
+    id: i32,
     name: String,
-    supervisor_id: Option<i64>,
+    supervisor_id: Option<i32>,
     supervisor_name: Option<String>,
 }
 
 async fn department_areas_handler(
     State(db): State<Database>,
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query areas for this department
@@ -584,14 +584,14 @@ async fn department_areas_handler(
 
 #[derive(FromRow)]
 struct DepartmentEquipmentRow {
-    id: i64,
+    id: i32,
     name: String,
     amount: i32,
 }
 
 async fn department_equipment_handler(
     State(db): State<Database>,
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query equipment for this department
@@ -635,14 +635,14 @@ async fn department_equipment_handler(
 
 #[derive(FromRow)]
 struct DepartmentSiteRow {
-    id: i64,
+    id: i32,
     name: String,
     type_: SiteType,
 }
 
 async fn department_sites_handler(
     State(db): State<Database>,
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query sites for this department
@@ -684,14 +684,14 @@ async fn department_sites_handler(
 
 #[derive(FromRow)]
 struct DepartmentPersonnelRow {
-    id: i64,
+    id: i32,
     name: String,
     qualification: Qualification,
 }
 
 async fn department_personnel_handler(
     State(db): State<Database>,
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query technical personnel for this department
