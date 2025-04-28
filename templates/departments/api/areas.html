@@ -1,0 +1,68 @@
+<div class="mb-4 flex justify-between items-center">
+    <h3 class="text-lg font-semibold">Areas</h3>
+    <a href="/areas/new" class="bg-secondary text-primary px-4 py-2 rounded font-medium hover:bg-opacity-90 text-sm">
+        <i class="fas fa-plus mr-2"></i> Add Area
+    </a>
+</div>
+
+{% if areas.is_empty() %}
+<div class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+    <i class="fas fa-map-marked-alt text-4xl mb-3"></i>
+    <p>No areas found in this department.</p>
+    <p class="mt-2">
+        <a href="/areas/new" class="text-secondary hover:underline">
+            Add a new area
+        </a>
+    </p>
+</div>
+{% else %}
+<div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-300">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                    ID
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Area Name
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Supervisor
+                </th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <span class="sr-only">Actions</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+            {% for area in areas %}
+            <tr class="hover:bg-gray-50">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
+                    {{ area.id }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {{ area.name }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {% if let Some(supervisor_name) = area.supervisor_name %}
+                        {{ supervisor_name }}
+                    {% else %}
+                        <span class="text-gray-400">Not assigned</span>
+                    {% endif %}
+                </td>
+                <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
+                    <div class="flex justify-end space-x-2">
+                        <a href="/areas/{{ area.id }}" class="text-primary hover:text-secondary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="/areas/{{ area.id }}/edit" class="text-primary hover:text-secondary">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}

@@ -1,0 +1,73 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Departments{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Departments List</h2>
+        <a href="/departments/new" class="bg-secondary text-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+            <i class="fas fa-plus mr-2"></i> New Department
+        </a>
+    </div>
+
+    <div class="mb-4">
+        <form hx-get="/api/departments" 
+              hx-target="#departments-list"
+              hx-trigger="submit"
+              class="flex flex-col gap-4 sm:flex-row">
+            <div class="flex-1">
+                <input type="text" name="name" placeholder="Search by name" 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            <div class="flex-1">
+                <div class="relative">
+                    <select name="supervisor_id" 
+                            class="px-3 py-2 border rounded w-full appearance-none"
+                            hx-get="/api/selectors/technical-personnel"
+                            hx-target="#supervisor-selector-modal"
+                            hx-trigger="click">
+                        <option value="">Filter by supervisor</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                        <i class="fas fa-chevron-down text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <select name="sort_by" class="px-3 py-2 border rounded">
+                    <option value="name">Sort by Name</option>
+                    <option value="supervisor_name">Sort by Supervisor</option>
+                </select>
+            </div>
+            <div>
+                <select name="sort_direction" class="px-3 py-2 border rounded">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="bg-primary text-white px-4 py-2 rounded font-medium hover:bg-opacity-90 w-full">
+                    <i class="fas fa-search mr-2"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="departments-list" 
+         hx-get="/api/departments" 
+         hx-trigger="load"
+         hx-vals='{"page_number": 1, "page_size": 10, "sort_by": "name", "sort_direction": "asc"}'
+         class="min-h-[300px]">
+        <!-- Department list will be loaded here via HTMX -->
+        <div class="flex justify-center items-center h-[300px]">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-secondary"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Selector modal placeholder -->
+<div id="supervisor-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <!-- Technical personnel selector will be loaded here -->
+</div>
+{% endblock %}

@@ -118,6 +118,7 @@ pub struct AreaListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "departments/api/equipment.html")]
 pub struct DepartmentEquipmentTemplate {
+    pub id: i64,
     pub equipment: Vec<EquipmentListItem>,
     #[serde(flatten)]
     pub pagination: Pagination,
@@ -133,6 +134,7 @@ pub struct EquipmentListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "departments/api/sites.html")]
 pub struct DepartmentSitesTemplate {
+    pub id: i64,
     pub sites: Vec<SiteListItem>,
     #[serde(flatten)]
     pub pagination: Pagination,
@@ -148,6 +150,7 @@ pub struct SiteListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "departments/api/personnel.html")]
 pub struct DepartmentPersonnelTemplate {
+    pub id: i64,
     pub personnel: Vec<PersonnelListItem>,
     #[serde(flatten)]
     pub pagination: Pagination,
