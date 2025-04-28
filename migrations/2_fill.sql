@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Fill database with synthetic data
 
 -- Insert clients
@@ -379,5 +377,3 @@ INSERT INTO expenditure (task_id, material_id, expected_amount, actuial_amount) 
 (18, 2, 25.0, 26.5),    -- Steel Rebar
 (18, 6, 15.0, 16.0),    -- Wood Lumber
 (18, 1, 65.0, 68.0);    -- Concrete
-
-COMMIT;
