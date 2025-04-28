@@ -89,8 +89,18 @@ pub enum NotificationResult {
 
 #[derive(Serialize, Deserialize)]
 pub struct Pagination {
+    #[serde(default = "one")]
     pub page_number: u32,
+    #[serde(default = "ten")]
     pub page_size: u32,
+}
+
+fn one() -> u32 {
+    1
+}
+
+fn ten() -> u32 {
+    10
 }
 
 #[derive(Serialize, Deserialize)]
