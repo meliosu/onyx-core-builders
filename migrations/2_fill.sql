@@ -203,15 +203,15 @@ INSERT INTO park (site_id, area, has_playground, has_lighting) VALUES
 -- Insert equipment
 INSERT INTO equipment (id, name, amount, purchase_date, purchase_cost, fuel_type) VALUES
 (1, 'Tower Crane', 5, '2020-03-15', 1200000.00, NULL),
-(2, 'Excavator', 8, '2019-07-22', 450000.00, 'Diesel'),
-(3, 'Bulldozer', 6, '2021-01-10', 380000.00, 'Diesel'),
-(4, 'Concrete Mixer', 12, '2020-11-05', 95000.00, 'Electric'),
-(5, 'Dump Truck', 15, '2019-05-18', 250000.00, 'Diesel'),
-(6, 'Forklift', 10, '2021-08-30', 120000.00, 'Propane'),
-(7, 'Backhoe Loader', 7, '2020-02-12', 280000.00, 'Diesel'),
+(2, 'Excavator', 8, '2019-07-22', 450000.00, 'diesel'),
+(3, 'Bulldozer', 6, '2021-01-10', 380000.00, 'diesel'),
+(4, 'Concrete Mixer', 12, '2020-11-05', 95000.00, 'electric'),
+(5, 'Dump Truck', 15, '2019-05-18', 250000.00, 'diesel'),
+(6, 'Forklift', 10, '2021-08-30', 120000.00, 'diesel'),
+(7, 'Backhoe Loader', 7, '2020-02-12', 280000.00, 'diesel'),
 (8, 'Scaffolding Set', 25, '2019-12-03', 45000.00, NULL),
-(9, 'Generator', 20, '2021-04-25', 35000.00, 'Diesel'),
-(10, 'Welding Machine', 15, '2020-09-17', 18000.00, 'Electric');
+(9, 'Generator', 20, '2021-04-25', 35000.00, 'gasoline'),
+(10, 'Welding Machine', 15, '2020-09-17', 18000.00, 'electric');
 
 -- Insert equipment allocations
 INSERT INTO equipment_allocation (equipment_id, department_id, site_id, amount, period_start, period_end) VALUES
