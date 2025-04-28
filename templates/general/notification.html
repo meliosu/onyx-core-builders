@@ -1,5 +1,5 @@
 <div id="notification" 
-     class="fixed top-4 right-4 z-50 p-4 rounded shadow-lg max-w-md {% match result %}{% when NotificationResult::Success %}bg-success text-white{% when NotificationResult::Error %}bg-error text-white{% endmatch %}">
+     class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 p-4 rounded shadow-lg w-full max-w-md {% match result %}{% when NotificationResult::Success %}bg-success text-white{% when NotificationResult::Error %}bg-error text-white{% endmatch %}">
     <div class="flex items-center justify-between">
         <div class="flex items-center">
             {% match result %}

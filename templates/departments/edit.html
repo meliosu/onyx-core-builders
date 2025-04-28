@@ -49,15 +49,4 @@
     <!-- Technical personnel selector will be loaded here -->
 </div>
 
-<!-- Notification container -->
-<div id="notification-container"></div>
-
-<script>
-// Minimal JS for selecting supervisor
-function selectTechnicalPersonnel(id, name) {
-    document.getElementById('supervisor_id').value = id;
-    document.getElementById('supervisor_display').value = name;
-    document.getElementById('supervisor-selector-modal').classList.add('hidden');
-}
-</script>
 {% endblock %}
