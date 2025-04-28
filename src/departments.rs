@@ -420,7 +420,7 @@ async fn departments_list_api_handler(
             query_builder.push(" WHERE d.supervisor_id = ");
             where_added = true;
         }
-        query_builder.push_bind(supervisor_id);
+        query_builder.push_bind(*supervisor_id as i32);
     }
 
     // Count total results for pagination
