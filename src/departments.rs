@@ -68,12 +68,14 @@ pub struct DepartmentApiDetailsTemplate {
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentUpdateForm {
     pub name: String,
+    #[serde(default)]
     pub supervisor_id: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentCreateForm {
     pub name: String,
+    #[serde(default)]
     pub supervisor_id: Option<i64>,
 }
 
