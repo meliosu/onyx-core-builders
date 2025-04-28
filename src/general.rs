@@ -109,9 +109,7 @@ pub struct NotFoundTemplate;
 
 #[derive(Template)]
 #[template(path = "general/500.html")]
-pub struct ServerErrorTemplate {
-    pub message: String,
-}
+pub struct ServerErrorTemplate;
 
 #[derive(Template)]
 #[template(path = "general/notification.html")]
@@ -124,19 +122,19 @@ pub struct NotificationTemplate {
 // Handler functions
 async fn index_handler(State(db): State<Database>) -> Html<String> {
     // Should return IndexTemplate (empty page for now)
-    todo!()
+    Html::from(IndexTemplate.render().unwrap())
 }
 
 async fn not_found_handler(State(db): State<Database>) -> Html<String> {
     // Should return NotFoundTemplate
-    todo!()
+    Html::from(NotFoundTemplate.render().unwrap())
 }
 
 async fn server_error_handler(
     State(db): State<Database>,
 ) -> Html<String> {
     // Should return ServerErrorTemplate with error message
-    todo!()
+    Html::from(ServerErrorTemplate.render().unwrap())
 }
 
 pub fn router() -> axum::Router<Database> {
