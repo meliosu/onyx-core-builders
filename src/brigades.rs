@@ -1,5 +1,4 @@
-use crate::database::Database;
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Serialize, Deserialize};
 use axum::{
     extract::{Path, Query, State, Form},
@@ -23,22 +22,22 @@ pub enum BrigadeTab {
 
 // Types for page endpoints
 
-#[derive(Template)]
-#[template(path = "brigades/list.html")]
+// #[derive(Template)]
+// #[template(path = "brigades/list.html")]
 pub struct BrigadesListTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "brigades/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "brigades/details.html")]
 pub struct BrigadeDetailsTemplate {
     pub id: i64,
 }
 
-#[derive(Template)]
-#[template(path = "brigades/new.html")]
+// #[derive(Template)]
+// #[template(path = "brigades/new.html")]
 pub struct BrigadeNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "brigades/edit.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "brigades/edit.html")]
 pub struct BrigadeEditTemplate {
     pub id: i64,
     pub brigadier_id: i64,
@@ -52,8 +51,8 @@ pub struct BrigadeTabQuery {
     pub tab: BrigadeTab,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "brigades/api/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "brigades/api/details.html")]
 pub struct BrigadeApiDetailsTemplate {
     pub id: i64,
     pub brigadier_id: i64,
@@ -85,13 +84,11 @@ pub struct BrigadeListFilter {
     pub task_name: Option<String>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "brigades/api/list.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "brigades/api/list.html")]
 pub struct BrigadeListTemplate {
     pub brigades: Vec<BrigadeListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
-    #[serde(flatten)]
     pub query_info: QueryInfo,
 }
 
@@ -105,11 +102,10 @@ pub struct BrigadeListItem {
     pub current_site_name: Option<String>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "brigades/api/workers.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "brigades/api/workers.html")]
 pub struct BrigadeWorkersTemplate {
     pub workers: Vec<WorkerListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -126,11 +122,10 @@ pub struct WorkerAddForm {
     pub worker_id: i64,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "brigades/api/tasks.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "brigades/api/tasks.html")]
 pub struct BrigadeTasksTemplate {
     pub tasks: Vec<TaskListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -149,7 +144,7 @@ pub struct TaskListItem {
 
 async fn brigades_list_handler(State(db): State<Database>) -> Html<String> {
     // Should return BrigadesListTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn brigade_details_handler(
@@ -157,12 +152,12 @@ async fn brigade_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return BrigadeDetailsTemplate with brigade ID
-    todo!()
+    Html::from(String::new())
 }
 
 async fn brigade_new_handler(State(db): State<Database>) -> Html<String> {
     // Should return BrigadeNewTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn brigade_edit_handler(
@@ -170,7 +165,7 @@ async fn brigade_edit_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return BrigadeEditTemplate with brigade data
-    todo!()
+    Html::from(String::new())
 }
 
 // Handler functions for HTMX endpoints
@@ -181,7 +176,7 @@ async fn brigade_api_details_handler(
     Query(query): Query<BrigadeTabQuery>,
 ) -> Html<String> {
     // Should return BrigadeApiDetailsTemplate with brigade data and the selected tab
-    todo!()
+    Html::from(String::new())
 }
 
 async fn brigade_update_handler(
@@ -190,7 +185,7 @@ async fn brigade_update_handler(
     Form(form): Form<BrigadeUpdateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn brigade_delete_handler(
@@ -198,7 +193,7 @@ async fn brigade_delete_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn brigades_list_api_handler(
@@ -207,7 +202,7 @@ async fn brigades_list_api_handler(
     Form(filter): Form<BrigadeListFilter>,
 ) -> Html<String> {
     // Should return BrigadeListTemplate with filtered brigades list
-    todo!()
+    Html::from(String::new())
 }
 
 async fn brigade_create_handler(
@@ -215,7 +210,7 @@ async fn brigade_create_handler(
     Form(form): Form<BrigadeCreateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn brigade_workers_handler(
@@ -224,7 +219,7 @@ async fn brigade_workers_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return BrigadeWorkersTemplate with workers assigned to this brigade
-    todo!()
+    Html::from(String::new())
 }
 
 async fn worker_add_handler(
@@ -233,7 +228,7 @@ async fn worker_add_handler(
     Form(form): Form<WorkerAddForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn worker_remove_handler(
@@ -241,7 +236,7 @@ async fn worker_remove_handler(
     Path((id, worker_id)): Path<(i64, i64)>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn brigade_tasks_handler(
@@ -250,7 +245,7 @@ async fn brigade_tasks_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return BrigadeTasksTemplate with task history for this brigade
-    todo!()
+    Html::from(String::new())
 }
 
 // Router setup

@@ -29,22 +29,22 @@ pub enum TaskStatus {
 
 // Types for page endpoints
 
-#[derive(Template)]
-#[template(path = "tasks/list.html")]
+// #[derive(Template)]
+// #[template(path = "tasks/list.html")]
 pub struct TasksListTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "tasks/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "tasks/details.html")]
 pub struct TaskDetailsTemplate {
     pub id: i64,
 }
 
-#[derive(Template)]
-#[template(path = "tasks/new.html")]
+// #[derive(Template)]
+// #[template(path = "tasks/new.html")]
 pub struct TaskNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "tasks/edit.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "tasks/edit.html")]
 pub struct TaskEditTemplate {
     pub id: i64,
     pub name: String,
@@ -61,8 +61,8 @@ pub struct TaskTabQuery {
     pub tab: TaskTab,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "tasks/api/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "tasks/api/details.html")]
 pub struct TaskApiDetailsTemplate {
     pub id: i64,
     pub name: String,
@@ -111,13 +111,11 @@ pub struct TaskListFilter {
     pub exceeded_deadline: Option<bool>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "tasks/api/list.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "tasks/api/list.html")]
 pub struct TaskListTemplate {
     pub tasks: Vec<TaskListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
-    #[serde(flatten)]
     pub query_info: QueryInfo,
 }
 
@@ -136,11 +134,10 @@ pub struct TaskListItem {
     pub deadline_exceeded: bool,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "tasks/api/materials.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "tasks/api/materials.html")]
 pub struct TaskMaterialsTemplate {
     pub materials: Vec<TaskMaterialItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -176,7 +173,7 @@ pub struct TaskCompleteForm {
 
 async fn tasks_list_handler(State(db): State<Database>) -> Html<String> {
     // Should return TasksListTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn task_details_handler(
@@ -184,12 +181,12 @@ async fn task_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return TaskDetailsTemplate with task ID
-    todo!()
+    Html::from(String::new())
 }
 
 async fn task_new_handler(State(db): State<Database>) -> Html<String> {
     // Should return TaskNewTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn task_edit_handler(
@@ -197,7 +194,7 @@ async fn task_edit_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return TaskEditTemplate with task data
-    todo!()
+    Html::from(String::new())
 }
 
 // Handler functions for HTMX endpoints
@@ -208,7 +205,7 @@ async fn task_api_details_handler(
     Query(query): Query<TaskTabQuery>,
 ) -> Html<String> {
     // Should return TaskApiDetailsTemplate with task data and the selected tab
-    todo!()
+    Html::from(String::new())
 }
 
 async fn task_update_handler(
@@ -217,7 +214,7 @@ async fn task_update_handler(
     Form(form): Form<TaskUpdateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn task_delete_handler(
@@ -225,7 +222,7 @@ async fn task_delete_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn tasks_list_api_handler(
@@ -234,7 +231,7 @@ async fn tasks_list_api_handler(
     Form(filter): Form<TaskListFilter>,
 ) -> Html<String> {
     // Should return TaskListTemplate with filtered tasks list
-    todo!()
+    Html::from(String::new())
 }
 
 async fn task_create_handler(
@@ -242,7 +239,7 @@ async fn task_create_handler(
     Form(form): Form<TaskCreateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn task_materials_handler(
@@ -251,7 +248,7 @@ async fn task_materials_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return TaskMaterialsTemplate with materials for this task
-    todo!()
+    Html::from(String::new())
 }
 
 async fn task_add_material_handler(
@@ -260,7 +257,7 @@ async fn task_add_material_handler(
     Form(form): Form<TaskMaterialForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn task_update_material_handler(
@@ -269,7 +266,7 @@ async fn task_update_material_handler(
     Form(form): Form<TaskMaterialUpdateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn task_complete_handler(
@@ -278,7 +275,7 @@ async fn task_complete_handler(
     Form(form): Form<TaskCompleteForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 // Router setup

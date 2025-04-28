@@ -1,4 +1,3 @@
-use crate::{database::Database, general::FuelType};
 use chrono::NaiveDateTime;
 use serde::{Serialize, Deserialize};
 use axum::{
@@ -9,22 +8,22 @@ use axum::{
 };
 use askama::Template;
 
-use crate::{database::Database, general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate}};
+use crate::{database::Database, general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate, FuelType}};
 
 // Types for page endpoints
 
-#[derive(Template)]
+// #[derive(Template)]
 pub struct EquipmentPageTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
+// #[derive(Template, Serialize, Deserialize)]
 pub struct EquipmentDetailsTemplate {
     pub id: i64,
 }
 
-#[derive(Template)]
+// #[derive(Template)]
 pub struct EquipmentNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
+// #[derive(Template, Serialize, Deserialize)]
 pub struct EquipmentEditTemplate {
     pub id: i64,
     pub name: String,
@@ -36,7 +35,7 @@ pub struct EquipmentEditTemplate {
 
 // Types for HTMX endpoints
 
-#[derive(Template, Serialize, Deserialize)]
+// #[derive(Template, Serialize, Deserialize)]
 pub struct EquipmentApiDetailsTemplate {
     pub id: i64,
     pub name: String,
@@ -75,12 +74,10 @@ pub struct EquipmentListFilter {
     pub available: Option<bool>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
+// #[derive(Template, Serialize, Deserialize)]
 pub struct EquipmentListTemplate {
     pub equipment: Vec<EquipmentListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
-    #[serde(flatten)]
     pub query_info: QueryInfo,
 }
 
@@ -94,10 +91,9 @@ pub struct EquipmentListItem {
     pub purchase_cost: f64,
 }
 
-#[derive(Template, Serialize, Deserialize)]
+// #[derive(Template, Serialize, Deserialize)]
 pub struct EquipmentAllocationsTemplate {
     pub allocations: Vec<AllocationListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -126,7 +122,7 @@ pub struct EquipmentAllocationForm {
 
 async fn equipment_list_handler(State(db): State<Database>) -> Html<String> {
     // Should return EquipmentPageTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn equipment_details_handler(
@@ -134,12 +130,12 @@ async fn equipment_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return EquipmentDetailsTemplate with equipment ID
-    todo!()
+    Html::from(String::new())
 }
 
 async fn equipment_new_handler(State(db): State<Database>) -> Html<String> {
     // Should return EquipmentNewTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn equipment_edit_handler(
@@ -147,7 +143,7 @@ async fn equipment_edit_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return EquipmentEditTemplate with equipment data
-    todo!()
+    Html::from(String::new())
 }
 
 // Handler functions for HTMX endpoints
@@ -157,7 +153,7 @@ async fn equipment_api_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return EquipmentApiDetailsTemplate with equipment data
-    todo!()
+    Html::from(String::new())
 }
 
 async fn equipment_update_handler(
@@ -166,7 +162,7 @@ async fn equipment_update_handler(
     Form(form): Form<EquipmentUpdateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn equipment_delete_handler(
@@ -174,7 +170,7 @@ async fn equipment_delete_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn equipment_list_api_handler(
@@ -183,7 +179,7 @@ async fn equipment_list_api_handler(
     Form(filter): Form<EquipmentListFilter>,
 ) -> Html<String> {
     // Should return EquipmentListTemplate with filtered equipment list
-    todo!()
+    Html::from(String::new())
 }
 
 async fn equipment_create_handler(
@@ -191,7 +187,7 @@ async fn equipment_create_handler(
     Form(form): Form<EquipmentCreateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn equipment_allocations_handler(
@@ -200,7 +196,7 @@ async fn equipment_allocations_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return EquipmentAllocationsTemplate with allocations for this equipment
-    todo!()
+    Html::from(String::new())
 }
 
 async fn equipment_create_allocation_handler(
@@ -209,7 +205,7 @@ async fn equipment_create_allocation_handler(
     Form(form): Form<EquipmentAllocationForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 // Router setup

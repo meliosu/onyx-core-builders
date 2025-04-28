@@ -12,22 +12,22 @@ use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationRes
 
 // Types for page endpoints
 
-#[derive(Template)]
-#[template(path = "materials/list.html")]
+// #[derive(Template)]
+// #[template(path = "materials/list.html")]
 pub struct MaterialsListTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "materials/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "materials/details.html")]
 pub struct MaterialDetailsTemplate {
     pub id: i64,
 }
 
-#[derive(Template)]
-#[template(path = "materials/new.html")]
+// #[derive(Template)]
+// #[template(path = "materials/new.html")]
 pub struct MaterialNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "materials/edit.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "materials/edit.html")]
 pub struct MaterialEditTemplate {
     pub id: i64,
     pub name: String,
@@ -37,8 +37,8 @@ pub struct MaterialEditTemplate {
 
 // Types for HTMX endpoints
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "materials/api/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "materials/api/details.html")]
 pub struct MaterialApiDetailsTemplate {
     pub id: i64,
     pub name: String,
@@ -73,13 +73,11 @@ pub struct MaterialListFilter {
     pub excess_usage: Option<bool>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "materials/api/list.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "materials/api/list.html")]
 pub struct MaterialListTemplate {
     pub materials: Vec<MaterialListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
-    #[serde(flatten)]
     pub query_info: QueryInfo,
 }
 
@@ -94,11 +92,10 @@ pub struct MaterialListItem {
     pub excess: bool,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "materials/api/usage.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "materials/api/usage.html")]
 pub struct MaterialUsageTemplate {
     pub usage: Vec<UsageListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -118,7 +115,7 @@ pub struct UsageListItem {
 
 async fn materials_list_handler(State(db): State<Database>) -> Html<String> {
     // Should return MaterialsListTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn material_details_handler(
@@ -126,12 +123,12 @@ async fn material_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return MaterialDetailsTemplate with material ID
-    todo!()
+    Html::from(String::new())
 }
 
 async fn material_new_handler(State(db): State<Database>) -> Html<String> {
     // Should return MaterialNewTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn material_edit_handler(
@@ -139,7 +136,7 @@ async fn material_edit_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return MaterialEditTemplate with material data
-    todo!()
+    Html::from(String::new())
 }
 
 // Handler functions for HTMX endpoints
@@ -149,7 +146,7 @@ async fn material_api_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return MaterialApiDetailsTemplate with material details
-    todo!()
+    Html::from(String::new())
 }
 
 async fn material_update_handler(
@@ -158,7 +155,7 @@ async fn material_update_handler(
     Form(form): Form<MaterialUpdateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn material_delete_handler(
@@ -166,7 +163,7 @@ async fn material_delete_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn materials_list_api_handler(
@@ -175,7 +172,7 @@ async fn materials_list_api_handler(
     Form(filter): Form<MaterialListFilter>,
 ) -> Html<String> {
     // Should return MaterialListTemplate with filtered materials list
-    todo!()
+    Html::from(String::new())
 }
 
 async fn material_create_handler(
@@ -183,7 +180,7 @@ async fn material_create_handler(
     Form(form): Form<MaterialCreateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn material_usage_handler(
@@ -192,7 +189,7 @@ async fn material_usage_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return MaterialUsageTemplate with usage history for this material
-    todo!()
+    Html::from(String::new())
 }
 
 // Router setup

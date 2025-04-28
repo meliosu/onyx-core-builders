@@ -16,8 +16,8 @@ pub struct DepartmentFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize)]
-#[template(path = "selectors/departments.html")]
+// #[derive(Template, Serialize)]
+// #[template(path = "selectors/departments.html")]
 pub struct DepartmentSelectorTemplate {
     pub departments: Vec<DepartmentSelectorItem>,
 }
@@ -39,8 +39,8 @@ pub struct AreaFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize)]
-#[template(path = "selectors/areas.html")]
+// #[derive(Template, Serialize)]
+// #[template(path = "selectors/areas.html")]
 pub struct AreaSelectorTemplate {
     pub areas: Vec<AreaSelectorItem>,
 }
@@ -57,8 +57,8 @@ pub struct ClientFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize)]
-#[template(path = "selectors/clients.html")]
+// #[derive(Template, Serialize)]
+// #[template(path = "selectors/clients.html")]
 pub struct ClientSelectorTemplate {
     pub clients: Vec<ClientSelectorItem>,
 }
@@ -83,8 +83,8 @@ pub struct TechnicalPersonnelFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize)]
-#[template(path = "selectors/technical_personnel.html")]
+// #[derive(Template, Serialize)]
+// #[template(path = "selectors/technical_personnel.html")]
 pub struct TechnicalPersonnelSelectorTemplate {
     pub personnel: Vec<TechnicalPersonnelSelectorItem>,
 }
@@ -109,8 +109,8 @@ pub struct WorkerFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize)]
-#[template(path = "selectors/workers.html")]
+// #[derive(Template, Serialize)]
+// #[template(path = "selectors/workers.html")]
 pub struct WorkerSelectorTemplate {
     pub workers: Vec<WorkerSelectorItem>,
 }
@@ -134,8 +134,8 @@ pub struct BrigadeFilter {
     pub brigadier_name: Option<String>,
 }
 
-#[derive(Template, Serialize)]
-#[template(path = "selectors/brigades.html")]
+// #[derive(Template, Serialize)]
+// #[template(path = "selectors/brigades.html")]
 pub struct BrigadeSelectorTemplate {
     pub brigades: Vec<BrigadeSelectorItem>,
 }
@@ -161,8 +161,8 @@ pub struct SiteFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize)]
-#[template(path = "selectors/sites.html")]
+// #[derive(Template, Serialize)]
+// #[template(path = "selectors/sites.html")]
 pub struct SiteSelectorTemplate {
     pub sites: Vec<SiteSelectorItem>,
 }
@@ -185,8 +185,8 @@ pub struct EquipmentFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize)]
-#[template(path = "selectors/equipment.html")]
+// #[derive(Template, Serialize)]
+// #[template(path = "selectors/equipment.html")]
 pub struct EquipmentSelectorTemplate {
     pub equipment: Vec<EquipmentSelectorItem>,
 }
@@ -204,8 +204,8 @@ pub struct MaterialFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize)]
-#[template(path = "selectors/materials.html")]
+// #[derive(Template, Serialize)]
+// #[template(path = "selectors/materials.html")]
 pub struct MaterialSelectorTemplate {
     pub materials: Vec<MaterialSelectorItem>,
 }
@@ -230,8 +230,8 @@ pub struct TaskFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize)]
-#[template(path = "selectors/tasks.html")]
+// #[derive(Template, Serialize)]
+// #[template(path = "selectors/tasks.html")]
 pub struct TaskSelectorTemplate {
     pub tasks: Vec<TaskSelectorItem>,
 }
@@ -251,7 +251,7 @@ async fn departments_selector_handler(
     Form(filter): Form<DepartmentFilter>,
 ) -> Html<String> {
     // Should return DepartmentSelectorTemplate with filtered departments
-    todo!()
+    Html::from(String::new())
 }
 
 // Area selectors
@@ -261,7 +261,7 @@ async fn areas_selector_handler(
     Form(filter): Form<AreaFilter>,
 ) -> Html<String> {
     // Should return AreaSelectorTemplate with filtered areas
-    todo!()
+    Html::from(String::new())
 }
 
 // Client selectors
@@ -270,7 +270,7 @@ async fn clients_selector_handler(
     Form(filter): Form<ClientFilter>,
 ) -> Html<String> {
     // Should return ClientSelectorTemplate with filtered clients
-    todo!()
+    Html::from(String::new())
 }
 
 // Technical personnel selectors
@@ -280,7 +280,7 @@ async fn technical_personnel_selector_handler(
     Form(filter): Form<TechnicalPersonnelFilter>,
 ) -> Html<String> {
     // Should return TechnicalPersonnelSelectorTemplate with filtered personnel
-    todo!()
+    Html::from(String::new())
 }
 
 // Worker selectors
@@ -290,7 +290,7 @@ async fn workers_selector_handler(
     Form(filter): Form<WorkerFilter>,
 ) -> Html<String> {
     // Should return WorkerSelectorTemplate with filtered workers
-    todo!()
+    Html::from(String::new())
 }
 
 // Brigade selectors
@@ -300,7 +300,7 @@ async fn brigades_selector_handler(
     Form(filter): Form<BrigadeFilter>,
 ) -> Html<String> {
     // Should return BrigadeSelectorTemplate with filtered brigades
-    todo!()
+    Html::from(String::new())
 }
 
 // Site selectors
@@ -310,7 +310,7 @@ async fn sites_selector_handler(
     Form(filter): Form<SiteFilter>,
 ) -> Html<String> {
     // Should return SiteSelectorTemplate with filtered sites
-    todo!()
+    Html::from(String::new())
 }
 
 // Equipment selectors
@@ -320,7 +320,7 @@ async fn equipment_selector_handler(
     Form(filter): Form<EquipmentFilter>,
 ) -> Html<String> {
     // Should return EquipmentSelectorTemplate with filtered equipment
-    todo!()
+    Html::from(String::new())
 }
 
 // Material selectors
@@ -329,7 +329,7 @@ async fn materials_selector_handler(
     Form(filter): Form<MaterialFilter>,
 ) -> Html<String> {
     // Should return MaterialSelectorTemplate with filtered materials
-    todo!()
+    Html::from(String::new())
 }
 
 // Task selectors
@@ -339,7 +339,7 @@ async fn tasks_selector_handler(
     Form(filter): Form<TaskFilter>,
 ) -> Html<String> {
     // Should return TaskSelectorTemplate with filtered tasks
-    todo!()
+    Html::from(String::new())
 }
 
 // Router setup

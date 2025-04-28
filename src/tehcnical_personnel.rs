@@ -37,22 +37,22 @@ pub struct EngineerFields {
 
 // Types for page endpoints
 
-#[derive(Template)]
-#[template(path = "technical_personnel/list.html")]
+// #[derive(Template)]
+// #[template(path = "technical_personnel/list.html")]
 pub struct TechnicalPersonnelListTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "technical_personnel/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "technical_personnel/details.html")]
 pub struct TechnicalPersonnelDetailsTemplate {
     pub id: i64,
 }
 
-#[derive(Template)]
-#[template(path = "technical_personnel/new.html")]
+// #[derive(Template)]
+// #[template(path = "technical_personnel/new.html")]
 pub struct TechnicalPersonnelNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "technical_personnel/edit.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "technical_personnel/edit.html")]
 pub struct TechnicalPersonnelEditTemplate {
     pub id: i64,
     pub first_name: String,
@@ -68,8 +68,8 @@ pub struct TechnicalPersonnelQualificationQuery {
     pub qualification: Qualification,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "technical_personnel/api/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "technical_personnel/api/details.html")]
 pub struct TechnicalPersonnelApiDetailsTemplate {
     pub id: i64,
     pub first_name: String,
@@ -84,7 +84,6 @@ pub struct TechnicalPersonnelApiDetailsTemplate {
     pub education_level: String,
     pub software_skills: Option<String>,
     pub is_project_manager: bool,
-    #[serde(flatten)]
     pub qualification_fields: QualificationFields,
     pub supervising_department_id: Option<i64>,
     pub supervising_department_name: Option<String>,
@@ -92,8 +91,8 @@ pub struct TechnicalPersonnelApiDetailsTemplate {
     pub supervising_area_name: Option<String>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "technical_personnel/api/qualification-fields.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "technical_personnel/api/qualification-fields.html")]
 pub struct TechnicalPersonnelQualificationFieldsTemplate {
     pub qualification: Qualification,
 }
@@ -143,13 +142,11 @@ pub struct TechnicalPersonnelListFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "technical_personnel/api/list.html")]
-pub struct TechnicalPersonnelListTemplate {
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "technical_personnel/api/list.html")]
+pub struct TechnicalPersonnelApiListTemplate {
     pub technical_personnel: Vec<TechnicalPersonnelListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
-    #[serde(flatten)]
     pub query_info: QueryInfo,
 }
 
@@ -170,7 +167,7 @@ pub struct TechnicalPersonnelListItem {
 
 async fn technical_personnel_list_handler(State(db): State<Database>) -> Html<String> {
     // Should return TechnicalPersonnelListTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn technical_personnel_details_handler(
@@ -178,12 +175,12 @@ async fn technical_personnel_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return TechnicalPersonnelDetailsTemplate with personnel ID
-    todo!()
+    Html::from(String::new())
 }
 
 async fn technical_personnel_new_handler(State(db): State<Database>) -> Html<String> {
     // Should return TechnicalPersonnelNewTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn technical_personnel_edit_handler(
@@ -191,7 +188,7 @@ async fn technical_personnel_edit_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return TechnicalPersonnelEditTemplate with personnel data
-    todo!()
+    Html::from(String::new())
 }
 
 // Handler functions for HTMX endpoints
@@ -201,7 +198,7 @@ async fn technical_personnel_api_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return TechnicalPersonnelApiDetailsTemplate with personnel data
-    todo!()
+    Html::from(String::new())
 }
 
 async fn technical_personnel_qualification_fields_handler(
@@ -209,7 +206,7 @@ async fn technical_personnel_qualification_fields_handler(
     Query(query): Query<TechnicalPersonnelQualificationQuery>,
 ) -> Html<String> {
     // Should return TechnicalPersonnelQualificationFieldsTemplate for the specific qualification
-    todo!()
+    Html::from(String::new())
 }
 
 async fn technical_personnel_update_handler(
@@ -218,7 +215,7 @@ async fn technical_personnel_update_handler(
     Form(form): Form<TechnicalPersonnelUpdateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn technical_personnel_delete_handler(
@@ -226,7 +223,7 @@ async fn technical_personnel_delete_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn technical_personnel_list_api_handler(
@@ -234,8 +231,8 @@ async fn technical_personnel_list_api_handler(
     Query(pagination): Query<Pagination>,
     Form(filter): Form<TechnicalPersonnelListFilter>,
 ) -> Html<String> {
-    // Should return TechnicalPersonnelListTemplate with filtered personnel list
-    todo!()
+    // Should return TechnicalPersonnelListApiTemplate with filtered personnel list
+    Html::from(String::new())
 }
 
 async fn technical_personnel_create_handler(
@@ -243,7 +240,7 @@ async fn technical_personnel_create_handler(
     Form(form): Form<TechnicalPersonnelCreateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 // Router setup

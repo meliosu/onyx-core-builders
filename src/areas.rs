@@ -20,22 +20,22 @@ pub enum AreaTab {
 
 // Types for page endpoints
 
-#[derive(Template)]
-#[template(path = "areas/list.html")]
+// #[derive(Template)]
+// #[template(path = "areas/list.html")]
 pub struct AreasListTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "areas/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "areas/details.html")]
 pub struct AreaDetailsTemplate {
     pub id: i64,
 }
 
-#[derive(Template)]
-#[template(path = "areas/new.html")]
+// #[derive(Template)]
+// #[template(path = "areas/new.html")]
 pub struct AreaNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "areas/edit.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "areas/edit.html")]
 pub struct AreaEditTemplate {
     pub id: i64,
     pub name: String,
@@ -52,8 +52,8 @@ pub struct AreaTabQuery {
     pub tab: AreaTab,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "areas/api/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "areas/api/details.html")]
 pub struct AreaApiDetailsTemplate {
     pub id: i64,
     pub name: String,
@@ -87,13 +87,11 @@ pub struct AreaListFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "areas/api/list.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "areas/api/list.html")]
 pub struct AreaListTemplate {
     pub areas: Vec<AreaListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
-    #[serde(flatten)]
     pub query_info: QueryInfo,
 }
 
@@ -107,11 +105,10 @@ pub struct AreaListItem {
     pub supervisor_name: Option<String>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "areas/api/sites.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "areas/api/sites.html")]
 pub struct AreaSitesTemplate {
     pub sites: Vec<SiteListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -124,11 +121,10 @@ pub struct SiteListItem {
     pub client_name: String,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "areas/api/personnel.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "areas/api/personnel.html")]
 pub struct AreaPersonnelTemplate {
     pub personnel: Vec<PersonnelListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -144,7 +140,7 @@ pub struct PersonnelListItem {
 
 async fn areas_list_handler(State(db): State<Database>) -> Html<String> {
     // Should return AreasListTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn area_details_handler(
@@ -152,12 +148,12 @@ async fn area_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return AreaDetailsTemplate with area ID
-    todo!()
+    Html::from(String::new())
 }
 
 async fn area_new_handler(State(db): State<Database>) -> Html<String> {
     // Should return AreaNewTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn area_edit_handler(
@@ -165,7 +161,7 @@ async fn area_edit_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return AreaEditTemplate with area data
-    todo!()
+    Html::from(String::new())
 }
 
 // Handler functions for HTMX endpoints
@@ -176,7 +172,7 @@ async fn area_api_details_handler(
     Query(query): Query<AreaTabQuery>,
 ) -> Html<String> {
     // Should return AreaApiDetailsTemplate with area data and the selected tab
-    todo!()
+    Html::from(String::new())
 }
 
 async fn area_update_handler(
@@ -185,7 +181,7 @@ async fn area_update_handler(
     Form(form): Form<AreaUpdateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn area_delete_handler(
@@ -193,7 +189,7 @@ async fn area_delete_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn areas_list_api_handler(
@@ -202,7 +198,7 @@ async fn areas_list_api_handler(
     Form(filter): Form<AreaListFilter>,
 ) -> Html<String> {
     // Should return AreaListTemplate with filtered areas list
-    todo!()
+    Html::from(String::new())
 }
 
 async fn area_create_handler(
@@ -210,7 +206,7 @@ async fn area_create_handler(
     Form(form): Form<AreaCreateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn area_sites_handler(
@@ -219,7 +215,7 @@ async fn area_sites_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return AreaSitesTemplate with sites in this area
-    todo!()
+    Html::from(String::new())
 }
 
 async fn area_personnel_handler(
@@ -228,7 +224,7 @@ async fn area_personnel_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return AreaPersonnelTemplate with personnel for this area
-    todo!()
+    Html::from(String::new())
 }
 
 // Router setup

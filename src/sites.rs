@@ -72,26 +72,25 @@ pub struct ParkFields {
 
 // Types for page endpoints
 
-#[derive(Template)]
-#[template(path = "sites/list.html")]
+// #[derive(Template)]
+// #[template(path = "sites/list.html")]
 pub struct SitesListTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "sites/details.html")]
 pub struct SiteDetailsTemplate {
     pub id: i64,
 }
 
-#[derive(Template)]
-#[template(path = "sites/new.html")]
+// #[derive(Template)]
+// #[template(path = "sites/new.html")]
 pub struct SiteNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/edit.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "sites/edit.html")]
 pub struct SiteEditTemplate {
     pub id: i64,
     pub name: String,
-    #[serde(rename = "type")]
     pub type_: SiteType,
     pub area_id: i64,
     pub area_name: String,
@@ -111,12 +110,11 @@ pub struct SiteTypeFieldsQuery {
     pub type_: SiteType,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/api/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "sites/api/details.html")]
 pub struct SiteApiDetailsTemplate {
     pub id: i64,
     pub name: String,
-    #[serde(rename = "type")]
     pub type_: SiteType,
     pub area_id: i64,
     pub area_name: String,
@@ -126,7 +124,6 @@ pub struct SiteApiDetailsTemplate {
     pub risk_level: RiskLevel,
     pub description: Option<String>,
     pub tab: SiteTab,
-    #[serde(flatten)]
     pub type_fields: SiteFields,
 }
 
@@ -171,13 +168,11 @@ pub struct SiteListFilter {
     pub status: Option<String>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/api/list.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "sites/api/list.html")]
 pub struct SiteListTemplate {
     pub sites: Vec<SiteListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
-    #[serde(flatten)]
     pub query_info: QueryInfo,
 }
 
@@ -196,11 +191,10 @@ pub struct SiteListItem {
     pub status: String,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/api/schedule.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "sites/api/schedule.html")]
 pub struct SiteScheduleTemplate {
     pub tasks: Vec<TaskListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -216,11 +210,10 @@ pub struct TaskListItem {
     pub status: String,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/api/materials.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "sites/api/materials.html")]
 pub struct SiteMaterialsTemplate {
     pub materials: Vec<MaterialListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -235,11 +228,10 @@ pub struct MaterialListItem {
     pub total_cost: f64,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/api/equipment.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "sites/api/equipment.html")]
 pub struct SiteEquipmentTemplate {
     pub equipment: Vec<EquipmentListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -252,11 +244,10 @@ pub struct EquipmentListItem {
     pub period_end: NaiveDateTime,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/api/brigades.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "sites/api/brigades.html")]
 pub struct SiteBrigadesTemplate {
     pub brigades: Vec<BrigadeListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -269,11 +260,10 @@ pub struct BrigadeListItem {
     pub current_task: Option<String>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/api/reports.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "sites/api/reports.html")]
 pub struct SiteReportsTemplate {
     pub reports: Vec<ReportListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
 }
 
@@ -291,7 +281,7 @@ pub struct ReportListItem {
 
 async fn sites_list_handler(State(db): State<Database>) -> Html<String> {
     // Should return SitesListTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_details_handler(
@@ -299,12 +289,12 @@ async fn site_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return SiteDetailsTemplate with site ID
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_new_handler(State(db): State<Database>) -> Html<String> {
     // Should return SiteNewTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_edit_handler(
@@ -312,7 +302,7 @@ async fn site_edit_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return SiteEditTemplate with site data
-    todo!()
+    Html::from(String::new())
 }
 
 // Handler functions for HTMX endpoints
@@ -323,7 +313,7 @@ async fn site_api_details_handler(
     Query(query): Query<SiteTabQuery>,
 ) -> Html<String> {
     // Should return SiteApiDetailsTemplate with site data and the selected tab
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_type_fields_handler(
@@ -331,7 +321,7 @@ async fn site_type_fields_handler(
     Query(query): Query<SiteTypeFieldsQuery>,
 ) -> Html<String> {
     // Should return SiteTypeFieldsTemplate with form fields specific to site type
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_update_handler(
@@ -340,7 +330,7 @@ async fn site_update_handler(
     Form(form): Form<SiteUpdateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_delete_handler(
@@ -348,7 +338,7 @@ async fn site_delete_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn sites_list_api_handler(
@@ -357,7 +347,7 @@ async fn sites_list_api_handler(
     Form(filter): Form<SiteListFilter>,
 ) -> Html<String> {
     // Should return SiteListTemplate with filtered sites list
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_create_handler(
@@ -365,7 +355,7 @@ async fn site_create_handler(
     Form(form): Form<SiteCreateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_schedule_handler(
@@ -374,7 +364,7 @@ async fn site_schedule_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return SiteScheduleTemplate with tasks for this site
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_materials_handler(
@@ -383,7 +373,7 @@ async fn site_materials_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return SiteMaterialsTemplate with materials for this site
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_equipment_handler(
@@ -392,7 +382,7 @@ async fn site_equipment_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return SiteEquipmentTemplate with equipment allocated to this site
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_brigades_handler(
@@ -401,7 +391,7 @@ async fn site_brigades_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return SiteBrigadesTemplate with brigades assigned to this site
-    todo!()
+    Html::from(String::new())
 }
 
 async fn site_reports_handler(
@@ -410,7 +400,7 @@ async fn site_reports_handler(
     Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Should return SiteReportsTemplate with reports for this site
-    todo!()
+    Html::from(String::new())
 }
 
 // Router setup

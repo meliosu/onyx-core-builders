@@ -12,22 +12,22 @@ use crate::general::{Pagination, Sort, SortDirection, QueryInfo};
 
 // Types for page endpoints
 
-#[derive(Template)]
-#[template(path = "clients/list.html")]
+// #[derive(Template)]
+// #[template(path = "clients/list.html")]
 pub struct ClientsListTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "clients/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "clients/details.html")]
 pub struct ClientDetailsTemplate {
     pub id: i64,
 }
 
-#[derive(Template)]
-#[template(path = "clients/new.html")]
+// #[derive(Template)]
+// #[template(path = "clients/new.html")]
 pub struct ClientNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "clients/edit.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "clients/edit.html")]
 pub struct ClientEditTemplate {
     pub id: i64,
     pub name: String,
@@ -37,8 +37,8 @@ pub struct ClientEditTemplate {
 
 // Types for HTMX endpoints
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "clients/api/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "clients/api/details.html")]
 pub struct ClientApiDetailsTemplate {
     pub id: i64,
     pub name: String,
@@ -88,13 +88,11 @@ pub struct ClientListFilter {
     pub is_vip: Option<bool>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "clients/api/list.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "clients/api/list.html")]
 pub struct ClientListTemplate {
     pub clients: Vec<ClientListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
-    #[serde(flatten)]
     pub query_info: QueryInfo,
 }
 
@@ -110,7 +108,7 @@ pub struct ClientListItem {
 
 async fn clients_list_handler(State(db): State<Database>) -> Html<String> {
     // Should return ClientsListTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn client_details_handler(
@@ -118,12 +116,12 @@ async fn client_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return ClientDetailsTemplate with client ID
-    todo!()
+    Html::from(String::new())
 }
 
 async fn client_new_handler(State(db): State<Database>) -> Html<String> {
     // Should return ClientNewTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn client_edit_handler(
@@ -131,7 +129,7 @@ async fn client_edit_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return ClientEditTemplate with client data
-    todo!()
+    Html::from(String::new())
 }
 
 // Handler functions for HTMX endpoints
@@ -141,7 +139,7 @@ async fn client_api_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return ClientApiDetailsTemplate with client data and linked sites
-    todo!()
+    Html::from(String::new())
 }
 
 async fn client_update_handler(
@@ -150,7 +148,7 @@ async fn client_update_handler(
     Form(form): Form<ClientUpdateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn client_delete_handler(
@@ -158,7 +156,7 @@ async fn client_delete_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn clients_list_api_handler(
@@ -167,7 +165,7 @@ async fn clients_list_api_handler(
     Form(filter): Form<ClientListFilter>,
 ) -> Html<String> {
     // Should return ClientListTemplate with filtered clients list
-    todo!()
+    Html::from(String::new())
 }
 
 async fn client_create_handler(
@@ -175,7 +173,7 @@ async fn client_create_handler(
     Form(form): Form<ClientCreateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 // Router setup

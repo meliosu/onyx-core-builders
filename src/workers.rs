@@ -50,22 +50,22 @@ pub struct MasonFields {
 
 // Types for page endpoints
 
-#[derive(Template)]
-#[template(path = "workers/list.html")]
+// #[derive(Template)]
+// #[template(path = "workers/list.html")]
 pub struct WorkersListTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "workers/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "workers/details.html")]
 pub struct WorkerDetailsTemplate {
     pub id: i64,
 }
 
-#[derive(Template)]
-#[template(path = "workers/new.html")]
+// #[derive(Template)]
+// #[template(path = "workers/new.html")]
 pub struct WorkerNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "workers/edit.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "workers/edit.html")]
 pub struct WorkerEditTemplate {
     pub id: i64,
     pub first_name: String,
@@ -80,8 +80,8 @@ pub struct WorkerProfessionQuery {
     pub profession: Profession,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "workers/api/details.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "workers/api/details.html")]
 pub struct WorkerApiDetailsTemplate {
     pub id: i64,
     pub first_name: String,
@@ -96,12 +96,11 @@ pub struct WorkerApiDetailsTemplate {
     pub brigade_id: Option<i64>,
     pub brigade_name: Option<String>,
     pub is_brigadier: bool,
-    #[serde(flatten)]
     pub profession_fields: ProfessionFields,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "workers/api/profession-fields.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "workers/api/profession-fields.html")]
 pub struct WorkerProfessionFieldsTemplate {
     pub profession: Profession,
 }
@@ -146,13 +145,11 @@ pub struct WorkerListFilter {
     pub name: Option<String>,
 }
 
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "workers/api/list.html")]
+// #[derive(Template, Serialize, Deserialize)]
+// #[template(path = "workers/api/list.html")]
 pub struct WorkerListTemplate {
     pub workers: Vec<WorkerListItem>,
-    #[serde(flatten)]
     pub pagination: Pagination,
-    #[serde(flatten)]
     pub query_info: QueryInfo,
 }
 
@@ -171,7 +168,7 @@ pub struct WorkerListItem {
 
 async fn workers_list_handler(State(db): State<Database>) -> Html<String> {
     // Should return WorkersListTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn worker_details_handler(
@@ -179,12 +176,12 @@ async fn worker_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return WorkerDetailsTemplate with worker ID
-    todo!()
+    Html::from(String::new())
 }
 
 async fn worker_new_handler(State(db): State<Database>) -> Html<String> {
     // Should return WorkerNewTemplate
-    todo!()
+    Html::from(String::new())
 }
 
 async fn worker_edit_handler(
@@ -192,7 +189,7 @@ async fn worker_edit_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return WorkerEditTemplate with worker data
-    todo!()
+    Html::from(String::new())
 }
 
 // Handler functions for HTMX endpoints
@@ -202,7 +199,7 @@ async fn worker_api_details_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return WorkerApiDetailsTemplate with worker data
-    todo!()
+    Html::from(String::new())
 }
 
 async fn worker_profession_fields_handler(
@@ -210,7 +207,7 @@ async fn worker_profession_fields_handler(
     Query(query): Query<WorkerProfessionQuery>,
 ) -> Html<String> {
     // Should return WorkerProfessionFieldsTemplate for the specific profession
-    todo!()
+    Html::from(String::new())
 }
 
 async fn worker_update_handler(
@@ -219,7 +216,7 @@ async fn worker_update_handler(
     Form(form): Form<WorkerUpdateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn worker_delete_handler(
@@ -227,7 +224,7 @@ async fn worker_delete_handler(
     Path(id): Path<i64>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 async fn workers_list_api_handler(
@@ -236,7 +233,7 @@ async fn workers_list_api_handler(
     Form(filter): Form<WorkerListFilter>,
 ) -> Html<String> {
     // Should return WorkerListTemplate with filtered workers list
-    todo!()
+    Html::from(String::new())
 }
 
 async fn worker_create_handler(
@@ -244,7 +241,7 @@ async fn worker_create_handler(
     Form(form): Form<WorkerCreateForm>,
 ) -> Html<String> {
     // Should return NotificationTemplate with success/error message
-    todo!()
+    Html::from(String::new())
 }
 
 // Router setup
