@@ -6,8 +6,9 @@ use askama::Template;
 
 use crate::database::Database;
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "site_type", rename_all = "lowercase")]
 pub enum SiteType {
     PowerPlant,
     Road,
@@ -16,23 +17,26 @@ pub enum SiteType {
     Park,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "risk_level", rename_all = "lowercase")]
 pub enum RiskLevel {
     Low,
     Meidum,
     High,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "gender", rename_all = "lowercase")]
 pub enum Gender {
     Male,
     Female,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "profession", rename_all = "lowercase")]
 pub enum Profession {
     Electrician,
     Plumber,
@@ -41,23 +45,26 @@ pub enum Profession {
     Mason,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "qualification", rename_all = "lowercase")]
 pub enum Qualification {
     Technician,
     Technologist,
     Engineer,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "position", rename_all = "lowercase")]
 pub enum Position {
     Master,
     Foreman,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type)]
 #[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "fuel_type", rename_all = "lowercase")]
 pub enum FuelType {
     Gasoline,
     Diesel,
