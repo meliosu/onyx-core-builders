@@ -1,0 +1,107 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Edit Task{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Edit Task: {{ name }}</h2>
+    </div>
+
+    <form hx-put="/api/tasks/{{ id }}" 
+          hx-target="#notification-container"
+          class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Task Name <span class="text-error">*</span></label>
+                <input type="text" id="name" name="name" required value="{{ name }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="site_id" class="block text-sm font-medium text-gray-700 mb-1">Site <span class="text-error">*</span></label>
+                <div class="flex gap-2">
+                    <input type="hidden" id="site_id" name="site_id" required value="{{ site_id }}">
+                    <input type="text" id="site_display" readonly value="{{ site_name }}" 
+                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
+                    <button type="button" 
+                            hx-get="/api/selectors/sites" 
+                            hx-target="#site-selector-modal"
+                            class="bg-custom-primary text-white px-4 py-2 rounded">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <label for="brigade_id" class="block text-sm font-medium text-gray-700 mb-1">Brigade <span class="text-error">*</span></label>
+                <div class="flex gap-2">
+                    <input type="hidden" id="brigade_id" name="brigade_id" required value="{% if let Some(id) = brigade_id %}{{ id }}{% endif %}">
+                    <input type="text" id="brigade_display" readonly 
+                           value="{% if let Some(name) = brigader_name %}{{ name }}{% endif %}"
+                           placeholder="Select brigade" 
+                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
+                    <button type="button" 
+                            hx-get="/api/selectors/brigades" 
+                            hx-target="#brigade-selector-modal"
+                            class="bg-custom-primary text-white px-4 py-2 rounded">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <label for="period_start" class="block text-sm font-medium text-gray-700 mb-1">Start Date <span class="text-error">*</span></label>
+                <input type="date" id="period_start" name="period_start" required 
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="expected_period_end" class="block text-sm font-medium text-gray-700 mb-1">Expected End Date <span class="text-error">*</span></label>
+                <input type="date" id="expected_period_end" name="expected_period_end" required 
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div class="col-span-2">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea id="description" name="description" rows="3" 
+                          class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"></textarea>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4 pt-4 border-t">
+            <a href="/tasks/{{ id }}" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">Cancel</a>
+            <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Selector modal placeholders -->
+<div id="site-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <!-- Site selector will be loaded here -->
+</div>
+
+<div id="brigade-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <!-- Brigade selector will be loaded here -->
+</div>
+
+<!-- Notification container -->
+<div id="notification-container"></div>
+
+<script>
+// Minimal JS for handling selectors
+function selectSite(id, name) {
+    document.getElementById('site_id').value = id;
+    document.getElementById('site_display').value = name;
+    document.getElementById('site-selector-modal').classList.add('hidden');
+}
+
+function selectBrigade(id, name) {
+    document.getElementById('brigade_id').value = id;
+    document.getElementById('brigade_display').value = name;
+    document.getElementById('brigade-selector-modal').classList.add('hidden');
+}
+</script>
+{% endblock %}

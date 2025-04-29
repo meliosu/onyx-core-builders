@@ -1,0 +1,138 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Technical Personnel{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Technical Personnel List</h2>
+        <a href="/technical-personnel/new" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+            <i class="fas fa-plus mr-2"></i> New Technical Personnel
+        </a>
+    </div>
+
+    <div class="mb-4">
+        <form hx-get="/api/technical-personnel" 
+              hx-target="#technical-personnel-list"
+              hx-trigger="submit"
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input type="text" id="name" name="name" placeholder="Search by name" 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            
+            <div>
+                <label for="qualification" class="block text-sm font-medium text-gray-700 mb-1">Qualification</label>
+                <select id="qualification" name="qualification" class="px-3 py-2 border rounded w-full">
+                    <option value="">All Qualifications</option>
+                    <option value="technician">Technician</option>
+                    <option value="technologist">Technologist</option>
+                    <option value="engineer">Engineer</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                <select id="position" name="position" class="px-3 py-2 border rounded w-full">
+                    <option value="">All Positions</option>
+                    <option value="master">Master</option>
+                    <option value="foreman">Foreman</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="department_id" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                <div class="flex gap-2">
+                    <input type="hidden" id="department_id" name="department_id">
+                    <input type="text" id="department_display" readonly placeholder="Select department" 
+                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
+                    <button type="button" 
+                            hx-get="/api/selectors/departments" 
+                            hx-target="#department-selector-modal"
+                            class="bg-custom-primary text-white px-4 py-2 rounded">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <label for="area_id" class="block text-sm font-medium text-gray-700 mb-1">Area</label>
+                <div class="flex gap-2">
+                    <input type="hidden" id="area_id" name="area_id">
+                    <input type="text" id="area_display" readonly placeholder="Select area" 
+                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
+                    <button type="button" 
+                            hx-get="/api/selectors/areas" 
+                            hx-target="#area-selector-modal"
+                            class="bg-custom-primary text-white px-4 py-2 rounded">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <label for="sort_by" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                <select id="sort_by" name="sort_by" class="px-3 py-2 border rounded w-full">
+                    <option value="last_name">Last Name</option>
+                    <option value="first_name">First Name</option>
+                    <option value="qualification">Qualification</option>
+                    <option value="position">Position</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="sort_direction" class="block text-sm font-medium text-gray-700 mb-1">Sort Direction</label>
+                <select id="sort_direction" name="sort_direction" class="px-3 py-2 border rounded w-full">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+            
+            <div class="flex items-end">
+                <button type="submit" class="bg-custom-primary text-white px-4 py-2 rounded font-medium hover:bg-opacity-90 w-full">
+                    <i class="fas fa-search mr-2"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="technical-personnel-list" 
+         hx-get="/api/technical-personnel" 
+         hx-trigger="load"
+         hx-vals='{"page_number": 1, "page_size": 10, "sort_by": "last_name", "sort_direction": "asc"}'
+         class="min-h-[300px]">
+        <!-- Technical personnel list will be loaded here via HTMX -->
+        <div class="flex justify-center items-center h-[300px]">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-custom-secondary"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Selector modal placeholders -->
+<div id="department-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <!-- Department selector will be loaded here -->
+</div>
+
+<div id="area-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <!-- Area selector will be loaded here -->
+</div>
+
+<!-- Notification container -->
+<div id="notification-container"></div>
+
+<script>
+// Minimal JS for handling selectors
+function selectDepartment(id, name) {
+    document.getElementById('department_id').value = id;
+    document.getElementById('department_display').value = name;
+    document.getElementById('department-selector-modal').classList.add('hidden');
+}
+
+function selectArea(id, name) {
+    document.getElementById('area_id').value = id;
+    document.getElementById('area_display').value = name;
+    document.getElementById('area-selector-modal').classList.add('hidden');
+}
+</script>
+{% endblock %}

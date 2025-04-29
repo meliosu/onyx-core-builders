@@ -1,0 +1,149 @@
+<div class="bg-white shadow rounded-lg">
+    <div class="p-6 border-b">
+        <div class="flex justify-between">
+            <div>
+                <h2 class="text-xl font-semibold mb-4">{{ first_name }} {{ last_name }}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                    <div class="col-span-full flex items-center mb-4">
+                        <div class="h-24 w-24 rounded-full bg-gray-200 overflow-hidden mr-4 flex items-center justify-center">
+                            {% if let Some(photo_url) = photo %}
+                                <img src="{{ photo_url }}" alt="{{ first_name }} {{ last_name }}" class="h-full w-full object-cover">
+                            {% else %}
+                                <i class="fas fa-user-tie text-4xl text-gray-400"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">Full Name:</span> 
+                                {{ first_name }} 
+                                {% if let Some(middle) = middle_name %}{{ middle }} {% endif %}
+                                {{ last_name }}
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">Gender:</span>
+                                {% match gender %}
+                                    {% when Gender::Male %}Male
+                                    {% when Gender::Female %}Female
+                                {% endmatch %}
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">Phone:</span> {{ phone_number }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Qualification:</span>
+                            {% match qualification %}
+                                {% when Qualification::Technician %}
+                                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">
+                                        Technician
+                                    </span>
+                                {% when Qualification::Technologist %}
+                                    <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                        Technologist
+                                    </span>
+                                {% when Qualification::Engineer %}
+                                    <span class="inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-600/20">
+                                        Engineer
+                                    </span>
+                            {% endmatch %}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Position:</span>
+                            {% match position %}
+                                {% when Position::Master %}Master
+                                {% when Position::Foreman %}Foreman
+                            {% endmatch %}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Salary:</span> ${{ salary }}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Education Level:</span> {{ education_level }}
+                        </p>
+                    </div>
+                    
+                    {% if let Some(skills) = software_skills %}
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Software Skills:</span> {{ skills }}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Project Manager:</span> 
+                            {% if is_project_manager %}Yes{% else %}No{% endif %}
+                        </p>
+                    </div>
+                    
+                    {% if let Some(dept_id) = supervising_department_id %}
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Supervising Department:</span> 
+                            <a href="/departments/{{ dept_id }}" class="text-custom-primary hover:underline">
+                                {% if let Some(dept_name) = supervising_department_name %}{{ dept_name }}{% else %}Department #{{ dept_id }}{% endif %}
+                            </a>
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if let Some(area_id) = supervising_area_id %}
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Supervising Area:</span> 
+                            <a href="/areas/{{ area_id }}" class="text-custom-primary hover:underline">
+                                {% if let Some(area_name) = supervising_area_name %}{{ area_name }}{% else %}Area #{{ area_id }}{% endif %}
+                            </a>
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Qualification-specific details section -->
+                <div class="mt-6 pt-4 border-t">
+                    <h3 class="text-md font-semibold mb-2">Qualification Details</h3>
+                    
+                    {% match qualification_fields %}
+                        {% when QualificationFields::Technician(fields) %}
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">Safety Training Level:</span> {{ fields.safety_training_level }}
+                            </p>
+                        {% when QualificationFields::Technologist(fields) %}
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">Management Tools:</span> {{ fields.management_tools }}
+                            </p>
+                        {% when QualificationFields::Engineer(fields) %}
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">PE License ID:</span> {{ fields.pe_license_id }}
+                            </p>
+                    {% endmatch %}
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <a href="/technical-personnel/{{ id }}/edit" 
+                   class="bg-custom-primary text-white px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                    <i class="fas fa-edit mr-2"></i> Edit
+                </a>
+                <button hx-delete="/api/technical-personnel/{{ id }}"
+                        hx-confirm="Are you sure you want to delete this technical personnel? This action cannot be undone."
+                        hx-target="#notification-container"
+                        class="bg-error text-white px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                    <i class="fas fa-trash-alt mr-2"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

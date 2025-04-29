@@ -1,0 +1,65 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Edit Client{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Edit Client: {{ name }}</h2>
+    </div>
+
+    <form hx-put="/api/clients/{{ id }}" 
+          hx-target="#notification-container"
+          class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Client Name <span class="text-error">*</span></label>
+                <input type="text" id="name" name="name" required value="{{ name }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="inn" class="block text-sm font-medium text-gray-700 mb-1">INN <span class="text-error">*</span></label>
+                <input type="number" id="inn" name="inn" required value="{{ inn }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div class="col-span-2">
+                <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address <span class="text-error">*</span></label>
+                <input type="text" id="address" name="address" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="contact_person_name" class="block text-sm font-medium text-gray-700 mb-1">Contact Person <span class="text-error">*</span></label>
+                <input type="text" id="contact_person_name" name="contact_person_name" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="contact_person_email" class="block text-sm font-medium text-gray-700 mb-1">Contact Email <span class="text-error">*</span></label>
+                <input type="email" id="contact_person_email" name="contact_person_email" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div class="col-span-2 flex items-center">
+                <input type="checkbox" id="is_vip" name="is_vip" value="true" {% if is_vip %}checked{% endif %}
+                       class="h-5 w-5 text-custom-secondary border-gray-300 rounded focus:ring-custom-secondary">
+                <label for="is_vip" class="ml-2 block text-sm text-gray-900">
+                    VIP Client
+                </label>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4 pt-4 border-t">
+            <a href="/clients/{{ id }}" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">Cancel</a>
+            <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Notification container -->
+<div id="notification-container"></div>
+{% endblock %}

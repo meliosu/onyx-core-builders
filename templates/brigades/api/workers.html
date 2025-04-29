@@ -1,0 +1,157 @@
+{% if workers.is_empty() %}
+<div class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+    <i class="fas fa-users-slash text-4xl mb-3"></i>
+    <p>No workers have been assigned to this brigade yet.</p>
+    <p class="mt-2">
+        <button onclick="document.getElementById('add-worker-modal').classList.remove('hidden')" class="text-custom-secondary hover:underline">
+            Add workers to this brigade
+        </button>
+    </p>
+</div>
+{% else %}
+<div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-300">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                    ID
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Name
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Profession
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Role
+                </th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <span class="sr-only">Actions</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+            {% for worker in workers %}
+            <tr class="hover:bg-gray-50">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
+                    {{ worker.id }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {{ worker.name }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {% match worker.profession %}
+                        {% when Profession::Electrician %}
+                            <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-600/20">
+                                Electrician
+                            </span>
+                        {% when Profession::Plumber %}
+                            <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">
+                                Plumber
+                            </span>
+                        {% when Profession::Welder %}
+                            <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                                Welder
+                            </span>
+                        {% when Profession::Driver %}
+                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                Driver
+                            </span>
+                        {% when Profession::Mason %}
+                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">
+                                Mason
+                            </span>
+                    {% endmatch %}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {% if worker.is_brigadier %}
+                        <span class="inline-flex items-center rounded-md bg-custom-secondary px-2 py-1 text-xs font-medium text-custom-primary ring-1 ring-inset ring-custom-secondary/20">
+                            Brigadier
+                        </span>
+                    {% else %}
+                        <span class="text-gray-400">Worker</span>
+                    {% endif %}
+                </td>
+                <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
+                    <div class="flex justify-end space-x-2">
+                        <a href="/workers/{{ worker.id }}" class="text-custom-primary hover:text-custom-secondary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        {% if not worker.is_brigadier %}
+                            <button hx-delete="/api/brigades/{{ id }}/workers/{{ worker.id }}"
+                                    hx-confirm="Are you sure you want to remove this worker from the brigade?"
+                                    hx-target="#workers-content"
+                                    class="text-error hover:text-opacity-70">
+                                <i class="fas fa-user-minus"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+    <div class="flex flex-1 justify-between sm:hidden">
+        {% if pagination.page_number > 1 %}
+        <button
+            hx-get="/api/brigades/{{ id }}/workers"
+            hx-target="#workers-content"
+            hx-vals='{"page_number": {{ pagination.page_number - 1 }}, "page_size": {{ pagination.page_size }}}'
+            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+            Previous
+        </button>
+        {% endif %}
+        
+        <button
+            hx-get="/api/brigades/{{ id }}/workers"
+            hx-target="#workers-content"
+            hx-vals='{"page_number": {{ pagination.page_number + 1 }}, "page_size": {{ pagination.page_size }}}'
+            class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+            Next
+        </button>
+    </div>
+    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm text-gray-700">
+                Showing page <span class="font-medium">{{ pagination.page_number }}</span>
+            </p>
+        </div>
+        <div>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                {% if pagination.page_number > 1 %}
+                <button
+                    hx-get="/api/brigades/{{ id }}/workers"
+                    hx-target="#workers-content"
+                    hx-vals='{"page_number": {{ pagination.page_number - 1 }}, "page_size": {{ pagination.page_size }}}'
+                    class="relative inline-flex items-center rounded-l-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                >
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                {% endif %}
+                
+                <!-- We show a simpler pagination here since we don't have query_info -->
+                <span
+                    class="relative z-10 inline-flex items-center bg-custom-primary text-white px-4 py-2 text-sm font-semibold focus:z-20"
+                >
+                    {{ pagination.page_number }}
+                </span>
+                
+                <button
+                    hx-get="/api/brigades/{{ id }}/workers"
+                    hx-target="#workers-content"
+                    hx-vals='{"page_number": {{ pagination.page_number + 1 }}, "page_size": {{ pagination.page_size }}}'
+                    class="relative inline-flex items-center rounded-r-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                >
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endif %}

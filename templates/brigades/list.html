@@ -1,0 +1,117 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Brigades{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Brigades List</h2>
+        <a href="/brigades/new" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+            <i class="fas fa-plus mr-2"></i> New Brigade
+        </a>
+    </div>
+
+    <div class="mb-4">
+        <form hx-get="/api/brigades" 
+              hx-target="#brigades-list"
+              hx-trigger="submit"
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+                <label for="brigadier_id" class="block text-sm font-medium text-gray-700 mb-1">Brigadier</label>
+                <div class="flex gap-2">
+                    <input type="hidden" id="brigadier_id" name="brigadier_id">
+                    <input type="text" id="brigadier_display" readonly placeholder="Select brigadier" 
+                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
+                    <button type="button" 
+                            hx-get="/api/selectors/workers?is_brigadier=true" 
+                            hx-target="#worker-selector-modal"
+                            class="bg-custom-primary text-white px-4 py-2 rounded">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <label for="site_id" class="block text-sm font-medium text-gray-700 mb-1">Site</label>
+                <div class="flex gap-2">
+                    <input type="hidden" id="site_id" name="site_id">
+                    <input type="text" id="site_display" readonly placeholder="Select site" 
+                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
+                    <button type="button" 
+                            hx-get="/api/selectors/sites" 
+                            hx-target="#site-selector-modal"
+                            class="bg-custom-primary text-white px-4 py-2 rounded">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <label for="task_name" class="block text-sm font-medium text-gray-700 mb-1">Task Name</label>
+                <input type="text" id="task_name" name="task_name" placeholder="Filter by task name" 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            
+            <div>
+                <label for="sort_by" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                <select id="sort_by" name="sort_by" class="px-3 py-2 border rounded w-full">
+                    <option value="brigadier_name">Brigadier Name</option>
+                    <option value="worker_count">Worker Count</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="sort_direction" class="block text-sm font-medium text-gray-700 mb-1">Sort Direction</label>
+                <select id="sort_direction" name="sort_direction" class="px-3 py-2 border rounded w-full">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+            
+            <div class="flex items-end">
+                <button type="submit" class="bg-custom-primary text-white px-4 py-2 rounded font-medium hover:bg-opacity-90 w-full">
+                    <i class="fas fa-search mr-2"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="brigades-list" 
+         hx-get="/api/brigades" 
+         hx-trigger="load"
+         hx-vals='{"page_number": 1, "page_size": 10, "sort_by": "brigadier_name", "sort_direction": "asc"}'
+         class="min-h-[300px]">
+        <!-- Brigades list will be loaded here via HTMX -->
+        <div class="flex justify-center items-center h-[300px]">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-custom-secondary"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Selector modal placeholders -->
+<div id="worker-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <!-- Worker selector will be loaded here -->
+</div>
+
+<div id="site-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <!-- Site selector will be loaded here -->
+</div>
+
+<!-- Notification container -->
+<div id="notification-container"></div>
+
+<script>
+// Minimal JS for handling selectors
+function selectWorker(id, name) {
+    document.getElementById('brigadier_id').value = id;
+    document.getElementById('brigadier_display').value = name;
+    document.getElementById('worker-selector-modal').classList.add('hidden');
+}
+
+function selectSite(id, name) {
+    document.getElementById('site_id').value = id;
+    document.getElementById('site_display').value = name;
+    document.getElementById('site-selector-modal').classList.add('hidden');
+}
+</script>
+{% endblock %}
