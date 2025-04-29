@@ -231,7 +231,7 @@ async fn client_api_details_handler(
             return Html::from(format!("<p>Client with ID {} not found</p>", id));
         }
         Err(e) => {
-            return Html::from(format!("<p>Error fetching client details: {}</p>", e)),
+            return Html::from(format!("<p>Error fetching client details: {}</p>", e));
         }
     };
 
@@ -254,7 +254,7 @@ async fn client_api_details_handler(
     let sites = match sites_query {
         Ok(sites) => sites,
         Err(e) => {
-            return Html::from(format!("<p>Error fetching client sites: {}</p>", e)),
+            return Html::from(format!("<p>Error fetching client sites: {}</p>", e));
         }
     };
 
@@ -467,8 +467,12 @@ async fn clients_list_api_handler(
 
     // Add sort direction
     match filter.sort.sort_direction {
-        SortDirection::Ascending => query_builder.push(" ASC"),
-        SortDirection::Descending => query_builder.push(" DESC"),
+        SortDirection::Ascending => {
+            query_builder.push(" ASC");
+        },
+        SortDirection::Descending => {
+            query_builder.push(" DESC");
+        },
     }
 
     // Add pagination

@@ -333,10 +333,11 @@ async fn brigade_update_handler(
             )
             .bind(form.brigadier_id)
             .fetch_optional(&*db.pool)
-            .await;
+            .await
+            .ok()
+            .flatten();
             
-            let worker_name = worker_name.unwrap_or_else(|_| "Unknown worker".to_string())
-                .unwrap_or_else(|| "Unknown worker".to_string());
+            let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
             
             let (result, message) = match update_result {
                 Ok(_) => (
@@ -547,8 +548,12 @@ async fn brigades_list_api_handler(
 
     // Add sort direction
     match filter.sort.sort_direction {
-        SortDirection::Ascending => query_builder.push(" ASC"),
-        SortDirection::Descending => query_builder.push(" DESC"),
+        SortDirection::Ascending => {
+            query_builder.push(" ASC");
+        },
+        SortDirection::Descending => {
+            query_builder.push(" DESC");
+        },
     }
 
     // Add pagination
@@ -613,10 +618,11 @@ async fn brigade_create_handler(
             )
             .bind(form.brigadier_id)
             .fetch_optional(&*db.pool)
-            .await;
+            .await
+            .ok()
+            .flatten();
             
-            let worker_name = worker_name.unwrap_or_else(|_| "Unknown worker".to_string())
-                .unwrap_or_else(|| "Unknown worker".to_string());
+            let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
                 
             // Create notification based on result
             let (notification_result, message, redirect) = match result {
@@ -781,10 +787,11 @@ async fn worker_add_handler(
             )
             .bind(form.worker_id)
             .fetch_optional(&*db.pool)
-            .await;
+            .await
+            .ok()
+            .flatten();
             
-            let worker_name = worker_name.unwrap_or_else(|_| "Unknown worker".to_string())
-                .unwrap_or_else(|| "Unknown worker".to_string());
+            let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
             
             // Create notification based on result
             let (notification_result, message) = match result {
@@ -874,10 +881,11 @@ async fn worker_remove_handler(
             )
             .bind(worker_id)
             .fetch_optional(&*db.pool)
-            .await;
+            .await
+            .ok()
+            .flatten();
             
-            let worker_name = worker_name.unwrap_or_else(|_| "Unknown worker".to_string())
-                .unwrap_or_else(|| "Unknown worker".to_string());
+            let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
             
             // Create notification based on result
             let (notification_result, message) = match result {

@@ -24,7 +24,7 @@ pub fn router() -> axum::Router<database::Database> {
         .merge(areas::router())
         .merge(sites::router())
         .merge(workers::router())
-        .merge(tehcnical_personnel::router())
+        .merge(technical_personnel::router())
         .merge(equipment::router())
         .merge(clients::router())
         .merge(brigades::router())

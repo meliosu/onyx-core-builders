@@ -461,8 +461,12 @@ async fn equipment_list_api_handler(
 
     // Add sort direction
     match filter.sort.sort_direction {
-        SortDirection::Ascending => query_builder.push(" ASC"),
-        SortDirection::Descending => query_builder.push(" DESC"),
+        SortDirection::Ascending => {
+            query_builder.push(" ASC");
+        },
+        SortDirection::Descending => {
+            query_builder.push(" DESC");
+        },
     }
 
     // Add pagination

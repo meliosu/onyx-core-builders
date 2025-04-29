@@ -77,7 +77,7 @@
                         <a href="/workers/{{ worker.id }}" class="text-custom-primary hover:text-custom-secondary">
                             <i class="fas fa-eye"></i>
                         </a>
-                        {% if not worker.is_brigadier %}
+                        {% if !worker.is_brigadier %}
                             <button hx-delete="/api/brigades/{{ id }}/workers/{{ worker.id }}"
                                     hx-confirm="Are you sure you want to remove this worker from the brigade?"
                                     hx-target="#workers-content"

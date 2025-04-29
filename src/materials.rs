@@ -219,14 +219,14 @@ async fn material_api_details_handler(
     };
 
     // Calculate usage statistics
-    let usage_stats = sqlx::query!(
+    let usage_stats = sqlx::query(
         "SELECT 
             COALESCE(SUM(e.expected_amount), 0) as total_estimated,
             COALESCE(SUM(e.actual_amount), 0) as total_actual
         FROM expenditure e
         WHERE e.material_id = $1",
-        id
     )
+    .bind(id)
     .fetch_one(&*db.pool)
     .await;
 
@@ -437,8 +437,12 @@ async fn materials_list_api_handler(
 
     // Add sort direction
     match filter.sort.sort_direction {
-        SortDirection::Ascending => query_builder.push(" ASC"),
-        SortDirection::Descending => query_builder.push(" DESC"),
+        SortDirection::Ascending => {
+            query_builder.push(" ASC");
+        },
+        SortDirection::Descending => {
+            query_builder.push(" DESC");
+        },
     }
 
     // Add pagination
