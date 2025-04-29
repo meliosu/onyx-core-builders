@@ -7,7 +7,7 @@ mod departments;
 mod areas;
 mod sites;
 mod workers;
-mod tehcnical_personnel;
+mod technical_personnel;
 mod equipment;
 mod clients;
 mod brigades;
