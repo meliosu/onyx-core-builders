@@ -260,7 +260,7 @@ async fn area_api_details_handler(
             return Html::from(format!("<p>Area with ID {} not found</p>", id));
         }
         Err(e) => {
-            return Html::from(format!("<p>Error fetching area details: {}</p>", e)),
+            return Html::from(format!("<p>Error fetching area details: {}</p>", e));
         }
     };
 

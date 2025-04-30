@@ -70,7 +70,7 @@
                             {% if let Some(area_name) = person.area_name %}{{ area_name }}{% else %}Area #{{ area_id }}{% endif %}
                         </a>
                     {% endif %}
-                    {% if person.department_id.is_none() and person.area_id.is_none() %}
+                    {% if person.department_id.is_none() && person.area_id.is_none() %}
                         <span class="text-gray-400">Not assigned</span>
                     {% endif %}
                 </td>

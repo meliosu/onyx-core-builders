@@ -15,10 +15,14 @@
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">
+                            {% if brigade_id.is_some() && brigade_name.is_some() %}
                             <span class="font-medium">Brigade:</span> 
-                            <a href="/brigades/{{ brigade_id }}" class="text-custom-primary hover:underline">
-                                {{ brigade_name }}
+                            <a href="/brigades/{{ brigade_id.unwrap() }}" class="text-custom-primary hover:underline">
+                                {{ brigade_name.unwrap() }}
                             </a>
+                            {% else %}
+                                Unassigned
+                            {% endif %}
                         </p>
                     </div>
                     <div>

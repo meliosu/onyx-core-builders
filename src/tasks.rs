@@ -570,9 +570,15 @@ async fn tasks_list_api_handler(
         }
 
         match status {
-            TaskStatus::Completed => query_builder.push("t.actual_period_end IS NOT NULL"),
-            TaskStatus::InProgress => query_builder.push("t.actual_period_end IS NULL AND t.brigade_id IS NOT NULL"),
-            TaskStatus::Planned => query_builder.push("t.brigade_id IS NULL"),
+            TaskStatus::Completed => {
+                query_builder.push("t.actual_period_end IS NOT NULL");
+            },
+            TaskStatus::InProgress => {
+                query_builder.push("t.actual_period_end IS NULL AND t.brigade_id IS NOT NULL");
+            },
+            TaskStatus::Planned => {
+                query_builder.push("t.brigade_id IS NULL");
+            },
         }
     }
 
@@ -628,8 +634,12 @@ async fn tasks_list_api_handler(
 
     // Add sort direction
     match filter.sort.sort_direction {
-        SortDirection::Ascending => query_builder.push(" ASC"),
-        SortDirection::Descending => query_builder.push(" DESC"),
+        SortDirection::Ascending => {
+            query_builder.push(" ASC");
+        },
+        SortDirection::Descending => {
+            query_builder.push(" DESC");
+        },
     }
 
     // Add pagination

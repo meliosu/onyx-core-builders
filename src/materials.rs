@@ -38,7 +38,7 @@ pub struct MaterialEditTemplate {
 
 // Types for HTMX endpoints
 
-#[derive(Template, Serialize, Deserialize)]
+#[derive(Template, Serialize, Deserialize, sqlx::FromRow)]
 #[template(path = "materials/api/details.html")]
 pub struct MaterialApiDetailsTemplate {
     pub id: i32,
@@ -214,12 +214,12 @@ async fn material_api_details_handler(
             return Html::from(format!("<p>Material with ID {} not found</p>", id));
         }
         Err(e) => {
-            return Html::from(format!("<p>Error fetching material details: {}</p>", e)),
+            return Html::from(format!("<p>Error fetching material details: {}</p>", e));
         }
     };
 
     // Calculate usage statistics
-    let usage_stats = sqlx::query(
+    let usage_stats = sqlx::query_as::<_, MaterialApiDetailsTemplate>(
         "SELECT 
             COALESCE(SUM(e.expected_amount), 0) as total_estimated,
             COALESCE(SUM(e.actual_amount), 0) as total_actual
@@ -232,13 +232,13 @@ async fn material_api_details_handler(
 
     let (total_estimated, total_actual, total_cost) = match usage_stats {
         Ok(stats) => {
-            let estimated = stats.total_estimated.unwrap_or(0.0);
-            let actual = stats.total_actual.unwrap_or(0.0);
+            let estimated = stats.total_estimated;
+            let actual = stats.total_actual;
             let cost = actual * material.cost;
             (estimated, actual, cost)
         },
         Err(e) => {
-            return Html::from(format!("<p>Error fetching usage statistics: {}</p>", e)),
+            return Html::from(format!("<p>Error fetching usage statistics: {}</p>", e));
         }
     };
 

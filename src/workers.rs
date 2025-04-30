@@ -687,14 +687,14 @@ async fn worker_update_handler(
     match (current_assignment, is_brigadier) {
         (Ok(current_brigade), Ok(is_brigadier_value)) => {
             // If worker is a brigadier, they can't be assigned to a different brigade
-            if is_brigadier_value && form.brigade_id.is_some() && form.brigade_id != current_brigade {
+            if is_brigadier_value && form.brigade_id.is_some() && form.brigade_id != current_brigade.flatten() {
                 let _ = tx.rollback().await;
-                return Html::from("<p>Error: Brigadier cannot be assigned to a different brigade</p>");
+                return Html::from("<p>Error: Brigadier cannot be assigned to a different brigade</p>".to_string());
             }
 
             // Handle brigade assignment changes
             match (current_brigade, form.brigade_id) {
-                (Some(current), Some(new)) if current != new => {
+                (Some(current), Some(new)) if current != Some(new) => {
                     // Remove from current brigade
                     if let Err(e) = sqlx::query("DELETE FROM assignment WHERE worker_id = $1")
                         .bind(id)
@@ -978,8 +978,12 @@ async fn workers_list_api_handler(
 
     // Add sort direction
     match filter.sort.sort_direction {
-        SortDirection::Ascending => query_builder.push(" ASC"),
-        SortDirection::Descending => query_builder.push(" DESC"),
+        SortDirection::Ascending => {
+            query_builder.push(" ASC");
+        },
+        SortDirection::Descending => {
+            query_builder.push(" DESC");
+        },
     }
 
     // Add pagination

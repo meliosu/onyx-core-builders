@@ -122,7 +122,7 @@
                             {% endmatch %}
                         </td>
                         <td class="whitespace-nowrap px-3 py-4 text-sm">
-                            {% match site.status %}
+                            {% match site.status.as_str() %}
                                 {% when "planned" %}
                                     <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-800 ring-1 ring-inset ring-blue-600/20">
                                         Planned
