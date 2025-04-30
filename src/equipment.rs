@@ -101,6 +101,7 @@ pub struct EquipmentListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "equipment/api/allocations.html")]
 pub struct EquipmentAllocationsTemplate {
+    pub id: i32,
     pub allocations: Vec<AllocationListItem>,
     pub pagination: Pagination,
 }
@@ -113,7 +114,7 @@ pub struct AllocationListItem {
     pub site_name: Option<String>,
     pub amount: u32,
     pub period_start: NaiveDateTime,
-    pub period_end: Option<NaiveDateTime>,
+    pub period_end: NaiveDateTime,
     pub is_current: bool,
 }
 
@@ -123,7 +124,7 @@ pub struct EquipmentAllocationForm {
     pub site_id: Option<i32>,
     pub amount: u32,
     pub period_start: NaiveDateTime,
-    pub period_end: Option<NaiveDateTime>,
+    pub period_end: NaiveDateTime,
 }
 
 // Handler functions for page endpoints
@@ -570,7 +571,7 @@ struct AllocationRow {
     site_name: Option<String>,
     amount: i32,
     period_start: NaiveDateTime,
-    period_end: Option<NaiveDateTime>,
+    period_end: NaiveDateTime,
     is_current: bool,
 }
 
@@ -614,6 +615,7 @@ async fn equipment_allocations_handler(
     }).collect();
 
     let template = EquipmentAllocationsTemplate { 
+        id,
         allocations: allocation_items,
         pagination,
     };

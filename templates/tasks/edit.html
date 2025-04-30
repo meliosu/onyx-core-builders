@@ -38,7 +38,7 @@
                 <div class="flex gap-2">
                     <input type="hidden" id="brigade_id" name="brigade_id" required value="{% if let Some(id) = brigade_id %}{{ id }}{% endif %}">
                     <input type="text" id="brigade_display" readonly 
-                           value="{% if let Some(name) = brigader_name %}{{ name }}{% endif %}"
+                           value="{% if let Some(name) = brigadier_name %}{{ name }}{% endif %}"
                            placeholder="Select brigade" 
                            class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
                     <button type="button" 

@@ -17,8 +17,8 @@
                         <p class="text-sm text-gray-600">
                             {% if brigade_id.is_some() && brigade_name.is_some() %}
                             <span class="font-medium">Brigade:</span> 
-                            <a href="/brigades/{{ brigade_id.unwrap() }}" class="text-custom-primary hover:underline">
-                                {{ brigade_name.unwrap() }}
+                            <a href="/brigades/{{ brigade_id.as_ref().unwrap() }}" class="text-custom-primary hover:underline">
+                                {{ brigade_name.as_ref().unwrap() }}
                             </a>
                             {% else %}
                                 Unassigned
@@ -175,7 +175,7 @@
                                     This task was completed on {{ actual_period_end.unwrap().format("%B %d, %Y") }}.
                                     {% if actual_period_end.unwrap() > expected_period_end %}
                                         <span class="text-red-500">
-                                            ({{ (actual_period_end.unwrap().signed_duration_since(expected_period_end).num_days()) }} days late)
+                                            ({{ (actual_period_end.unwrap().signed_duration_since(*expected_period_end).num_days()) }} days late)
                                         </span>
                                     {% else %}
                                         <span class="text-green-500">

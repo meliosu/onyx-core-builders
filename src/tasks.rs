@@ -53,7 +53,7 @@ pub struct TaskEditTemplate {
     pub site_id: i32,
     pub site_name: String,
     pub brigade_id: Option<i32>,
-    pub brigade_name: Option<String>,
+    pub brigadier_name: Option<String>,
     pub period_start: NaiveDate,
     pub expected_period_end: NaiveDate,
 }
@@ -130,7 +130,7 @@ pub struct TaskListItem {
     pub site_id: i32,
     pub site_name: String,
     pub brigade_id: Option<i32>,
-    pub brigade_name: Option<String>,
+    pub brigadier_name: Option<String>,
     pub period_start: NaiveDate,
     pub expected_period_end: NaiveDate,
     pub actual_period_end: Option<NaiveDate>,
@@ -141,6 +141,7 @@ pub struct TaskListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "tasks/api/materials.html")]
 pub struct TaskMaterialsTemplate {
+    pub id: i32,
     pub materials: Vec<TaskMaterialItem>,
     pub pagination: Pagination,
 }
@@ -258,7 +259,7 @@ async fn task_edit_handler(
         site_id: task.site_id,
         site_name: task.site_name,
         brigade_id: task.brigade_id,
-        brigade_name: task.brigade_name,
+        brigadier_name: task.brigade_name,  // Changed from brigade_name to brigadier_name
         period_start: task.period_start,
         expected_period_end: task.expected_period_end,
     };
@@ -676,7 +677,7 @@ async fn tasks_list_api_handler(
             site_id: t.site_id,
             site_name: t.site_name,
             brigade_id: t.brigade_id,
-            brigade_name: t.brigade_name,
+            brigadier_name: t.brigade_name,  // Changed from brigade_name to brigadier_name
             period_start: t.period_start,
             expected_period_end: t.expected_period_end,
             actual_period_end: t.actual_period_end,
@@ -870,6 +871,7 @@ async fn task_materials_handler(
     }).collect();
 
     let template = TaskMaterialsTemplate {
+        id,
         materials: material_items,
         pagination,
     };

@@ -45,7 +45,7 @@
         </thead>
         <tbody class="divide-y divide-gray-200 bg-white">
             {% for material in materials %}
-            <tr class="hover:bg-gray-50 {% if material.excess.is_some() && material.excess.unwrap() > 0 %}bg-red-50{% endif %}">
+            <tr class="hover:bg-gray-50 {% if material.excess.is_some() && material.excess.unwrap() > 0f64 %}bg-red-50{% endif %}">
                 <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
                     {{ material.name }}
                 </td>
@@ -61,7 +61,7 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm">
                     {% if let Some(excess) = material.excess %}
-                        {% if excess > 0 %}
+                        {% if *excess > 0f64 %}
                             <span class="text-red-600 font-semibold">+{{ excess }} {{ material.units }}</span>
                         {% else %}
                             <span class="text-green-600 font-semibold">{{ excess }} {{ material.units }}</span>

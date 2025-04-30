@@ -106,6 +106,7 @@ pub struct BrigadeListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "brigades/api/workers.html")]
 pub struct BrigadeWorkersTemplate {
+    pub id: i32,
     pub workers: Vec<WorkerListItem>,
     pub pagination: Pagination,
 }
@@ -126,6 +127,7 @@ pub struct WorkerAddForm {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "brigades/api/tasks.html")]
 pub struct BrigadeTasksTemplate {
+    pub id: i32,
     pub tasks: Vec<TaskListItem>,
     pub pagination: Pagination,
 }
@@ -731,6 +733,7 @@ async fn brigade_workers_handler(
             let num_pages = (count as f64 / pagination.page_size as f64).ceil() as u32;
             
             let template = BrigadeWorkersTemplate {
+                id,
                 workers,
                 pagination: Pagination {
                     page_number: pagination.page_number,
@@ -987,6 +990,7 @@ async fn brigade_tasks_handler(
             let num_pages = (count as f64 / pagination.page_size as f64).ceil() as u32;
             
             let template = BrigadeTasksTemplate {
+                id,
                 tasks,
                 pagination: Pagination {
                     page_number: pagination.page_number,

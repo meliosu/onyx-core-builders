@@ -53,7 +53,7 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {% if let Some(actual_amount) = material.actual_amount %}
-                        {% if actual_amount > material.expected_amount %}
+                        {% if *actual_amount > material.expected_amount %}
                             <span class="text-error font-medium">{{ actual_amount }}</span>
                         {% else %}
                             {{ actual_amount }}

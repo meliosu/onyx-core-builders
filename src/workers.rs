@@ -77,6 +77,8 @@ pub struct WorkerEditTemplate {
     pub salary: i32,
     pub profession: Profession,
     pub union_name: Option<String>,
+    pub brigade_id: Option<i32>,
+    pub brigade_name: Option<String>,
 }
 
 // Types for HTMX endpoints
@@ -271,6 +273,35 @@ async fn worker_edit_handler(
         }
     };
 
+    // Get brigade information
+    let brigade_query = sqlx::query_as::<_, BrigadeInfo>(
+        "SELECT 
+            a.brigade_id,
+            CONCAT(be.last_name, ' ', be.first_name) as brigade_name,
+            CASE WHEN b.brigadier_id = $1 THEN true ELSE false END as is_brigadier
+        FROM worker w
+        LEFT JOIN assignment a ON w.id = a.worker_id
+        LEFT JOIN brigade b ON a.brigade_id = b.id
+        LEFT JOIN worker bw ON b.brigadier_id = bw.id
+        LEFT JOIN employee be ON bw.id = be.id
+        WHERE w.id = $1"
+    )
+    .bind(id)
+    .fetch_optional(&*db.pool)
+    .await;
+
+    let brigade_info = match brigade_query {
+        Ok(Some(info)) => info,
+        Ok(None) => BrigadeInfo {
+            brigade_id: None,
+            brigade_name: None,
+            is_brigadier: false,
+        },
+        Err(e) => {
+            return Html::from(format!("<p>Error fetching brigade information: {}</p>", e));
+        }
+    };
+
     // Render the template with worker data
     let template = WorkerEditTemplate {
         id: worker.id,
@@ -282,6 +313,8 @@ async fn worker_edit_handler(
         salary: worker.salary,
         profession: worker.profession,
         union_name: worker.union_name,
+        brigade_id: brigade_info.brigade_id,
+        brigade_name: brigade_info.brigade_name,
     };
 
     match template.render() {

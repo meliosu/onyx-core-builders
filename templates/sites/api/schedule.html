@@ -50,11 +50,11 @@
                     {{ task.name }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    {% if let Some(brigader_name) = task.brigader_name %}
+                    {% if let Some(brigadier_name) = task.brigadier_name %}
                         {% if let Some(brigade_id) = task.brigade_id %}
-                            <a href="/brigades/{{ brigade_id }}" class="text-custom-primary hover:underline">{{ brigader_name }}</a>
+                            <a href="/brigades/{{ brigade_id }}" class="text-custom-primary hover:underline">{{ brigadier_name }}</a>
                         {% else %}
-                            {{ brigader_name }}
+                            {{ brigadier_name }}
                         {% endif %}
                     {% else %}
                         <span class="text-gray-400">Not assigned</span>

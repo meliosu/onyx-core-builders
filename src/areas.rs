@@ -109,6 +109,7 @@ pub struct AreaListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "areas/api/sites.html")]
 pub struct AreaSitesTemplate {
+    pub id: i32,
     pub sites: Vec<SiteListItem>,
     pub pagination: Pagination,
 }
@@ -125,6 +126,7 @@ pub struct SiteListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "areas/api/personnel.html")]
 pub struct AreaPersonnelTemplate {
+    pub id: i32,
     pub personnel: Vec<PersonnelListItem>,
     pub pagination: Pagination,
 }
@@ -661,6 +663,7 @@ async fn area_sites_handler(
     }).collect();
 
     let template = AreaSitesTemplate { 
+        id,
         sites: site_items,
         pagination,
     };
@@ -711,6 +714,7 @@ async fn area_personnel_handler(
     }).collect();
 
     let template = AreaPersonnelTemplate { 
+        id,
         personnel: personnel_items,
         pagination,
     };

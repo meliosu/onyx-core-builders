@@ -204,6 +204,7 @@ pub struct SiteListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "sites/api/schedule.html")]
 pub struct SiteScheduleTemplate {
+    pub id: i32,
     pub tasks: Vec<TaskListItem>,
     pub pagination: Pagination,
 }
@@ -223,6 +224,7 @@ pub struct TaskListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "sites/api/materials.html")]
 pub struct SiteMaterialsTemplate {
+    pub id: i32,
     pub materials: Vec<MaterialListItem>,
     pub pagination: Pagination,
 }
@@ -241,6 +243,7 @@ pub struct MaterialListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "sites/api/equipment.html")]
 pub struct SiteEquipmentTemplate {
+    pub id: i32,
     pub equipment: Vec<EquipmentListItem>,
     pub pagination: Pagination,
 }
@@ -257,6 +260,7 @@ pub struct EquipmentListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "sites/api/brigades.html")]
 pub struct SiteBrigadesTemplate {
+    pub id: i32,
     pub brigades: Vec<BrigadeListItem>,
     pub pagination: Pagination,
 }
@@ -273,6 +277,7 @@ pub struct BrigadeListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "sites/api/reports.html")]
 pub struct SiteReportsTemplate {
+    pub id: i32,
     pub reports: Vec<ReportListItem>,
     pub pagination: Pagination,
 }
@@ -1367,6 +1372,7 @@ async fn site_schedule_handler(
             };
             
             let template = SiteScheduleTemplate {
+                id,
                 tasks,
                 pagination,
             };
@@ -1426,6 +1432,7 @@ async fn site_materials_handler(
             };
             
             let template = SiteMaterialsTemplate {
+                id,
                 materials,
                 pagination,
             };
@@ -1481,6 +1488,7 @@ async fn site_equipment_handler(
             };
             
             let template = SiteEquipmentTemplate {
+                id,
                 equipment,
                 pagination,
             };
@@ -1542,6 +1550,7 @@ async fn site_brigades_handler(
             };
             
             let template = SiteBrigadesTemplate {
+                id,
                 brigades,
                 pagination,
             };
@@ -1602,6 +1611,7 @@ async fn site_reports_handler(
             };
             
             let template = SiteReportsTemplate {
+                id,
                 reports,
                 pagination,
             };

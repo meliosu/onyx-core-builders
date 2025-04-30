@@ -45,7 +45,7 @@
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {% if let Some(id) = task.brigade_id %}
                         <a href="/brigades/{{ id }}" class="text-custom-primary hover:underline">
-                            {% if let Some(name) = task.brigader_name %}
+                            {% if let Some(name) = task.brigadier_name %}
                                 {{ name }}
                             {% else %}
                                 Brigade {{ id }}

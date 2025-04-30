@@ -96,6 +96,7 @@ pub struct MaterialListItem {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "materials/api/usage.html")]
 pub struct MaterialUsageTemplate {
+    pub id: i32,
     pub usage: Vec<UsageListItem>,
     pub pagination: Pagination,
 }
@@ -592,6 +593,7 @@ async fn material_usage_handler(
     }).collect();
 
     let template = MaterialUsageTemplate { 
+        id,
         usage: usage_items,
         pagination,
     };

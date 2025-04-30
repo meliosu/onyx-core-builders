@@ -45,7 +45,7 @@
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {% if allocation.site_id.is_some() && allocation.site_name.is_some() %}
                     <a href="/sites/{{ allocation.site_id.unwrap() }}" class="text-custom-primary hover:underline">
-                        {{ allocation.site_name.unwrap() }}
+                        {{ allocation.site_name.as_ref().unwrap() }}
                     </a>
                     {% else %}
                     <span class="text-gray-400">Department storage</span>
@@ -55,10 +55,10 @@
                     {{ allocation.amount }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    {{ allocation.period_start.format("%Y-%m-%d") }}
+                    {{ allocation.period_start }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    {{ allocation.period_end.format("%Y-%m-%d") }}
+                    {{ allocation.period_end }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm">
                     {% if allocation.is_current %}
