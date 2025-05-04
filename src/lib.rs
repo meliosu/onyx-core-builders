@@ -16,6 +16,7 @@ mod materials;
 mod reports;
 mod helpers;
 mod impls;
+mod utils;
 
 pub fn router() -> axum::Router<database::Database> {
     axum::Router::new()

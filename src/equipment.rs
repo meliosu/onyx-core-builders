@@ -10,6 +10,7 @@ use askama::Template;
 use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate, FuelType}};
+use crate::utils::empty_string_as_none;
 
 // Types for page endpoints
 
@@ -58,6 +59,7 @@ pub struct EquipmentUpdateForm {
     pub amount: u32,
     pub purchase_date: NaiveDate,
     pub purchase_cost: f32,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub fuel_type: Option<FuelType>,
 }
 
@@ -67,6 +69,7 @@ pub struct EquipmentCreateForm {
     pub amount: u32,
     pub purchase_date: NaiveDate,
     pub purchase_cost: f32,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub fuel_type: Option<FuelType>,
 }
 
@@ -74,9 +77,13 @@ pub struct EquipmentCreateForm {
 pub struct EquipmentListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub department_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub site_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub available: Option<bool>,
 }
 
@@ -121,6 +128,7 @@ pub struct AllocationListItem {
 #[derive(Serialize, Deserialize)]
 pub struct EquipmentAllocationForm {
     pub department_id: i32,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub site_id: Option<i32>,
     pub amount: u32,
     pub period_start: NaiveDate,

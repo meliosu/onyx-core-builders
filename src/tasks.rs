@@ -10,6 +10,7 @@ use chrono::NaiveDate;
 use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate}};
+use crate::utils::empty_string_as_none;
 
 // Tab selector for task details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -26,6 +27,19 @@ pub enum TaskStatus {
     Planned,
     InProgress,
     Completed,
+}
+
+impl std::str::FromStr for TaskStatus {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "planned" => Ok(TaskStatus::Planned),
+            "in_progress" => Ok(TaskStatus::InProgress),
+            "completed" => Ok(TaskStatus::Completed),
+            _ => Err(format!("Invalid TaskStatus: {}", s)),
+        }
+    }
 }
 
 // Types for page endpoints
@@ -85,8 +99,10 @@ pub struct TaskApiDetailsTemplate {
 #[derive(Serialize, Deserialize)]
 pub struct TaskUpdateForm {
     pub name: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub description: Option<String>,
     pub site_id: i32,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
     pub period_start: NaiveDate,
     pub expected_period_end: NaiveDate,
@@ -95,8 +111,10 @@ pub struct TaskUpdateForm {
 #[derive(Serialize, Deserialize)]
 pub struct TaskCreateForm {
     pub name: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub description: Option<String>,
     pub site_id: i32,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
     pub period_start: NaiveDate,
     pub expected_period_end: NaiveDate,
@@ -106,12 +124,19 @@ pub struct TaskCreateForm {
 pub struct TaskListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub site_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub status: Option<TaskStatus>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub date_from: Option<NaiveDate>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub date_to: Option<NaiveDate>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub exceeded_deadline: Option<bool>,
 }
 

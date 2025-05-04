@@ -12,6 +12,7 @@ use sqlx::Row;
 
 use crate::{database::Database, general::{Qualification, SiteType, NotificationResult}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationTemplate};
+use crate::utils::empty_string_as_none;
 
 // Tab selector for department details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -68,14 +69,14 @@ pub struct DepartmentApiDetailsTemplate {
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentUpdateForm {
     pub name: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub supervisor_id: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentCreateForm {
     pub name: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub supervisor_id: Option<i32>,
 }
 
@@ -83,7 +84,9 @@ pub struct DepartmentCreateForm {
 pub struct DepartmentListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub supervisor_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 

@@ -10,6 +10,7 @@ use sqlx::{FromRow, Row};
 
 use crate::database::Database;
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
+use crate::utils::empty_string_as_none;
 
 // Types for page endpoints
 
@@ -68,9 +69,13 @@ pub struct MaterialCreateForm {
 pub struct MaterialListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub cost_min: Option<f32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub cost_max: Option<f32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub excess_usage: Option<bool>,
 }
 

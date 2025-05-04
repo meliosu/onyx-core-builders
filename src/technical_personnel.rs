@@ -10,6 +10,7 @@ use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Qualification, Position, Gender}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
+use crate::utils::empty_string_as_none;
 
 // Qualification-specific fields
 #[derive(Serialize, Deserialize)]
@@ -109,13 +110,16 @@ pub struct TechnicalPersonnelQualificationFieldsTemplate {
 pub struct TechnicalPersonnelUpdateForm {
     pub first_name: String,
     pub last_name: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub middle_name: Option<String>,
     pub gender: Gender,
     pub phone_number: String,
     pub salary: i32,
     pub qualification: Qualification,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub position: Option<Position>,
     pub education_level: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub software_skills: Option<String>,
     pub is_project_manager: bool,
     #[serde(flatten)]
@@ -126,13 +130,16 @@ pub struct TechnicalPersonnelUpdateForm {
 pub struct TechnicalPersonnelCreateForm {
     pub first_name: String,
     pub last_name: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub middle_name: Option<String>,
     pub gender: Gender,
     pub phone_number: String,
     pub salary: i32,
     pub qualification: Qualification,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub position: Option<Position>,
     pub education_level: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub software_skills: Option<String>,
     pub is_project_manager: bool,
     #[serde(flatten)]
@@ -143,10 +150,15 @@ pub struct TechnicalPersonnelCreateForm {
 pub struct TechnicalPersonnelListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub qualification: Option<Qualification>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub position: Option<Position>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub department_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub area_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 

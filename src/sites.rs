@@ -11,6 +11,7 @@ use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Qualification, SiteType, RiskLevel, Position}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
+use crate::utils::empty_string_as_none;
 
 // Tab selector for site details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -150,6 +151,7 @@ pub struct SiteUpdateForm {
     pub type_: SiteType,
     pub location: String,
     pub risk_level: RiskLevel,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub description: Option<String>,
     #[serde(flatten)]
     pub type_fields: SiteFields,
@@ -164,6 +166,7 @@ pub struct SiteCreateForm {
     pub type_: SiteType,
     pub location: String,
     pub risk_level: RiskLevel,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub description: Option<String>,
     #[serde(flatten)]
     pub type_fields: SiteFields,
@@ -173,12 +176,18 @@ pub struct SiteCreateForm {
 pub struct SiteListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub area_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub department_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub client_id: Option<i32>,
     #[serde(rename = "type")]
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub type_: Option<SiteType>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub status: Option<String>,
 }
 

@@ -10,6 +10,7 @@ use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Profession, Gender}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
+use crate::utils::empty_string_as_none;
 
 // Profession-specific fields
 #[derive(Serialize, Deserialize)]
@@ -117,12 +118,15 @@ pub struct WorkerProfessionFieldsTemplate {
 pub struct WorkerUpdateForm {
     pub first_name: String,
     pub last_name: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub middle_name: Option<String>,
     pub gender: Gender,
     pub phone_number: String,
     pub salary: i32,
     pub profession: Profession,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub union_name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
     #[serde(flatten)]
     pub profession_fields: ProfessionFields,
@@ -132,12 +136,15 @@ pub struct WorkerUpdateForm {
 pub struct WorkerCreateForm {
     pub first_name: String,
     pub last_name: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub middle_name: Option<String>,
     pub gender: Gender,
     pub phone_number: String,
     pub salary: i32,
     pub profession: Profession,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub union_name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
     #[serde(flatten)]
     pub profession_fields: ProfessionFields,
@@ -147,9 +154,13 @@ pub struct WorkerCreateForm {
 pub struct WorkerListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub profession: Option<Profession>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub is_brigadier: Option<bool>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 

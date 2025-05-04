@@ -11,6 +11,7 @@ use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Qualification, SiteType, Position, Profession}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
+use crate::utils::empty_string_as_none;
 
 // Tab selector for brigade details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -80,8 +81,11 @@ pub struct BrigadeCreateForm {
 pub struct BrigadeListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigadier_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub site_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub task_name: Option<String>,
 }
 

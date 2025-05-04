@@ -10,6 +10,7 @@ use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Qualification, SiteType, Position}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
+use crate::utils::empty_string_as_none;
 
 // Tab selector for area details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -69,6 +70,7 @@ pub struct AreaApiDetailsTemplate {
 pub struct AreaUpdateForm {
     pub name: String,
     pub department_id: i32,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub supervisor_id: Option<i32>,
 }
 
@@ -76,6 +78,7 @@ pub struct AreaUpdateForm {
 pub struct AreaCreateForm {
     pub name: String,
     pub department_id: i32,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub supervisor_id: Option<i32>,
 }
 
@@ -83,8 +86,11 @@ pub struct AreaCreateForm {
 pub struct AreaListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub department_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub supervisor_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 

@@ -8,12 +8,14 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use sqlx::{Encode, FromRow};
+use crate::utils::empty_string_as_none;
 
 // -------- Selector Types --------
 
 // Department selectors
 #[derive(Deserialize)]
 pub struct DepartmentFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
@@ -32,11 +34,13 @@ pub struct DepartmentSelectorItem {
 // Area selectors
 #[derive(Deserialize)]
 pub struct AreaQuery {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub department_id: Option<i64>,
 }
 
 #[derive(Deserialize)]
 pub struct AreaFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
@@ -55,6 +59,7 @@ pub struct AreaSelectorItem {
 // Client selectors
 #[derive(Deserialize)]
 pub struct ClientFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
@@ -73,14 +78,19 @@ pub struct ClientSelectorItem {
 // Technical personnel selectors
 #[derive(Deserialize)]
 pub struct TechnicalPersonnelQuery {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub qualification: Option<Qualification>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub position: Option<Position>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub department_id: Option<i64>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub area_id: Option<i64>,
 }
 
 #[derive(Deserialize)]
 pub struct TechnicalPersonnelFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
@@ -100,13 +110,17 @@ pub struct TechnicalPersonnelSelectorItem {
 // Worker selectors
 #[derive(Deserialize)]
 pub struct WorkerQuery {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub profession: Option<Profession>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i64>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub is_brigadier: Option<bool>,
 }
 
 #[derive(Deserialize)]
 pub struct WorkerFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
@@ -126,12 +140,15 @@ pub struct WorkerSelectorItem {
 // Brigade selectors
 #[derive(Deserialize)]
 pub struct BrigadeQuery {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub site_id: Option<i64>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub available: Option<bool>,
 }
 
 #[derive(Deserialize)]
 pub struct BrigadeFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigadier_name: Option<String>,
 }
 
@@ -151,15 +168,20 @@ pub struct BrigadeSelectorItem {
 // Site selectors
 #[derive(Deserialize)]
 pub struct SiteQuery {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub area_id: Option<i64>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub department_id: Option<i64>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub client_id: Option<i64>,
     #[serde(rename = "type")]
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub type_: Option<SiteType>,
 }
 
 #[derive(Deserialize)]
 pub struct SiteFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
@@ -181,11 +203,13 @@ pub struct SiteSelectorItem {
 // Equipment selectors
 #[derive(Deserialize)]
 pub struct EquipmentQuery {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub available: Option<bool>,
 }
 
 #[derive(Deserialize)]
 pub struct EquipmentFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
@@ -205,6 +229,7 @@ pub struct EquipmentSelectorItem {
 // Material selectors
 #[derive(Deserialize)]
 pub struct MaterialFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
@@ -224,13 +249,17 @@ pub struct MaterialSelectorItem {
 // Task selectors
 #[derive(Deserialize)]
 pub struct TaskQuery {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub site_id: Option<i64>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i64>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub status: Option<String>,
 }
 
 #[derive(Deserialize)]
 pub struct TaskFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
