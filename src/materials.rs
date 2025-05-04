@@ -32,7 +32,7 @@ pub struct MaterialNewTemplate;
 pub struct MaterialEditTemplate {
     pub id: i32,
     pub name: String,
-    pub cost: f64,
+    pub cost: f32,
     pub units: String,
 }
 
@@ -43,24 +43,24 @@ pub struct MaterialEditTemplate {
 pub struct MaterialApiDetailsTemplate {
     pub id: i32,
     pub name: String,
-    pub cost: f64,
+    pub cost: f32,
     pub units: String,
-    pub total_estimated: f64,
-    pub total_actual: f64,
-    pub total_cost: f64,
+    pub total_estimated: f32,
+    pub total_actual: f32,
+    pub total_cost: f32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct MaterialUpdateForm {
     pub name: String,
-    pub cost: f64,
+    pub cost: f32,
     pub units: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct MaterialCreateForm {
     pub name: String,
-    pub cost: f64,
+    pub cost: f32,
     pub units: String,
 }
 
@@ -69,8 +69,8 @@ pub struct MaterialListFilter {
     #[serde(flatten)]
     pub sort: Sort,
     pub name: Option<String>,
-    pub cost_min: Option<f64>,
-    pub cost_max: Option<f64>,
+    pub cost_min: Option<f32>,
+    pub cost_max: Option<f32>,
     pub excess_usage: Option<bool>,
 }
 
@@ -86,10 +86,10 @@ pub struct MaterialListTemplate {
 pub struct MaterialListItem {
     pub id: i32,
     pub name: String,
-    pub cost: f64,
+    pub cost: f32,
     pub units: String,
-    pub estimated_spendings: f64,
-    pub actual_spendings: f64,
+    pub estimated_spendings: f32,
+    pub actual_spendings: f32,
     pub excess: bool,
 }
 
@@ -107,10 +107,10 @@ pub struct UsageListItem {
     pub task_name: String,
     pub site_id: i32,
     pub site_name: String,
-    pub expected_amount: f64,
-    pub actual_amount: f64,
-    pub excess_amount: f64,
-    pub total_cost: f64,
+    pub expected_amount: f32,
+    pub actual_amount: f32,
+    pub excess_amount: f32,
+    pub total_cost: f32,
 }
 
 // Handler functions for page endpoints
@@ -149,7 +149,7 @@ async fn material_new_handler(State(db): State<Database>) -> Html<String> {
 struct MaterialEditData {
     id: i32,
     name: String,
-    cost: f64,
+    cost: f32,
     units: String,
 }
 
@@ -193,7 +193,7 @@ async fn material_edit_handler(
 struct MaterialDetails {
     id: i32,
     name: String,
-    cost: f64,
+    cost: f32,
     units: String,
 }
 
@@ -357,10 +357,10 @@ async fn material_delete_handler(
 struct MaterialListRow {
     id: i32,
     name: String,
-    cost: f64,
+    cost: f32,
     units: String,
-    estimated_spendings: Option<f64>,
-    actual_spendings: Option<f64>,
+    estimated_spendings: Option<f32>,
+    actual_spendings: Option<f32>,
 }
 
 async fn materials_list_api_handler(
@@ -544,9 +544,9 @@ struct UsageRow {
     task_name: String,
     site_id: i32,
     site_name: String,
-    expected_amount: f64,
-    actual_amount: Option<f64>,
-    material_cost: f64,
+    expected_amount: f32,
+    actual_amount: Option<f32>,
+    material_cost: f32,
 }
 
 async fn material_usage_handler(

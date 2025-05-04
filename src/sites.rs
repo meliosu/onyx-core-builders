@@ -36,14 +36,14 @@ pub enum SiteFields {
 // Site type-specific field structs
 #[derive(Serialize, Deserialize)]
 pub struct PowerPlantFields {
-    pub energy_output: f64,
+    pub energy_output: f32,
     pub energy_source: String,
     pub is_grid_connected: bool,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct RoadFields {
-    pub length: f64,
+    pub length: f32,
     pub lanes: i32,
     pub surface: String,
 }
@@ -59,14 +59,14 @@ pub struct HousingFields {
 
 #[derive(Serialize, Deserialize)]
 pub struct BridgeFields {
-    pub length: f64,
+    pub length: f32,
     pub road_material: String,
-    pub max_load: f64,
+    pub max_load: f32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct ParkFields {
-    pub area: f64,
+    pub area: f32,
     pub has_playground: bool,
     pub has_lighting: bool,
 }
@@ -92,6 +92,7 @@ pub struct SiteNewTemplate;
 pub struct SiteEditTemplate {
     pub id: i32,
     pub name: String,
+    #[serde(rename = "type")]
     pub type_: SiteType,
     pub area_id: i32,
     pub area_name: String,
@@ -111,6 +112,7 @@ pub struct SiteTabQuery {
 
 #[derive(Serialize, Deserialize)]
 pub struct SiteTypeFieldsQuery {
+    #[serde(rename = "type")]
     pub type_: SiteType,
 }
 
@@ -119,6 +121,7 @@ pub struct SiteTypeFieldsQuery {
 pub struct SiteApiDetailsTemplate {
     pub id: i32,
     pub name: String,
+    #[serde(rename = "type")]
     pub type_: SiteType,
     pub area_id: i32,
     pub area_name: String,
@@ -134,6 +137,7 @@ pub struct SiteApiDetailsTemplate {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "sites/api/type-fields.html")]
 pub struct SiteTypeFieldsTemplate {
+    #[serde(rename = "type")]
     pub type_: SiteType,
 }
 
@@ -191,6 +195,7 @@ pub struct SiteListItem {
     pub id: i32,
     pub name: String,
     #[serde(rename = "type")]
+    #[sqlx(rename = "type")]
     pub type_: SiteType,
     pub area_id: i32,
     pub area_name: String,
@@ -215,9 +220,9 @@ pub struct TaskListItem {
     pub name: String,
     pub brigade_id: Option<i32>,
     pub brigadier_name: Option<String>,
-    pub period_start: NaiveDateTime,
-    pub expected_period_end: NaiveDateTime,
-    pub actual_period_end: Option<NaiveDateTime>,
+    pub period_start: NaiveDate,
+    pub expected_period_end: NaiveDate,
+    pub actual_period_end: Option<NaiveDate>,
     pub status: String,
 }
 
@@ -233,11 +238,11 @@ pub struct SiteMaterialsTemplate {
 pub struct MaterialListItem {
     pub id: i32,
     pub name: String,
-    pub expected_amount: f64,
-    pub actual_amount: Option<f64>,
+    pub expected_amount: f32,
+    pub actual_amount: Option<f32>,
     pub units: String,
-    pub cost: f64,
-    pub total_cost: f64,
+    pub cost: f32,
+    pub total_cost: f32,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -253,8 +258,8 @@ pub struct EquipmentListItem {
     pub id: i32,
     pub name: String,
     pub amount: i32,
-    pub period_start: NaiveDateTime,
-    pub period_end: NaiveDateTime,
+    pub period_start: NaiveDate,
+    pub period_end: NaiveDate,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -286,9 +291,9 @@ pub struct SiteReportsTemplate {
 pub struct ReportListItem {
     pub task_id: i32,
     pub task_name: String,
-    pub period_start: NaiveDateTime,
-    pub expected_period_end: NaiveDateTime,
-    pub actual_period_end: Option<NaiveDateTime>,
+    pub period_start: NaiveDate,
+    pub expected_period_end: NaiveDate,
+    pub actual_period_end: Option<NaiveDate>,
     pub delay: i32,
 }
 
@@ -302,6 +307,7 @@ struct SiteBasicInfo {
     area_name: String,
     client_id: i32,
     client_name: String,
+    #[sqlx(rename = "type")]
     type_: SiteType,
     location: String,
     risk_level: RiskLevel,
@@ -310,14 +316,14 @@ struct SiteBasicInfo {
 
 #[derive(FromRow)]
 struct PowerPlantData {
-    energy_output: f64,
+    energy_output: f32,
     energy_source: String,
     is_grid_connected: bool,
 }
 
 #[derive(FromRow)]
 struct RoadData {
-    length: f64,
+    length: f32,
     lanes: i32,
     surface: String,
 }
@@ -326,20 +332,21 @@ struct RoadData {
 struct HousingData {
     number_of_floors: i32,
     number_of_entrances: i32,
+    #[sqlx(rename = "type")]
     type_: String,
     energy_efficiency: String,
 }
 
 #[derive(FromRow)]
 struct BridgeData {
-    length: f64,
+    length: f32,
     road_material: String,
-    max_load: f64,
+    max_load: f32,
 }
 
 #[derive(FromRow)]
 struct ParkData {
-    area: f64,
+    area: f32,
     has_playground: bool,
     has_lighting: bool,
 }

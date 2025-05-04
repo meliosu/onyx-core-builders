@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::{NaiveDate, NaiveDateTime};
 use serde::{Serialize, Deserialize};
 use axum::{
     extract::{Path, Query, State, Form},
@@ -33,8 +33,8 @@ pub struct EquipmentEditTemplate {
     pub id: i32,
     pub name: String,
     pub amount: u32,
-    pub purchase_date: NaiveDateTime,
-    pub purchase_cost: f64,
+    pub purchase_date: NaiveDate,
+    pub purchase_cost: f32,
     pub fuel_type: Option<FuelType>,
 }
 
@@ -47,8 +47,8 @@ pub struct EquipmentApiDetailsTemplate {
     pub name: String,
     pub amount: u32,
     pub available_amount: u32,
-    pub purchase_date: NaiveDateTime,
-    pub purchase_cost: f64,
+    pub purchase_date: NaiveDate,
+    pub purchase_cost: f32,
     pub fuel_type: Option<FuelType>,
 }
 
@@ -56,8 +56,8 @@ pub struct EquipmentApiDetailsTemplate {
 pub struct EquipmentUpdateForm {
     pub name: String,
     pub amount: u32,
-    pub purchase_date: NaiveDateTime,
-    pub purchase_cost: f64,
+    pub purchase_date: NaiveDate,
+    pub purchase_cost: f32,
     pub fuel_type: Option<FuelType>,
 }
 
@@ -65,8 +65,8 @@ pub struct EquipmentUpdateForm {
 pub struct EquipmentCreateForm {
     pub name: String,
     pub amount: u32,
-    pub purchase_date: NaiveDateTime,
-    pub purchase_cost: f64,
+    pub purchase_date: NaiveDate,
+    pub purchase_cost: f32,
     pub fuel_type: Option<FuelType>,
 }
 
@@ -95,7 +95,7 @@ pub struct EquipmentListItem {
     pub total_amount: u32,
     pub available_amount: u32,
     pub purchase_date: String,
-    pub purchase_cost: f64,
+    pub purchase_cost: f32,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -113,8 +113,8 @@ pub struct AllocationListItem {
     pub site_id: Option<i32>,
     pub site_name: Option<String>,
     pub amount: u32,
-    pub period_start: NaiveDateTime,
-    pub period_end: NaiveDateTime,
+    pub period_start: NaiveDate,
+    pub period_end: NaiveDate,
     pub is_current: bool,
 }
 
@@ -123,8 +123,8 @@ pub struct EquipmentAllocationForm {
     pub department_id: i32,
     pub site_id: Option<i32>,
     pub amount: u32,
-    pub period_start: NaiveDateTime,
-    pub period_end: NaiveDateTime,
+    pub period_start: NaiveDate,
+    pub period_end: NaiveDate,
 }
 
 // Handler functions for page endpoints
@@ -164,8 +164,8 @@ struct EquipmentEditData {
     id: i32,
     name: String,
     amount: i32,
-    purchase_date: NaiveDateTime,
-    purchase_cost: f64,
+    purchase_date: NaiveDate,
+    purchase_cost: f32,
     fuel_type: Option<FuelType>,
 }
 
@@ -214,9 +214,9 @@ struct EquipmentDetails {
     id: i32,
     name: String,
     amount: i32,
-    available_amount: i32,
-    purchase_date: NaiveDateTime,
-    purchase_cost: f64,
+    available_amount: i64,
+    purchase_date: NaiveDate,
+    purchase_cost: f32,
     fuel_type: Option<FuelType>,
 }
 
@@ -378,9 +378,9 @@ struct EquipmentListRow {
     id: i32,
     name: String,
     total_amount: i32,
-    available_amount: i32,
-    purchase_date: NaiveDateTime,
-    purchase_cost: f64,
+    available_amount: i64,
+    purchase_date: NaiveDate,
+    purchase_cost: f32,
 }
 
 async fn equipment_list_api_handler(
@@ -570,8 +570,8 @@ struct AllocationRow {
     site_id: Option<i32>,
     site_name: Option<String>,
     amount: i32,
-    period_start: NaiveDateTime,
-    period_end: NaiveDateTime,
+    period_start: NaiveDate,
+    period_end: NaiveDate,
     is_current: bool,
 }
 
@@ -674,7 +674,7 @@ async fn equipment_create_allocation_handler(
     }
 
     // Check if there is enough available equipment
-    let available_amount = sqlx::query_scalar::<_, i32>(
+    let available_amount = sqlx::query_scalar::<_, i64>(
         "SELECT amount - COALESCE((SELECT SUM(amount) FROM equipment_allocation WHERE equipment_id = $1 AND (period_end IS NULL OR period_end > $2)), 0) 
          FROM equipment WHERE id = $1"
     )
@@ -684,7 +684,7 @@ async fn equipment_create_allocation_handler(
     .await;
 
     if let Ok(amount) = available_amount {
-        if form.amount as i32 > amount {
+        if form.amount as i64 > amount {
             let template = NotificationTemplate {
                 result: NotificationResult::Error,
                 message: Some(format!("Not enough available equipment. Available: {}, Requested: {}", amount, form.amount)),

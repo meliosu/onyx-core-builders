@@ -15,7 +15,7 @@
             </div>
             <div class="flex space-x-2">
                 <a href="/departments/{{ id }}/edit" 
-                   class="bg-primary text-white px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                   class="bg-custom-primary text-white px-4 py-2 rounded font-medium hover:bg-opacity-90">
                     <i class="fas fa-edit mr-2"></i> Edit
                 </a>
                 <button hx-delete="/api/departments/{{ id }}"
@@ -31,28 +31,28 @@
     <!-- Tabs navigation -->
     <div class="border-b">
         <div class="flex">
-            <button class="px-6 py-3 border-r {% if tab == DepartmentTab::Areas %}text-secondary border-b-2 border-b-secondary -mb-px{% endif %}"
+            <button class="px-6 py-3 border-r {% if tab == DepartmentTab::Areas %}text-custom-secondary border-b-2 border-b-custom-secondary -mb-px{% endif %}"
                     hx-get="/api/departments/{{ id }}"
                     hx-target="#department-content"
                     hx-vals='{"tab": "areas"}'
                     hx-push-url="false">
                 <i class="fas fa-map-marked-alt mr-2"></i> Areas
             </button>
-            <button class="px-6 py-3 border-r {% if tab == DepartmentTab::Equipment %}text-secondary border-b-2 border-b-secondary -mb-px{% endif %}"
+            <button class="px-6 py-3 border-r {% if tab == DepartmentTab::Equipment %}text-custom-secondary border-b-2 border-b-custom-secondary -mb-px{% endif %}"
                     hx-get="/api/departments/{{ id }}"
                     hx-target="#department-content"
                     hx-vals='{"tab": "equipment"}'
                     hx-push-url="false">
                 <i class="fas fa-truck mr-2"></i> Equipment
             </button>
-            <button class="px-6 py-3 border-r {% if tab == DepartmentTab::Sites %}text-secondary border-b-2 border-b-secondary -mb-px{% endif %}"
+            <button class="px-6 py-3 border-r {% if tab == DepartmentTab::Sites %}text-custom-secondary border-b-2 border-b-custom-secondary -mb-px{% endif %}"
                     hx-get="/api/departments/{{ id }}"
                     hx-target="#department-content"
                     hx-vals='{"tab": "sites"}'
                     hx-push-url="false">
                 <i class="fas fa-hard-hat mr-2"></i> Sites
             </button>
-            <button class="px-6 py-3 {% if tab == DepartmentTab::Personnel %}text-secondary border-b-2 border-b-secondary -mb-px{% endif %}"
+            <button class="px-6 py-3 {% if tab == DepartmentTab::Personnel %}text-custom-secondary border-b-2 border-b-custom-secondary -mb-px{% endif %}"
                     hx-get="/api/departments/{{ id }}"
                     hx-target="#department-content"
                     hx-vals='{"tab": "personnel"}'
@@ -71,7 +71,7 @@
                      hx-trigger="load"
                      hx-vals='{"page_number": 1, "page_size": 10}'>
                     <div class="flex justify-center items-center h-40">
-                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-secondary"></div>
+                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
                     </div>
                 </div>
             {% when DepartmentTab::Equipment %}
@@ -80,7 +80,7 @@
                      hx-trigger="load"
                      hx-vals='{"page_number": 1, "page_size": 10}'>
                     <div class="flex justify-center items-center h-40">
-                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-secondary"></div>
+                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
                     </div>
                 </div>
             {% when DepartmentTab::Sites %}
@@ -89,7 +89,7 @@
                      hx-trigger="load"
                      hx-vals='{"page_number": 1, "page_size": 10}'>
                     <div class="flex justify-center items-center h-40">
-                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-secondary"></div>
+                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
                     </div>
                 </div>
             {% when DepartmentTab::Personnel %}
@@ -98,7 +98,7 @@
                      hx-trigger="load"
                      hx-vals='{"page_number": 1, "page_size": 10}'>
                     <div class="flex justify-center items-center h-40">
-                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-secondary"></div>
+                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
                     </div>
                 </div>
         {% endmatch %}

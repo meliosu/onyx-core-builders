@@ -290,7 +290,7 @@ INSERT INTO task (id, site_id, brigade_id, period_start, expected_period_end, ac
 (18, 10, 3, '2022-05-01', '2022-07-20', '2022-08-05', 'Bridge Structure', 'Main structure and surface construction');
 
 -- Insert material expenditures
-INSERT INTO expenditure (task_id, material_id, expected_amount, actuial_amount) VALUES
+INSERT INTO expenditure (task_id, material_id, expected_amount, actual_amount) VALUES
 -- Foundation Construction (Housing)
 (1, 1, 250.0, 275.5), -- Concrete
 (1, 2, 15.0, 16.2),   -- Steel Rebar

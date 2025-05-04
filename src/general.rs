@@ -8,7 +8,7 @@ use crate::database::Database;
 
 #[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-#[sqlx(type_name = "site_type", rename_all = "lowercase")]
+#[sqlx(type_name = "site_type", rename_all = "snake_case")]
 pub enum SiteType {
     PowerPlant,
     Road,
@@ -19,7 +19,7 @@ pub enum SiteType {
 
 #[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-#[sqlx(type_name = "risk_level", rename_all = "lowercase")]
+#[sqlx(type_name = "risk_level", rename_all = "snake_case")]
 pub enum RiskLevel {
     Low,
     Meidum,
@@ -28,7 +28,7 @@ pub enum RiskLevel {
 
 #[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-#[sqlx(type_name = "gender", rename_all = "lowercase")]
+#[sqlx(type_name = "gender", rename_all = "snake_case")]
 pub enum Gender {
     Male,
     Female,
@@ -36,7 +36,7 @@ pub enum Gender {
 
 #[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-#[sqlx(type_name = "profession", rename_all = "lowercase")]
+#[sqlx(type_name = "worker_profession", rename_all = "snake_case")]
 pub enum Profession {
     Electrician,
     Plumber,
@@ -47,7 +47,7 @@ pub enum Profession {
 
 #[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-#[sqlx(type_name = "qualification", rename_all = "lowercase")]
+#[sqlx(type_name = "personnel_qualification", rename_all = "snake_case")]
 pub enum Qualification {
     Technician,
     Technologist,
@@ -56,7 +56,7 @@ pub enum Qualification {
 
 #[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-#[sqlx(type_name = "position", rename_all = "lowercase")]
+#[sqlx(type_name = "personnel_position", rename_all = "snake_case")]
 pub enum Position {
     Master,
     Foreman,
@@ -64,12 +64,20 @@ pub enum Position {
 
 #[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-#[sqlx(type_name = "fuel_type", rename_all = "lowercase")]
+#[sqlx(type_name = "fuel_type", rename_all = "snake_case")]
 pub enum FuelType {
     Gasoline,
     Diesel,
     Electric,
     Hybrid,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+#[sqlx(type_name = "employee_class", rename_all = "snake_case")]
+pub enum EmployeeClass {
+    Worker,
+    TechnicalPersonnel,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -81,7 +89,7 @@ pub enum SortDirection {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum NotificationResult {
     Success,
     Error,

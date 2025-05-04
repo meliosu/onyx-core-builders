@@ -5,6 +5,8 @@ use onyx_core_builders::router;
 async fn main() {
     env_logger::init();
 
+    std::thread::sleep(std::time::Duration::from_millis(500));
+
     if let Err(e) = run().await {
         log::error!("{e}");
     }

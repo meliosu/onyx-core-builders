@@ -150,23 +150,23 @@ pub struct TaskMaterialsTemplate {
 pub struct TaskMaterialItem {
     pub material_id: i32,
     pub name: String,
-    pub expected_amount: f64,
-    pub actual_amount: Option<f64>,
+    pub expected_amount: f32,
+    pub actual_amount: Option<f32>,
     pub units: String,
-    pub cost: f64,
-    pub total_cost: f64,
-    pub excess: Option<f64>,
+    pub cost: f32,
+    pub total_cost: f32,
+    pub excess: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct TaskMaterialForm {
     pub material_id: i32,
-    pub expected_amount: f64,
+    pub expected_amount: f32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct TaskMaterialUpdateForm {
-    pub actual_amount: f64,
+    pub actual_amount: f32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -816,10 +816,10 @@ async fn task_create_handler(
 struct TaskMaterialRow {
     material_id: i32,
     name: String,
-    expected_amount: f64,
-    actual_amount: Option<f64>,
+    expected_amount: f32,
+    actual_amount: Option<f32>,
     units: String,
-    cost: f64,
+    cost: f32,
 }
 
 async fn task_materials_handler(

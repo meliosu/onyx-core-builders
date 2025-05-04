@@ -55,8 +55,9 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {% match person.position %}
-                        {% when Position::Master %}Master
-                        {% when Position::Foreman %}Foreman
+                        {% when Some(Position::Master) %}Master
+                        {% when Some(Position::Foreman) %}Foreman
+                        {% when None %}<span class="text-gray-400">Not assigned</span>
                     {% endmatch %}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">

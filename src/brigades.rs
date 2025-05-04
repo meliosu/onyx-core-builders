@@ -58,7 +58,7 @@ pub struct BrigadeApiDetailsTemplate {
     pub id: i32,
     pub brigadier_id: i32,
     pub brigadier_name: String,
-    pub worker_count: i32,
+    pub worker_count: i64,
     pub current_task_id: Option<i32>,
     pub current_task_name: Option<String>,
     pub current_site_id: Option<i32>,
@@ -98,7 +98,7 @@ pub struct BrigadeListItem {
     pub id: i32,
     pub brigadier_id: i32,
     pub brigadier_name: String,
-    pub worker_count: i32,
+    pub worker_count: i64,
     pub current_site_id: Option<i32>,
     pub current_site_name: Option<String>,
 }
@@ -138,8 +138,8 @@ pub struct TaskListItem {
     pub name: String,
     pub site_id: i32,
     pub site_name: String,
-    pub period_start: NaiveDateTime,
-    pub period_end: Option<NaiveDateTime>,
+    pub period_start: NaiveDate,
+    pub period_end: Option<NaiveDate>,
     pub status: String,
 }
 
@@ -269,7 +269,7 @@ async fn brigade_api_details_handler(
             let id: i32 = row.get("id");
             let brigadier_id: i32 = row.get("brigadier_id");
             let brigadier_name: String = row.get("brigadier_name");
-            let worker_count: i32 = row.get("worker_count");
+            let worker_count: i64 = row.get("worker_count");
             let current_task_id: Option<i32> = row.get("current_task_id");
             let current_task_name: Option<String> = row.get("current_task_name");
             let current_site_id: Option<i32> = row.get("current_site_id");

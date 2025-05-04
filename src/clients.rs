@@ -32,7 +32,7 @@ pub struct ClientNewTemplate;
 pub struct ClientEditTemplate {
     pub id: i32,
     pub name: String,
-    pub inn: i32,
+    pub inn: String,
     pub address: String,
     pub contact_person_email: String,
     pub contact_person_name: String,
@@ -46,7 +46,7 @@ pub struct ClientEditTemplate {
 pub struct ClientApiDetailsTemplate {
     pub id: i32,
     pub name: String,
-    pub inn: i32,
+    pub inn: String,
     pub address: String,
     pub contact_person_email: String,
     pub contact_person_name: String,
@@ -66,7 +66,7 @@ pub struct ClientSite {
 #[derive(Serialize, Deserialize)]
 pub struct ClientUpdateForm {
     pub name: String,
-    pub inn: i32,
+    pub inn: String,
     pub address: String,
     pub contact_person_email: String,
     pub contact_person_name: String,
@@ -76,7 +76,7 @@ pub struct ClientUpdateForm {
 #[derive(Serialize, Deserialize)]
 pub struct ClientCreateForm {
     pub name: String,
-    pub inn: i32,
+    pub inn: String,
     pub address: String,
     pub contact_person_email: String,
     pub contact_person_name: String,
@@ -88,7 +88,7 @@ pub struct ClientListFilter {
     #[serde(flatten)]
     pub sort: Sort,
     pub name: Option<String>,
-    pub inn: Option<i32>,
+    pub inn: Option<String>,
     pub is_vip: Option<bool>,
 }
 
@@ -104,7 +104,7 @@ pub struct ClientListTemplate {
 pub struct ClientListItem {
     pub id: i32,
     pub name: String,
-    pub inn: i32,
+    pub inn: String,
     pub is_vip: bool,
 }
 
@@ -144,7 +144,7 @@ async fn client_new_handler(State(db): State<Database>) -> Html<String> {
 struct ClientEditData {
     id: i32,
     name: String,
-    inn: i32,
+    inn: String,
     address: String,
     contact_person_email: String,
     contact_person_name: String,
@@ -196,7 +196,7 @@ async fn client_edit_handler(
 struct ClientDetails {
     id: i32,
     name: String,
-    inn: i32,
+    inn: String,
     address: String,
     contact_person_email: String,
     contact_person_name: String,
@@ -207,6 +207,7 @@ struct ClientDetails {
 struct ClientSiteRow {
     id: i32,
     name: String,
+    #[sqlx(rename = "type")]
     type_: SiteType,
     status: String,
 }
@@ -237,7 +238,7 @@ async fn client_api_details_handler(
 
     // Fetch the client's sites
     let sites_query = sqlx::query_as::<_, ClientSiteRow>(
-        "SELECT id, name, type as type_,
+        "SELECT id, name, type,
          CASE
             WHEN EXISTS (SELECT 1 FROM task WHERE site_id = site.id AND actual_period_end IS NULL) THEN 'In Progress'
             WHEN NOT EXISTS (SELECT 1 FROM task WHERE site_id = site.id) THEN 'Planned'
@@ -290,7 +291,7 @@ async fn client_update_handler(
     Form(form): Form<ClientUpdateForm>,
 ) -> Html<String> {
     // Check if INN is unique (if changed)
-    let current_inn = sqlx::query_scalar::<_, i32>("SELECT inn FROM client WHERE id = $1")
+    let current_inn = sqlx::query_scalar::<_, String>("SELECT inn FROM client WHERE id = $1")
         .bind(id)
         .fetch_optional(&*db.pool)
         .await;
@@ -298,7 +299,7 @@ async fn client_update_handler(
     if let Ok(Some(inn)) = current_inn {
         if inn != form.inn {
             let inn_exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM client WHERE inn = $1 AND id != $2)")
-                .bind(form.inn)
+                .bind(&form.inn)
                 .bind(id)
                 .fetch_one(&*db.pool)
                 .await;
@@ -324,7 +325,7 @@ async fn client_update_handler(
          WHERE id = $7"
     )
     .bind(&form.name)
-    .bind(form.inn)
+    .bind(&form.inn)
     .bind(&form.address)
     .bind(&form.contact_person_email)
     .bind(&form.contact_person_name)
@@ -407,7 +408,7 @@ async fn client_delete_handler(
 struct ClientListRow {
     id: i32,
     name: String,
-    inn: i32,
+    inn: String,
     is_vip: bool,
 }
 
@@ -520,7 +521,7 @@ async fn client_create_handler(
 ) -> Html<String> {
     // Check if INN is unique
     let inn_exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM client WHERE inn = $1)")
-        .bind(form.inn)
+        .bind(&form.inn)
         .fetch_one(&*db.pool)
         .await;
     
@@ -543,7 +544,7 @@ async fn client_create_handler(
          RETURNING id"
     )
     .bind(&form.name)
-    .bind(form.inn)
+    .bind(&form.inn)
     .bind(&form.address)
     .bind(&form.contact_person_email)
     .bind(&form.contact_person_name)

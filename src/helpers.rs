@@ -154,6 +154,7 @@ pub struct SiteQuery {
     pub area_id: Option<i64>,
     pub department_id: Option<i64>,
     pub client_id: Option<i64>,
+    #[serde(rename = "type")]
     pub type_: Option<SiteType>,
 }
 
@@ -172,6 +173,8 @@ pub struct SiteSelectorTemplate {
 pub struct SiteSelectorItem {
     pub id: i64,
     pub name: String,
+    #[serde(rename = "type")]
+    #[sqlx(rename = "type")]
     pub type_: SiteType,
 }
 
@@ -569,7 +572,7 @@ async fn sites_selector_handler(
     Form(filter): Form<SiteFilter>,
 ) -> Html<String> {
     let mut query_builder = sqlx::QueryBuilder::new(
-        "SELECT id, name, type as type_ FROM site"
+        "SELECT id, name, type FROM site"
     );
 
     let mut where_added = false;

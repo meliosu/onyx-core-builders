@@ -38,10 +38,11 @@
             </div>
             
             <div>
-                <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Position <span class="text-error">*</span></label>
-                <select id="position" name="position" required class="px-3 py-2 border rounded w-full">
-                    <option value="master" {% if position == Position::Master %}selected{% endif %}>Master</option>
-                    <option value="foreman" {% if position == Position::Foreman %}selected{% endif %}>Foreman</option>
+                <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                <select id="position" name="position" class="px-3 py-2 border rounded w-full">
+                    <option value="">None</option>
+                    <option value="master" {% if position == Some(Position::Master) %}selected{% endif %}>Master</option>
+                    <option value="foreman" {% if position == Some(Position::Foreman) %}selected{% endif %}>Foreman</option>
                 </select>
             </div>
         </div>

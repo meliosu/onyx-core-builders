@@ -17,12 +17,14 @@
               hx-trigger="submit"
               class="flex flex-col gap-4 sm:flex-row">
             <div class="flex-1">
-                <input type="text" name="name" placeholder="Search by name" 
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Area Name</label>
+                <input type="text" id="name" name="name" placeholder="Search by name" 
                        class="px-3 py-2 border rounded w-full">
             </div>
             <div class="flex-1">
+                <label for="department_id" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
                 <div class="relative">
-                    <select name="department_id" 
+                    <select id="department_id" name="department_id" 
                             class="px-3 py-2 border rounded w-full appearance-none"
                             hx-get="/api/selectors/departments"
                             hx-target="#department-selector-modal"
@@ -35,8 +37,9 @@
                 </div>
             </div>
             <div class="flex-1">
+                <label for="supervisor_id" class="block text-sm font-medium text-gray-700 mb-1">Supervisor</label>
                 <div class="relative">
-                    <select name="supervisor_id" 
+                    <select id="supervisor_id" name="supervisor_id" 
                             class="px-3 py-2 border rounded w-full appearance-none"
                             hx-get="/api/selectors/technical-personnel"
                             hx-target="#supervisor-selector-modal"
@@ -49,19 +52,21 @@
                 </div>
             </div>
             <div>
-                <select name="sort_by" class="px-3 py-2 border rounded">
+                <label for="sort_by" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                <select id="sort_by" name="sort_by" class="px-3 py-2 border rounded">
                     <option value="name">Sort by Name</option>
                     <option value="department_name">Sort by Department</option>
                     <option value="supervisor_name">Sort by Supervisor</option>
                 </select>
             </div>
             <div>
-                <select name="sort_direction" class="px-3 py-2 border rounded">
+                <label for="sort_direction" class="block text-sm font-medium text-gray-700 mb-1">Direction</label>
+                <select id="sort_direction" name="sort_direction" class="px-3 py-2 border rounded">
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                 </select>
             </div>
-            <div>
+            <div class="flex items-end">
                 <button type="submit" class="bg-custom-primary text-white px-4 py-2 rounded font-medium hover:bg-opacity-90 w-full">
                     <i class="fas fa-search mr-2"></i> Search
                 </button>

@@ -56,8 +56,9 @@
                         <p class="text-sm text-gray-600">
                             <span class="font-medium">Position:</span>
                             {% match position %}
-                                {% when Position::Master %}Master
-                                {% when Position::Foreman %}Foreman
+                                {% when Some(Position::Master) %}Master
+                                {% when Some(Position::Foreman) %}Foreman
+                                {% when None %}Not assigned
                             {% endmatch %}
                         </p>
                     </div>

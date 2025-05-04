@@ -118,6 +118,7 @@ pub struct AreaSitesTemplate {
 pub struct SiteListItem {
     pub id: i32,
     pub name: String,
+    #[serde(rename = "type")]
     pub type_: SiteType,
     pub client_id: i32,
     pub client_name: String,
@@ -625,6 +626,7 @@ async fn area_create_handler(
 struct AreaSiteRow {
     id: i32,
     name: String,
+    #[sqlx(rename = "type")]
     type_: SiteType,
     client_id: i32,
     client_name: String,

@@ -148,6 +148,7 @@ pub struct DepartmentSitesTemplate {
 pub struct SiteListItem {
     pub id: i32,
     pub name: String,
+    #[serde(rename = "type")]
     pub type_: SiteType, 
 }
 
@@ -637,6 +638,7 @@ async fn department_equipment_handler(
 struct DepartmentSiteRow {
     id: i32,
     name: String,
+    #[sqlx(rename = "type")]
     type_: SiteType,
 }
 
@@ -647,7 +649,7 @@ async fn department_sites_handler(
 ) -> Html<String> {
     // Query sites for this department
     let query = sqlx::query_as::<_, DepartmentSiteRow>(
-        "SELECT s.id, s.name, s.type as type_
+        "SELECT s.id, s.name, s.type
          FROM site s
          JOIN area a ON s.area_id = a.id
          WHERE a.department_id = $1

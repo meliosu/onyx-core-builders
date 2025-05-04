@@ -1,6 +1,6 @@
 <div class="mb-4 flex justify-between items-center">
     <h3 class="text-lg font-semibold">Equipment</h3>
-    <a href="/equipment/new" class="bg-secondary text-primary px-4 py-2 rounded font-medium hover:bg-opacity-90 text-sm">
+    <a href="/equipment/new" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90 text-sm">
         <i class="fas fa-plus mr-2"></i> Add Equipment
     </a>
 </div>
@@ -10,7 +10,7 @@
     <i class="fas fa-truck text-4xl mb-3"></i>
     <p>No equipment assigned to this department.</p>
     <p class="mt-2">
-        <a href="/equipment/new" class="text-secondary hover:underline">
+        <a href="/equipment/new" class="text-custom-secondary hover:underline">
             Add new equipment
         </a>
     </p>
@@ -48,10 +48,10 @@
                 </td>
                 <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
                     <div class="flex justify-end space-x-2">
-                        <a href="/equipment/{{ item.id }}" class="text-primary hover:text-secondary">
+                        <a href="/equipment/{{ item.id }}" class="text-custom-primary hover:text-custom-secondary">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <a href="/equipment/{{ item.id }}/edit" class="text-primary hover:text-secondary">
+                        <a href="/equipment/{{ item.id }}/edit" class="text-custom-primary hover:text-custom-secondary">
                             <i class="fas fa-edit"></i>
                         </a>
                     </div>
@@ -110,7 +110,7 @@
                 {% for page in 1..6 %}  <!-- Assuming max pages is 5 -->
                     {% if page == pagination.page_number %}
                         <span
-                            class="relative z-10 inline-flex items-center bg-primary text-white px-4 py-2 text-sm font-semibold focus:z-20"
+                            class="relative z-10 inline-flex items-center bg-custom-primary text-white px-4 py-2 text-sm font-semibold focus:z-20"
                         >
                             {{ page }}
                         </span>
