@@ -12,6 +12,7 @@ use sqlx::{FromRow, Row};
 use crate::{database::Database, general::{Qualification, SiteType, RiskLevel, Position}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
 use crate::utils::empty_string_as_none;
+use crate::utils::deserialize_from_str;
 
 // Tab selector for site details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -88,18 +89,17 @@ pub struct SiteDetailsTemplate {
 #[template(path = "sites/new.html")]
 pub struct SiteNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
+#[derive(Template)]
 #[template(path = "sites/edit.html")]
 pub struct SiteEditTemplate {
     pub id: i32,
     pub name: String,
-    #[serde(rename = "type")]
     pub type_: SiteType,
     pub area_id: i32,
     pub area_name: String,
     pub client_id: i32,
     pub client_name: String,
-    pub location: String,
+    pub location: sqlx::postgres::types::PgPoint,
     pub risk_level: RiskLevel,
     pub description: Option<String>,
 }
@@ -117,18 +117,17 @@ pub struct SiteTypeFieldsQuery {
     pub type_: SiteType,
 }
 
-#[derive(Template, Serialize, Deserialize)]
+#[derive(Template)]
 #[template(path = "sites/api/details.html")]
 pub struct SiteApiDetailsTemplate {
     pub id: i32,
     pub name: String,
-    #[serde(rename = "type")]
     pub type_: SiteType,
     pub area_id: i32,
     pub area_name: String,
     pub client_id: i32,
     pub client_name: String,
-    pub location: String,
+    pub location: sqlx::postgres::types::PgPoint,
     pub risk_level: RiskLevel,
     pub description: Option<String>,
     pub tab: SiteTab,
@@ -142,14 +141,15 @@ pub struct SiteTypeFieldsTemplate {
     pub type_: SiteType,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct SiteUpdateForm {
     pub name: String,
     pub area_id: i32,
     pub client_id: i32,
     #[serde(rename = "type")]
     pub type_: SiteType,
-    pub location: String,
+    #[serde(deserialize_with = "deserialize_from_str")]
+    pub location: sqlx::postgres::types::PgPoint,
     pub risk_level: RiskLevel,
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub description: Option<String>,
@@ -284,7 +284,7 @@ pub struct BrigadeListItem {
     pub id: i32,
     pub brigadier_id: Option<i32>,
     pub brigadier_name: Option<String>,
-    pub worker_count: i32,
+    pub worker_count: i64,
     pub current_task: Option<String>,
 }
 
@@ -318,7 +318,7 @@ struct SiteBasicInfo {
     client_name: String,
     #[sqlx(rename = "type")]
     type_: SiteType,
-    location: String,
+    location: sqlx::postgres::types::PgPoint,
     risk_level: RiskLevel,
     description: Option<String>,
 }
@@ -1126,9 +1126,85 @@ async fn sites_list_api_handler(
         }
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - PROPERLY BIND PARAMETERS
+    let mut count_query_builder = sqlx::QueryBuilder::new(
+        "SELECT COUNT(*) FROM site s
+         JOIN area a ON s.area_id = a.id 
+         JOIN department d ON a.department_id = d.id
+         JOIN client c ON s.client_id = c.id"
+    );
+    
+    let mut count_where_added = false;
+    
+    if let Some(area_id) = &filter.area_id {
+        count_query_builder.push(" WHERE s.area_id = ");
+        count_query_builder.push_bind(area_id);
+        count_where_added = true;
+    }
+
+    if let Some(department_id) = &filter.department_id {
+        if count_where_added {
+            count_query_builder.push(" AND a.department_id = ");
+        } else {
+            count_query_builder.push(" WHERE a.department_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(department_id);
+    }
+
+    if let Some(client_id) = &filter.client_id {
+        if count_where_added {
+            count_query_builder.push(" AND s.client_id = ");
+        } else {
+            count_query_builder.push(" WHERE s.client_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(client_id);
+    }
+
+    if let Some(type_) = &filter.type_ {
+        if count_where_added {
+            count_query_builder.push(" AND s.type = ");
+        } else {
+            count_query_builder.push(" WHERE s.type = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(type_);
+    }
+
+    if let Some(name) = &filter.name {
+        if count_where_added {
+            count_query_builder.push(" AND s.name ILIKE ");
+        } else {
+            count_query_builder.push(" WHERE s.name ILIKE ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(format!("%{}%", name));
+    }
+
+    if let Some(status) = &filter.status {
+        if count_where_added {
+            count_query_builder.push(" AND ");
+        } else {
+            count_query_builder.push(" WHERE ");
+            count_where_added = true;
+        }
+        
+        match status.as_str() {
+            "in_progress" => {
+                count_query_builder.push("EXISTS (SELECT 1 FROM task t WHERE t.site_id = s.id AND t.actual_period_end IS NULL)");
+            },
+            "planned" => {
+                count_query_builder.push("NOT EXISTS (SELECT 1 FROM task t WHERE t.site_id = s.id)");
+            },
+            "completed" => {
+                count_query_builder.push("NOT EXISTS (SELECT 1 FROM task t WHERE t.site_id = s.id AND t.actual_period_end IS NULL) AND EXISTS (SELECT 1 FROM task t WHERE t.site_id = s.id)");
+            },
+            _ => {}
+        }
+    }
+    
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting sites: {}</p>", e)),
     };
@@ -1608,7 +1684,7 @@ async fn site_reports_handler(
                     t.actual_period_end,
                     CASE
                         WHEN t.actual_period_end IS NULL THEN 0
-                        ELSE EXTRACT(DAY FROM (t.actual_period_end - t.expected_period_end))::integer
+                        ELSE (t.actual_period_end - t.expected_period_end)::integer
                     END as delay
                 FROM task t
                 WHERE t.site_id = $1 AND (t.actual_period_end IS NOT NULL OR

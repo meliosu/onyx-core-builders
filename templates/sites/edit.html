@@ -65,7 +65,7 @@
             
             <div>
                 <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location <span class="text-error">*</span></label>
-                <input type="text" id="location" name="location" required value="{{ location }}" 
+                <input type="text" id="location" name="location" required value="{{ location.x}}{{ ","}}{{ location.y }}" 
                        class="px-3 py-2 border rounded w-full">
             </div>
             
@@ -87,8 +87,8 @@
         
         <!-- Type-specific fields -->
         <div id="type-specific-fields" class="border-t pt-6 mt-6"
-             hx-get="/api/sites/type-fields?type={{ type_ }}"
-             hx-trigger="load">
+             hx-get="/api/sites/type-fields?type={{ type_ | lowercase }}"
+             hx-trigger="load" hx-target="this">
             <div class="flex justify-center items-center h-10">
                 <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-custom-secondary"></div>
             </div>

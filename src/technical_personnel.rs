@@ -29,7 +29,7 @@ pub struct TechnicianFields {
 
 #[derive(Serialize, Deserialize)]
 pub struct TechnologistFields {
-    pub management_tools: String,
+    pub management_tools: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -66,7 +66,7 @@ pub struct TechnicalPersonnelEditTemplate {
     pub qualification: Qualification,
     pub position: Option<Position>,
     pub education_level: String,
-    pub software_skills: Option<String>,
+    pub software_skills: Vec<String>,
     pub is_project_manager: bool,
 }
 
@@ -91,7 +91,7 @@ pub struct TechnicalPersonnelApiDetailsTemplate {
     pub qualification: Qualification,
     pub position: Option<Position>,
     pub education_level: String,
-    pub software_skills: Option<String>,
+    pub software_skills: Vec<String>,
     pub is_project_manager: bool,
     pub qualification_fields: QualificationFields,
     pub supervising_department_id: Option<i32>,
@@ -119,8 +119,7 @@ pub struct TechnicalPersonnelUpdateForm {
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub position: Option<Position>,
     pub education_level: String,
-    #[serde(default, deserialize_with="empty_string_as_none")]
-    pub software_skills: Option<String>,
+    pub software_skills: Vec<String>,
     pub is_project_manager: bool,
     #[serde(flatten)]
     pub qualification_fields: QualificationFields,
@@ -139,8 +138,7 @@ pub struct TechnicalPersonnelCreateForm {
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub position: Option<Position>,
     pub education_level: String,
-    #[serde(default, deserialize_with="empty_string_as_none")]
-    pub software_skills: Option<String>,
+    pub software_skills: Vec<String>,
     pub is_project_manager: bool,
     #[serde(flatten)]
     pub qualification_fields: QualificationFields,
@@ -197,7 +195,7 @@ struct TechnicalPersonnelBasicInfo {
     qualification: Qualification,
     position: Option<Position>,
     education_level: String,
-    software_skills: Option<String>,
+    software_skills: Vec<String>,
     is_project_manager: bool,
 }
 
@@ -208,7 +206,7 @@ struct TechnicianData {
 
 #[derive(FromRow)]
 struct TechnologistData {
-    management_tools: String,
+    management_tools: Vec<String>,
 }
 
 #[derive(FromRow)]
@@ -820,9 +818,66 @@ async fn technical_personnel_list_api_handler(
         query_builder.push(")");
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - PROPERLY BIND PARAMETERS
+    let mut count_query_builder = sqlx::QueryBuilder::new(
+        "SELECT COUNT(*) FROM technical_personnel tp
+        JOIN employee e ON tp.id = e.id
+        LEFT JOIN department d ON tp.id = d.supervisor_id
+        LEFT JOIN area a ON tp.id = a.supervisor_id"
+    );
+    
+    let mut count_where_added = false;
+    
+    if let Some(qualification) = &filter.qualification {
+        count_query_builder.push(" WHERE tp.qualification = ");
+        count_query_builder.push_bind(qualification);
+        count_where_added = true;
+    }
+
+    if let Some(position) = &filter.position {
+        if count_where_added {
+            count_query_builder.push(" AND tp.position = ");
+        } else {
+            count_query_builder.push(" WHERE tp.position = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(position);
+    }
+
+    if let Some(department_id) = &filter.department_id {
+        if count_where_added {
+            count_query_builder.push(" AND d.id = ");
+        } else {
+            count_query_builder.push(" WHERE d.id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(department_id);
+    }
+
+    if let Some(area_id) = &filter.area_id {
+        if count_where_added {
+            count_query_builder.push(" AND a.id = ");
+        } else {
+            count_query_builder.push(" WHERE a.id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(area_id);
+    }
+
+    if let Some(name) = &filter.name {
+        if count_where_added {
+            count_query_builder.push(" AND (e.last_name ILIKE ");
+        } else {
+            count_query_builder.push(" WHERE (e.last_name ILIKE ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_query_builder.push(" OR e.first_name ILIKE ");
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_query_builder.push(")");
+    }
+    
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting technical personnel: {}</p>", e)),
     };

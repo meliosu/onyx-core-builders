@@ -143,7 +143,7 @@ pub struct PersonnelListItem {
     pub id: i32,
     pub name: String,
     pub qualification: Qualification,
-    pub position: Position,
+    pub position: Option<Position>,
 }
 
 // Handler functions for page endpoints
@@ -645,7 +645,7 @@ async fn area_sites_handler(
 ) -> Html<String> {
     // Query sites for this area
     let query = sqlx::query_as::<_, AreaSiteRow>(
-        "SELECT s.id, s.name, s.type as type_, s.client_id, c.name as client_name
+        "SELECT s.id, s.name, s.type, s.client_id, c.name as client_name
          FROM site s
          JOIN client c ON s.client_id = c.id
          WHERE s.area_id = $1
@@ -687,7 +687,7 @@ struct AreaPersonnelRow {
     id: i32,
     name: String,
     qualification: Qualification,
-    position: Position,
+    position: Option<Position>,
 }
 
 async fn area_personnel_handler(

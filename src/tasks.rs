@@ -639,9 +639,92 @@ async fn tasks_list_api_handler(
         }
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - PROPERLY BIND PARAMETERS
+    let mut count_query_builder = sqlx::QueryBuilder::new(
+        "SELECT COUNT(*) FROM task t JOIN site s ON t.site_id = s.id"
+    );
+    
+    // Copy the same where conditions for the count query
+    let mut count_where_added = false;
+    
+    if let Some(name) = &filter.name {
+        count_query_builder.push(" WHERE t.name ILIKE ");
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_where_added = true;
+    }
+
+    if let Some(site_id) = &filter.site_id {
+        if count_where_added {
+            count_query_builder.push(" AND t.site_id = ");
+        } else {
+            count_query_builder.push(" WHERE t.site_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(site_id);
+    }
+
+    if let Some(brigade_id) = &filter.brigade_id {
+        if count_where_added {
+            count_query_builder.push(" AND t.brigade_id = ");
+        } else {
+            count_query_builder.push(" WHERE t.brigade_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(brigade_id);
+    }
+
+    if let Some(status) = &filter.status {
+        if count_where_added {
+            count_query_builder.push(" AND ");
+        } else {
+            count_query_builder.push(" WHERE ");
+            count_where_added = true;
+        }
+
+        match status {
+            TaskStatus::Completed => {
+                count_query_builder.push("t.actual_period_end IS NOT NULL");
+            },
+            TaskStatus::InProgress => {
+                count_query_builder.push("t.actual_period_end IS NULL AND t.brigade_id IS NOT NULL");
+            },
+            TaskStatus::Planned => {
+                count_query_builder.push("t.brigade_id IS NULL");
+            },
+        }
+    }
+
+    if let Some(date_from) = &filter.date_from {
+        if count_where_added {
+            count_query_builder.push(" AND t.period_start >= ");
+        } else {
+            count_query_builder.push(" WHERE t.period_start >= ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(date_from);
+    }
+
+    if let Some(date_to) = &filter.date_to {
+        if count_where_added {
+            count_query_builder.push(" AND t.period_start <= ");
+        } else {
+            count_query_builder.push(" WHERE t.period_start <= ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(date_to);
+    }
+
+    if let Some(exceeded_deadline) = &filter.exceeded_deadline {
+        if *exceeded_deadline {
+            if count_where_added {
+                count_query_builder.push(" AND ((t.actual_period_end IS NOT NULL AND t.actual_period_end > t.expected_period_end) OR (t.actual_period_end IS NULL AND CURRENT_DATE > t.expected_period_end))");
+            } else {
+                count_query_builder.push(" WHERE ((t.actual_period_end IS NOT NULL AND t.actual_period_end > t.expected_period_end) OR (t.actual_period_end IS NULL AND CURRENT_DATE > t.expected_period_end))");
+            }
+        }
+    }
+    
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting tasks: {}</p>", e)),
     };

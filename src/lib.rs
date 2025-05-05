@@ -13,7 +13,6 @@ mod clients;
 mod brigades;
 mod tasks;
 mod materials;
-mod reports;
 mod helpers;
 mod impls;
 mod utils;
@@ -31,5 +30,5 @@ pub fn router() -> axum::Router<database::Database> {
         .merge(brigades::router())
         .merge(tasks::router())
         .merge(materials::router())
-        .merge(reports::router())
+        .merge(helpers::router())
 }

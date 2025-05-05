@@ -176,7 +176,7 @@ The database should have the following tables and table fields:
   * profession (one of electrician, plumber, welder, driver, mason)
   * union_name (name of union that worker is in, optional)
 
-* electrirican (subclass of worker)
+* electrican (subclass of worker)
   * id (references worker)
   * voltage_specializaition (text)
 
@@ -235,7 +235,7 @@ The database should have the following tables and table fields:
   * task_id (references task)
   * material_id (references material)
   * expected_amount (amount that is expected to be spent)
-  * actuial_amount (amount that was actually spent, optional)
+  * actual_amount (amount that was actually spent, optional)
 
 * task (Single task on a construction site, brigade_id is null if no brigade has been assigned to it yet, actual_period_end is set after the task is complete)
   * id (primary key)

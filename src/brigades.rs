@@ -537,9 +537,45 @@ async fn brigades_list_api_handler(
         query_builder.push(")");
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - REPLACE THIS SECTION
+    let mut count_query_builder = sqlx::QueryBuilder::new(
+        "SELECT COUNT(*) FROM brigade b
+         JOIN worker w ON b.brigadier_id = w.id
+         JOIN employee e ON w.id = e.id"
+    );
+
+    let mut count_where_added = false;
+
+    // Add the same filter conditions to the count query
+    if let Some(brigadier_id) = &filter.brigadier_id {
+        count_query_builder.push(" WHERE b.brigadier_id = ");
+        count_query_builder.push_bind(brigadier_id);
+        count_where_added = true;
+    }
+
+    if let Some(site_id) = &filter.site_id {
+        if count_where_added {
+            count_query_builder.push(" AND EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.site_id = ");
+        } else {
+            count_query_builder.push(" WHERE EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.site_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(site_id);
+        count_query_builder.push(")");
+    }
+
+    if let Some(task_name) = &filter.task_name {
+        if count_where_added {
+            count_query_builder.push(" AND EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.name ILIKE ");
+        } else {
+            count_query_builder.push(" WHERE EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.name ILIKE ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(format!("%{}%", task_name));
+        count_query_builder.push(")");
+    }
+
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting brigades: {}</p>", e)),
     };
@@ -897,7 +933,7 @@ async fn worker_remove_handler(
             // Create notification based on result
             let (notification_result, message) = match result {
                 Ok(result) => {
-                    if result.rows_affected() == 0 {
+                    if (result.rows_affected() == 0) {
                         (
                             NotificationResult::Error,
                             Some(format!("Worker {} is not in this brigade", worker_name)),

@@ -75,13 +75,11 @@
                         </p>
                     </div>
                     
-                    {% if let Some(skills) = software_skills %}
                     <div>
                         <p class="text-sm text-gray-600">
-                            <span class="font-medium">Software Skills:</span> {{ skills }}
+                            <span class="font-medium">Software Skills:</span> {% for skill in software_skills %}{{ skill }}{{ " " }}{% endfor %}
                         </p>
                     </div>
-                    {% endif %}
                     
                     <div>
                         <p class="text-sm text-gray-600">
@@ -124,7 +122,8 @@
                             </p>
                         {% when QualificationFields::Technologist(fields) %}
                             <p class="text-sm text-gray-600">
-                                <span class="font-medium">Management Tools:</span> {{ fields.management_tools }}
+                                <span class="font-medium">Management Tools:</span> 
+                                {% for tool in fields.management_tools %}{{ tool }} {{ " " }}{% endfor %}
                             </p>
                         {% when QualificationFields::Engineer(fields) %}
                             <p class="text-sm text-gray-600">

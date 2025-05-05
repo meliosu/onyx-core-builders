@@ -131,7 +131,7 @@ CREATE TABLE park (
     has_lighting BOOLEAN NOT NULL
 );
 
-CREATE TABLE electrirican (
+CREATE TABLE electrician (
     id INTEGER PRIMARY KEY REFERENCES worker(id),
     voltage_specializaition TEXT NOT NULL
 );

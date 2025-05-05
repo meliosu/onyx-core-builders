@@ -51,6 +51,13 @@ pub struct MaterialApiDetailsTemplate {
     pub total_cost: f32,
 }
 
+// Add this new struct for usage statistics
+#[derive(sqlx::FromRow)]
+struct MaterialUsageStats {
+    total_estimated: f32,
+    total_actual: f32,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct MaterialUpdateForm {
     pub name: String,
@@ -224,13 +231,13 @@ async fn material_api_details_handler(
         }
     };
 
-    // Calculate usage statistics
-    let usage_stats = sqlx::query_as::<_, MaterialApiDetailsTemplate>(
+    // Calculate usage statistics - fixed to use MaterialUsageStats
+    let usage_stats = sqlx::query_as::<_, MaterialUsageStats>(
         "SELECT 
             COALESCE(SUM(e.expected_amount), 0) as total_estimated,
             COALESCE(SUM(e.actual_amount), 0) as total_actual
         FROM expenditure e
-        WHERE e.material_id = $1",
+        WHERE e.material_id = $1"
     )
     .bind(id)
     .fetch_one(&*db.pool)
@@ -238,10 +245,7 @@ async fn material_api_details_handler(
 
     let (total_estimated, total_actual, total_cost) = match usage_stats {
         Ok(stats) => {
-            let estimated = stats.total_estimated;
-            let actual = stats.total_actual;
-            let cost = actual * material.cost;
-            (estimated, actual, cost)
+            (stats.total_estimated, stats.total_actual, stats.total_actual * material.cost)
         },
         Err(e) => {
             return Html::from(format!("<p>Error fetching usage statistics: {}</p>", e));
@@ -423,9 +427,51 @@ async fn materials_list_api_handler(
         }
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - REPLACE THIS SECTION
+    let mut count_query_builder = sqlx::QueryBuilder::new("SELECT COUNT(*) FROM material m");
+    
+    let mut count_where_added = false;
+
+    if let Some(name) = &filter.name {
+        count_query_builder.push(" WHERE m.name ILIKE ");
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_where_added = true;
+    }
+
+    if let Some(cost_min) = &filter.cost_min {
+        if count_where_added {
+            count_query_builder.push(" AND m.cost >= ");
+        } else {
+            count_query_builder.push(" WHERE m.cost >= ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(cost_min);
+    }
+
+    if let Some(cost_max) = &filter.cost_max {
+        if count_where_added {
+            count_query_builder.push(" AND m.cost <= ");
+        } else {
+            count_query_builder.push(" WHERE m.cost <= ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(cost_max);
+    }
+
+    if let Some(excess_usage) = &filter.excess_usage {
+        if *excess_usage {
+            let subquery = " EXISTS (SELECT 1 FROM expenditure e WHERE e.material_id = m.id AND e.actual_amount > e.expected_amount)";
+            if count_where_added {
+                count_query_builder.push(" AND ");
+            } else {
+                count_query_builder.push(" WHERE ");
+                count_where_added = true;
+            }
+            count_query_builder.push(subquery);
+        }
+    }
+
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting materials: {}</p>", e)),
     };

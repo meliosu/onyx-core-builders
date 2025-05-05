@@ -455,9 +455,39 @@ async fn clients_list_api_handler(
         query_builder.push_bind(is_vip);
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - REPLACE THIS SECTION
+    let mut count_query_builder = sqlx::QueryBuilder::new("SELECT COUNT(*) FROM client");
+
+    let mut count_where_added = false;
+
+    // Add the same filter conditions to the count query
+    if let Some(name) = &filter.name {
+        count_query_builder.push(" WHERE name ILIKE ");
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_where_added = true;
+    }
+
+    if let Some(inn) = &filter.inn {
+        if count_where_added {
+            count_query_builder.push(" AND inn = ");
+        } else {
+            count_query_builder.push(" WHERE inn = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(inn);
+    }
+
+    if let Some(is_vip) = &filter.is_vip {
+        if count_where_added {
+            count_query_builder.push(" AND is_vip = ");
+        } else {
+            count_query_builder.push(" WHERE is_vip = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(is_vip);
+    }
+
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting clients: {}</p>", e)),
     };

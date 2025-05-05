@@ -1004,9 +1004,61 @@ async fn workers_list_api_handler(
         query_builder.push(")");
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - PROPERLY BIND PARAMETERS
+    let mut count_query_builder = sqlx::QueryBuilder::new(
+        "SELECT COUNT(*) FROM worker w 
+         JOIN employee e ON w.id = e.id
+         LEFT JOIN assignment a ON w.id = a.worker_id"
+    );
+    
+    let mut count_where_added = false;
+    
+    if let Some(profession) = &filter.profession {
+        count_query_builder.push(" WHERE w.profession = ");
+        count_query_builder.push_bind(profession);
+        count_where_added = true;
+    }
+
+    if let Some(brigade_id) = &filter.brigade_id {
+        if count_where_added {
+            count_query_builder.push(" AND a.brigade_id = ");
+        } else {
+            count_query_builder.push(" WHERE a.brigade_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(brigade_id);
+    }
+
+    if let Some(is_brigadier) = &filter.is_brigadier {
+        let subquery = if *is_brigadier {
+            "EXISTS (SELECT 1 FROM brigade b WHERE b.brigadier_id = w.id)"
+        } else {
+            "NOT EXISTS (SELECT 1 FROM brigade b WHERE b.brigadier_id = w.id)"
+        };
+
+        if count_where_added {
+            count_query_builder.push(" AND ");
+        } else {
+            count_query_builder.push(" WHERE ");
+            count_where_added = true;
+        }
+        count_query_builder.push(subquery);
+    }
+
+    if let Some(name) = &filter.name {
+        if count_where_added {
+            count_query_builder.push(" AND (e.last_name ILIKE ");
+        } else {
+            count_query_builder.push(" WHERE (e.last_name ILIKE ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_query_builder.push(" OR e.first_name ILIKE ");
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_query_builder.push(")");
+    }
+    
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting workers: {}</p>", e)),
     };

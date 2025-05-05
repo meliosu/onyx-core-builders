@@ -94,8 +94,8 @@
         
         <!-- Profession-specific fields will be loaded here -->
         <div id="profession-specific-fields" class="border-t pt-6 mt-6"
-             hx-get="/api/workers/profession-fields?profession={{ profession }}"
-             hx-trigger="load">
+             hx-get="/api/workers/profession-fields?profession={{ profession | lowercase }}"
+             hx-trigger="load" hx-target="this">
             <div class="flex justify-center items-center h-[40px]">
                 <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-custom-secondary"></div>
             </div>
