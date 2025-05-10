@@ -117,7 +117,6 @@ pub struct AreaListItem {
 pub struct AreaSitesTemplate {
     pub id: i32,
     pub sites: Vec<SiteListItem>,
-    pub pagination: Pagination,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -135,7 +134,6 @@ pub struct SiteListItem {
 pub struct AreaPersonnelTemplate {
     pub id: i32,
     pub personnel: Vec<PersonnelListItem>,
-    pub pagination: Pagination,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -658,7 +656,6 @@ struct AreaSiteRow {
 async fn area_sites_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
-    Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query sites for this area
     let query = sqlx::query_as::<_, AreaSiteRow>(
@@ -666,12 +663,9 @@ async fn area_sites_handler(
          FROM site s
          JOIN client c ON s.client_id = c.id
          WHERE s.area_id = $1
-         ORDER BY s.name
-         LIMIT $2 OFFSET $3"
+         ORDER BY s.name"
     )
-    .bind(id)
-    .bind(pagination.page_size as i32)
-    .bind((pagination.page_number as i32 - 1) * pagination.page_size as i32);
+    .bind(id);
 
     let sites = match query.fetch_all(&*db.pool).await {
         Ok(sites) => sites,
@@ -690,7 +684,6 @@ async fn area_sites_handler(
     let template = AreaSitesTemplate { 
         id,
         sites: site_items,
-        pagination,
     };
 
     match template.render() {
@@ -710,7 +703,6 @@ struct AreaPersonnelRow {
 async fn area_personnel_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
-    Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query technical personnel for this area
     let query = sqlx::query_as::<_, AreaPersonnelRow>(
@@ -718,12 +710,9 @@ async fn area_personnel_handler(
          FROM technical_personnel tp
          JOIN employee e ON tp.id = e.id
          WHERE tp.id = (SELECT supervisor_id FROM area WHERE id = $1)
-         ORDER BY name
-         LIMIT $2 OFFSET $3"
+         ORDER BY name"
     )
-    .bind(id)
-    .bind(pagination.page_size as i32)
-    .bind((pagination.page_number as i32 - 1) * pagination.page_size as i32);
+    .bind(id);
 
     let personnel = match query.fetch_all(&*db.pool).await {
         Ok(personnel) => personnel,
@@ -741,7 +730,6 @@ async fn area_personnel_handler(
     let template = AreaPersonnelTemplate { 
         id,
         personnel: personnel_items,
-        pagination,
     };
 
     match template.render() {

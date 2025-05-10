@@ -68,8 +68,7 @@
             {% when DepartmentTab::Areas %}
                 <div id="areas-content"
                      hx-get="/api/departments/{{ id }}/areas"
-                     hx-trigger="load"
-                     hx-vals='{"page_number": 1, "page_size": 10}'>
+                     hx-trigger="load">
                     <div class="flex justify-center items-center h-40">
                         <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
                     </div>
@@ -77,8 +76,7 @@
             {% when DepartmentTab::Equipment %}
                 <div id="equipment-content"
                      hx-get="/api/departments/{{ id }}/equipment"
-                     hx-trigger="load"
-                     hx-vals='{"page_number": 1, "page_size": 10}'>
+                     hx-trigger="load">
                     <div class="flex justify-center items-center h-40">
                         <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
                     </div>
@@ -86,8 +84,7 @@
             {% when DepartmentTab::Sites %}
                 <div id="sites-content"
                      hx-get="/api/departments/{{ id }}/sites"
-                     hx-trigger="load"
-                     hx-vals='{"page_number": 1, "page_size": 10}'>
+                     hx-trigger="load">
                     <div class="flex justify-center items-center h-40">
                         <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
                     </div>
@@ -95,8 +92,7 @@
             {% when DepartmentTab::Personnel %}
                 <div id="personnel-content"
                      hx-get="/api/departments/{{ id }}/personnel"
-                     hx-trigger="load"
-                     hx-vals='{"page_number": 1, "page_size": 10}'>
+                     hx-trigger="load">
                     <div class="flex justify-center items-center h-40">
                         <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
                     </div>

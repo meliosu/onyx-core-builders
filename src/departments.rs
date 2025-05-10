@@ -127,8 +127,6 @@ pub struct AreaListItem {
 pub struct DepartmentEquipmentTemplate {
     pub id: i32,
     pub equipment: Vec<EquipmentListItem>,
-    #[serde(flatten)]
-    pub pagination: Pagination,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -143,8 +141,6 @@ pub struct EquipmentListItem {
 pub struct DepartmentSitesTemplate {
     pub id: i32,
     pub sites: Vec<SiteListItem>,
-    #[serde(flatten)]
-    pub pagination: Pagination,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -160,8 +156,6 @@ pub struct SiteListItem {
 pub struct DepartmentPersonnelTemplate {
     pub id: i32,
     pub personnel: Vec<PersonnelListItem>,
-    #[serde(flatten)]
-    pub pagination: Pagination,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -620,7 +614,6 @@ struct DepartmentEquipmentRow {
 async fn department_equipment_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
-    Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query equipment for this department
     let query = sqlx::query_as::<_, DepartmentEquipmentRow>(
@@ -630,12 +623,9 @@ async fn department_equipment_handler(
                                         AND ea.site_id IS NULL
                                         AND (ea.period_end IS NULL OR ea.period_end > CURRENT_DATE)
          WHERE ea.department_id = $1
-         ORDER BY e.name
-         LIMIT $2 OFFSET $3"
+         ORDER BY e.name"
     )
-    .bind(id)
-    .bind(pagination.page_size as i64)
-    .bind((pagination.page_number as i64 - 1) * pagination.page_size as i64);
+    .bind(id);
 
     let equipment = match query.fetch_all(&*db.pool).await {
         Ok(equip) => equip,
@@ -652,7 +642,6 @@ async fn department_equipment_handler(
     let template = DepartmentEquipmentTemplate { 
         id,
         equipment: equipment_items,
-        pagination,
     };
 
     match template.render() {
@@ -672,7 +661,6 @@ struct DepartmentSiteRow {
 async fn department_sites_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
-    Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query sites for this department
     let query = sqlx::query_as::<_, DepartmentSiteRow>(
@@ -680,12 +668,9 @@ async fn department_sites_handler(
          FROM site s
          JOIN area a ON s.area_id = a.id
          WHERE a.department_id = $1
-         ORDER BY s.name
-         LIMIT $2 OFFSET $3"
+         ORDER BY s.name"
     )
-    .bind(id)
-    .bind(pagination.page_size as i64)
-    .bind((pagination.page_number as i64 - 1) * pagination.page_size as i64);
+    .bind(id);
 
     let sites = match query.fetch_all(&*db.pool).await {
         Ok(sites) => sites,
@@ -702,7 +687,6 @@ async fn department_sites_handler(
     let template = DepartmentSitesTemplate { 
         id,
         sites: site_items,
-        pagination,
     };
 
     match template.render() {
@@ -721,7 +705,6 @@ struct DepartmentPersonnelRow {
 async fn department_personnel_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
-    Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query technical personnel for this department
     let query = sqlx::query_as::<_, DepartmentPersonnelRow>(
@@ -730,12 +713,9 @@ async fn department_personnel_handler(
          JOIN employee e ON tp.id = e.id
          WHERE tp.id = (SELECT supervisor_id FROM department WHERE id = $1)
          OR tp.id IN (SELECT supervisor_id FROM area WHERE department_id = $1)
-         ORDER BY e.last_name, e.first_name
-         LIMIT $2 OFFSET $3"
+         ORDER BY e.last_name, e.first_name"
     )
-    .bind(id)
-    .bind(pagination.page_size as i64)
-    .bind((pagination.page_number as i64 - 1) * pagination.page_size as i64);
+    .bind(id);
 
     let personnel = match query.fetch_all(&*db.pool).await {
         Ok(personnel) => personnel,
@@ -752,7 +732,6 @@ async fn department_personnel_handler(
     let template = DepartmentPersonnelTemplate { 
         id,
         personnel: personnel_items,
-        pagination,
     };
 
     match template.render() {
