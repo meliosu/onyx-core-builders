@@ -1,7 +1,7 @@
 {% if departments.is_empty() %}
     <option value="">No departments found</option>
 {% else %}
-    <option value="">Select a department</option>
+    <option value="">Select department</option>
     {% for department in departments %}
         <option value="{{ department.id }}" {% if query.selected_id == Some(*department.id) %}selected{% endif %}>{{ department.name }}</option>
     {% endfor %}
