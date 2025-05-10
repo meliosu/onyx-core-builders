@@ -1,12 +1,8 @@
-<div id="materials-results">
-    <select class="px-3 py-2 border rounded w-full">
-        {% if materials.is_empty() %}
-            <option value="">No materials found</option>
-        {% else %}
-            <option value="">Select a material</option>
-            {% for material in materials %}
-                <option value="{{ material.id }}">{{ material.name }} ({{ material.units }})</option>
-            {% endfor %}
-        {% endif %}
-    </select>
-</div>
+{% if materials.is_empty() %}
+    <option value="">No materials found</option>
+{% else %}
+    <option value="">Select a material</option>
+    {% for material in materials %}
+        <option value="{{ material.id }}" {% if query.selected_id == Some(*material.id) %}selected{% endif %}>{{ material.name }} ({{ material.units }})</option>
+    {% endfor %}
+{% endif %}

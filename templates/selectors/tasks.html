@@ -1,12 +1,8 @@
-<div id="tasks-results">
-    <select class="px-3 py-2 border rounded w-full">
-        {% if tasks.is_empty() %}
-            <option value="">No tasks found</option>
-        {% else %}
-            <option value="">Select a task</option>
-            {% for task in tasks %}
-                <option value="{{ task.id }}">{{ task.name }}</option>
-            {% endfor %}
-        {% endif %}
-    </select>
-</div>
+{% if tasks.is_empty() %}
+    <option value="">No tasks found</option>
+{% else %}
+    <option value="">Select a task</option>
+    {% for task in tasks %}
+        <option value="{{ task.id }}" {% if query.selected_id == Some(*task.id) %}selected{% endif %}>{{ task.name }}</option>
+    {% endfor %}
+{% endif %}

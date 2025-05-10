@@ -1,12 +1,8 @@
-<div id="clients-results">
-    <select class="px-3 py-2 border rounded w-full">
-        {% if clients.is_empty() %}
-            <option value="">No clients found</option>
-        {% else %}
-            <option value="">Select a client</option>
-            {% for client in clients %}
-                <option value="{{ client.id }}">{{ client.name }}</option>
-            {% endfor %}
-        {% endif %}
-    </select>
-</div>
+{% if clients.is_empty() %}
+    <option value="">No clients found</option>
+{% else %}
+    <option value="">Select a client</option>
+    {% for client in clients %}
+        <option value="{{ client.id }}" {% if query.selected_id == Some(*client.id) %}selected{% endif %}>{{ client.name }}</option>
+    {% endfor %}
+{% endif %}

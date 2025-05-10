@@ -1,12 +1,8 @@
-<div id="technical-personnel-results">
-    <select class="px-3 py-2 border rounded w-full">
-        {% if personnel.is_empty() %}
-            <option value="">No technical personnel found</option>
-        {% else %}
-            <option value="">Select a technical personnel</option>
-            {% for person in personnel %}
-                <option value="{{ person.id }}">{{ person.name }}</option>
-            {% endfor %}
-        {% endif %}
-    </select>
-</div>
+{% if personnel.is_empty() %}
+    <option value="">No technical personnel found</option>
+{% else %}
+    <option value="">Select a technical personnel</option>
+    {% for person in personnel %}
+        <option value="{{ person.id }}" {% if query.selected_id == Some(*person.id) %}selected{% endif %}>{{ person.name }}</option>
+    {% endfor %}
+{% endif %}

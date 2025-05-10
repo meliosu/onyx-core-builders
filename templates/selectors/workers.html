@@ -1,12 +1,8 @@
-<div id="workers-results">
-    <select class="px-3 py-2 border rounded w-full">
-        {% if workers.is_empty() %}
-            <option value="">No workers found</option>
-        {% else %}
-            <option value="">Select a worker</option>
-            {% for worker in workers %}
-                <option value="{{ worker.id }}">{{ worker.name }}</option>
-            {% endfor %}
-        {% endif %}
-    </select>
-</div>
+{% if workers.is_empty() %}
+    <option value="">No workers found</option>
+{% else %}
+    <option value="">Select a worker</option>
+    {% for worker in workers %}
+        <option value="{{ worker.id }}" {% if query.selected_id == Some(*worker.id) %}selected{% endif %}>{{ worker.name }}</option>
+    {% endfor %}
+{% endif %}

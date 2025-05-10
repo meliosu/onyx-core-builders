@@ -1,12 +1,8 @@
-<div id="brigades-results">
-    <select class="px-3 py-2 border rounded w-full">
-        {% if brigades.is_empty() %}
-            <option value="">No brigades found</option>
-        {% else %}
-            <option value="">Select a brigade</option>
-            {% for brigade in brigades %}
-                <option value="{{ brigade.id }}">Brigade #{{ brigade.id }} ({{ brigade.brigadier_name }})</option>
-            {% endfor %}
-        {% endif %}
-    </select>
-</div>
+{% if brigades.is_empty() %}
+    <option value="">No brigades found</option>
+{% else %}
+    <option value="">Select a brigade</option>
+    {% for brigade in brigades %}
+        <option value="{{ brigade.id }}" {% if query.selected_id == Some(*brigade.id) %}selected{% endif %}>Brigade #{{ brigade.id }} ({{ brigade.brigadier_name }})</option>
+    {% endfor %}
+{% endif %}
