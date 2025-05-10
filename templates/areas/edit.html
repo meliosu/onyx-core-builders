@@ -58,31 +58,4 @@
         </div>
     </form>
 </div>
-
-<!-- Selector modal placeholders -->
-<div id="department-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <!-- Department selector will be loaded here -->
-</div>
-
-<div id="supervisor-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <!-- Technical personnel selector will be loaded here -->
-</div>
-
-<!-- Notification container -->
-<div id="notification-container"></div>
-
-<script>
-// Minimal JS for selecting department and supervisor
-function selectDepartment(id, name) {
-    document.getElementById('department_id').value = id;
-    document.getElementById('department_display').value = name;
-    document.getElementById('department-selector-modal').classList.add('hidden');
-}
-
-function selectTechnicalPersonnel(id, name) {
-    document.getElementById('supervisor_id').value = id;
-    document.getElementById('supervisor_display').value = name;
-    document.getElementById('supervisor-selector-modal').classList.add('hidden');
-}
-</script>
 {% endblock %}

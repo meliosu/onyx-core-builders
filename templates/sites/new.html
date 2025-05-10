@@ -101,31 +101,4 @@
         </div>
     </form>
 </div>
-
-<!-- Selector modal placeholders -->
-<div id="area-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <!-- Area selector will be loaded here -->
-</div>
-
-<div id="client-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <!-- Client selector will be loaded here -->
-</div>
-
-<!-- Notification container -->
-<div id="notification-container"></div>
-
-<script>
-// Minimal JS for handling selectors
-function selectArea(id, name) {
-    document.getElementById('area_id').value = id;
-    document.getElementById('area_display').value = name;
-    document.getElementById('area-selector-modal').classList.add('hidden');
-}
-
-function selectClient(id, name) {
-    document.getElementById('client_id').value = id;
-    document.getElementById('client_display').value = name;
-    document.getElementById('client-selector-modal').classList.add('hidden');
-}
-</script>
 {% endblock %}

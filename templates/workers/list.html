@@ -94,21 +94,4 @@
         </div>
     </div>
 </div>
-
-<!-- Selector modal placeholders -->
-<div id="brigade-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <!-- Brigade selector will be loaded here -->
-</div>
-
-<!-- Notification container -->
-<div id="notification-container"></div>
-
-<script>
-// Minimal JS for handling selectors
-function selectBrigade(id, name) {
-    document.getElementById('brigade_id').value = id;
-    document.getElementById('brigade_display').value = name;
-    document.getElementById('brigade-selector-modal').classList.add('hidden');
-}
-</script>
 {% endblock %}

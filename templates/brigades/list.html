@@ -87,31 +87,4 @@
         </div>
     </div>
 </div>
-
-<!-- Selector modal placeholders -->
-<div id="worker-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <!-- Worker selector will be loaded here -->
-</div>
-
-<div id="site-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <!-- Site selector will be loaded here -->
-</div>
-
-<!-- Notification container -->
-<div id="notification-container"></div>
-
-<script>
-// Minimal JS for handling selectors
-function selectWorker(id, name) {
-    document.getElementById('brigadier_id').value = id;
-    document.getElementById('brigadier_display').value = name;
-    document.getElementById('worker-selector-modal').classList.add('hidden');
-}
-
-function selectSite(id, name) {
-    document.getElementById('site_id').value = id;
-    document.getElementById('site_display').value = name;
-    document.getElementById('site-selector-modal').classList.add('hidden');
-}
-</script>
 {% endblock %}
