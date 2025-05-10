@@ -15,9 +15,6 @@
                     Profession
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Brigade
-                </th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Role
                 </th>
                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -54,17 +51,6 @@
                                 Mason
                             </span>
                     {% endmatch %}
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    {% if let Some(brigade_id) = worker.brigade_id %}
-                        {% if let Some(brigade_name) = worker.brigade_name %}
-                            <a href="/brigades/{{ brigade_id }}" class="text-custom-primary hover:underline">{{ brigade_name }}</a>
-                        {% else %}
-                            <a href="/brigades/{{ brigade_id }}" class="text-custom-primary hover:underline">Brigade #{{ brigade_id }}</a>
-                        {% endif %}
-                    {% else %}
-                        <span class="text-gray-400">Not assigned</span>
-                    {% endif %}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {% if worker.is_brigadier %}

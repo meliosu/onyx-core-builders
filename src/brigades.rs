@@ -85,8 +85,6 @@ pub struct BrigadeListFilter {
     pub brigadier_id: Option<i32>,
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub site_id: Option<i32>,
-    #[serde(default, deserialize_with="empty_string_as_none")]
-    pub task_name: Option<String>,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -526,17 +524,6 @@ async fn brigades_list_api_handler(
         query_builder.push(")");
     }
 
-    if let Some(task_name) = &filter.task_name {
-        if where_added {
-            query_builder.push(" AND EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.name ILIKE ");
-        } else {
-            query_builder.push(" WHERE EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.name ILIKE ");
-            where_added = true;
-        }
-        query_builder.push_bind(format!("%{}%", task_name));
-        query_builder.push(")");
-    }
-
     // Count total results for pagination - REPLACE THIS SECTION
     let mut count_query_builder = sqlx::QueryBuilder::new(
         "SELECT COUNT(*) FROM brigade b
@@ -561,17 +548,6 @@ async fn brigades_list_api_handler(
             count_where_added = true;
         }
         count_query_builder.push_bind(site_id);
-        count_query_builder.push(")");
-    }
-
-    if let Some(task_name) = &filter.task_name {
-        if count_where_added {
-            count_query_builder.push(" AND EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.name ILIKE ");
-        } else {
-            count_query_builder.push(" WHERE EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.name ILIKE ");
-            count_where_added = true;
-        }
-        count_query_builder.push_bind(format!("%{}%", task_name));
         count_query_builder.push(")");
     }
 

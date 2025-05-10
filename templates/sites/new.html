@@ -87,6 +87,9 @@
             </div>
         </div>
 
+        <!-- Add this hidden field to provide the tag for SiteFields enum -->
+        <input type="hidden" id="site_fields_type" name="site_fields_type" value="">
+
         <div class="flex justify-end space-x-4 pt-4 border-t">
             <a href="/sites" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">Cancel</a>
             <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
@@ -95,4 +98,23 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the site type dropdown
+        const typeSelect = document.getElementById('type');
+        
+        // Function to update the hidden type field
+        function updateTypeField() {
+            const siteType = typeSelect.value;
+            document.getElementById('site_fields_type').value = siteType;
+        }
+        
+        // Update on page load and whenever the dropdown changes
+        typeSelect.addEventListener('change', updateTypeField);
+        
+        // Initial setup
+        updateTypeField();
+    });
+</script>
 {% endblock %}

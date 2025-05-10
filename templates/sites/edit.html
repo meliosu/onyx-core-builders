@@ -67,7 +67,7 @@
                 <label for="risk_level" class="block text-sm font-medium text-gray-700 mb-1">Risk Level <span class="text-error">*</span></label>
                 <select id="risk_level" name="risk_level" required class="px-3 py-2 border rounded w-full">
                     <option value="low" {% if risk_level == RiskLevel::Low %}selected{% endif %}>Low</option>
-                    <option value="medium" {% if risk_level == RiskLevel::Meidum %}selected{% endif %}>Medium</option>
+                    <option value="medium" {% if risk_level == RiskLevel::Medium %}selected{% endif %}>Medium</option>
                     <option value="high" {% if risk_level == RiskLevel::High %}selected{% endif %}>High</option>
                 </select>
             </div>

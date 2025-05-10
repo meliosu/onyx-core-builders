@@ -17,6 +17,19 @@ where
     }
 }
 
+pub fn deserialize_sequence<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error> 
+where 
+    D: serde::Deserializer<'de>,
+{
+    let result = String::deserialize(deserializer)?;
+
+    if result.is_empty() {
+        return Ok(vec![]);
+    } else {
+        return Ok(result.split(',').map(Into::into).collect());
+    }
+}
+
 use serde::de::Error as DeError;
 use serde::de::Visitor;
 use std::fmt;
@@ -51,4 +64,22 @@ where
     }
 
     deserializer.deserialize_str(Helper(PhantomData))
+}
+
+pub fn deserialize_checkbox<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    // If that fails, try to deserialize as a string
+    let result = String::deserialize(deserializer);
+    match result {
+        Ok(s) => {
+            let s = s.to_lowercase();
+            // Accept various "truthy" string values
+            Ok(s == "on" || s == "true" || s == "yes" || s == "1")
+        }
+        // If deserialization as string also fails, default to false
+        // This will happen for unchecked checkboxes (missing field)
+        Err(_) => Ok(false)
+    }
 }

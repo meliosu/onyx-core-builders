@@ -8,7 +8,7 @@
                        class="px-3 py-2 border rounded w-full">
             </div>
         </div>
-        <input type="hidden" name="qualification" value="technician">
+        <input type="hidden" name="qualification_fields_type" value="technician">
     
     {% when Qualification::Technologist %}
         <h3 class="text-lg font-semibold mb-4">Technologist Specific Fields</h3>
@@ -19,7 +19,7 @@
                        class="px-3 py-2 border rounded w-full">
             </div>
         </div>
-        <input type="hidden" name="qualification" value="technologist">
+        <input type="hidden" name="qualification_fields_type" value="technologist">
     
     {% when Qualification::Engineer %}
         <h3 class="text-lg font-semibold mb-4">Engineer Specific Fields</h3>
@@ -30,5 +30,5 @@
                        class="px-3 py-2 border rounded w-full">
             </div>
         </div>
-        <input type="hidden" name="qualification" value="engineer">
+        <input type="hidden" name="qualification_fields_type" value="engineer">
 {% endmatch %}

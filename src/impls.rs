@@ -32,7 +32,7 @@ impl std::fmt::Display for RiskLevel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             RiskLevel::Low => write!(f, "Low"),
-            RiskLevel::Meidum => write!(f, "Medium"),
+            RiskLevel::Medium => write!(f, "Medium"),
             RiskLevel::High => write!(f, "High"),
         }
     }
@@ -44,7 +44,7 @@ impl std::str::FromStr for RiskLevel {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "low" => Ok(RiskLevel::Low),
-            "medium" => Ok(RiskLevel::Meidum),
+            "medium" => Ok(RiskLevel::Medium),
             "high" => Ok(RiskLevel::High),
             _ => Err(format!("Invalid RiskLevel: {}", s)),
         }

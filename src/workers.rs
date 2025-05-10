@@ -14,7 +14,7 @@ use crate::utils::empty_string_as_none;
 
 // Profession-specific fields
 #[derive(Serialize, Deserialize)]
-#[serde(tag = "profession")]
+#[serde(tag = "profession_fields_type", rename_all = "snake_case")]
 pub enum ProfessionFields {
     Electrician(ElectricianFields),
     Plumber(PlumberFields),
@@ -157,8 +157,6 @@ pub struct WorkerListFilter {
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub profession: Option<Profession>,
     #[serde(default, deserialize_with="empty_string_as_none")]
-    pub brigade_id: Option<i32>,
-    #[serde(default, deserialize_with="empty_string_as_none")]
     pub is_brigadier: Option<bool>,
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
@@ -178,8 +176,6 @@ pub struct WorkerListItem {
     pub first_name: String,
     pub last_name: String,
     pub profession: Profession,
-    pub brigade_id: Option<i32>,
-    pub brigade_name: Option<String>,
     pub is_brigadier: bool,
 }
 
@@ -940,20 +936,9 @@ async fn workers_list_api_handler(
             e.first_name, 
             e.last_name, 
             w.profession,
-            a.brigade_id,
-            CASE 
-                WHEN a.brigade_id IS NOT NULL THEN 
-                    (SELECT CONCAT(be.last_name, ' ', be.first_name) 
-                     FROM brigade b
-                     JOIN worker bw ON b.brigadier_id = bw.id
-                     JOIN employee be ON bw.id = be.id
-                     WHERE b.id = a.brigade_id)
-                ELSE NULL
-            END AS brigade_name,
-            CASE WHEN EXISTS (SELECT 1 FROM brigade b WHERE b.brigadier_id = w.id) THEN true ELSE false END as is_brigadier
+            CASE WHEN EXISTS (SELECT 1 FROM brigade b WHERE b.brigadier_id = w.id) THEN true ELSE false END AS is_brigadier
         FROM worker w
-        JOIN employee e ON w.id = e.id
-        LEFT JOIN assignment a ON w.id = a.worker_id"
+        JOIN employee e ON w.id = e.id"
     );
 
     let mut where_added = false;
@@ -963,16 +948,6 @@ async fn workers_list_api_handler(
         query_builder.push(" WHERE w.profession = ");
         query_builder.push_bind(profession);
         where_added = true;
-    }
-
-    if let Some(brigade_id) = &filter.brigade_id {
-        if where_added {
-            query_builder.push(" AND a.brigade_id = ");
-        } else {
-            query_builder.push(" WHERE a.brigade_id = ");
-            where_added = true;
-        }
-        query_builder.push_bind(brigade_id);
     }
 
     if let Some(is_brigadier) = &filter.is_brigadier {
@@ -1017,16 +992,6 @@ async fn workers_list_api_handler(
         count_query_builder.push(" WHERE w.profession = ");
         count_query_builder.push_bind(profession);
         count_where_added = true;
-    }
-
-    if let Some(brigade_id) = &filter.brigade_id {
-        if count_where_added {
-            count_query_builder.push(" AND a.brigade_id = ");
-        } else {
-            count_query_builder.push(" WHERE a.brigade_id = ");
-            count_where_added = true;
-        }
-        count_query_builder.push_bind(brigade_id);
     }
 
     if let Some(is_brigadier) = &filter.is_brigadier {

@@ -11,10 +11,11 @@ use sqlx::{FromRow, Row};
 use crate::{database::Database, general::{Qualification, Position, Gender}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
 use crate::utils::empty_string_as_none;
+use crate::utils::deserialize_sequence;
 
 // Qualification-specific fields
 #[derive(Serialize, Deserialize)]
-#[serde(tag = "qualification")]
+#[serde(tag = "qualification_fields_type", rename_all = "snake_case")]
 pub enum QualificationFields {
     Technician(TechnicianFields),
     Technologist(TechnologistFields),
@@ -138,7 +139,9 @@ pub struct TechnicalPersonnelCreateForm {
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub position: Option<Position>,
     pub education_level: String,
+    #[serde(default, deserialize_with = "deserialize_sequence")]
     pub software_skills: Vec<String>,
+    #[serde(default)]
     pub is_project_manager: bool,
     #[serde(flatten)]
     pub qualification_fields: QualificationFields,

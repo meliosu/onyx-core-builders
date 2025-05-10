@@ -51,7 +51,7 @@
                                     <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
                                         Low
                                     </span>
-                                {% when RiskLevel::Meidum %}
+                                {% when RiskLevel::Medium %}
                                     <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-600/20">
                                         Medium
                                     </span>
@@ -116,7 +116,7 @@
                                     <span class="font-medium">Entrances:</span> {{ fields.number_of_entrances }}
                                 </p>
                                 <p class="text-sm text-gray-600">
-                                    <span class="font-medium">Type:</span> {{ fields.type_ }}
+                                    <span class="font-medium">Type:</span> {{ fields.housing_type }}
                                 </p>
                                 <p class="text-sm text-gray-600">
                                     <span class="font-medium">Energy Efficiency:</span> {{ fields.energy_efficiency }}

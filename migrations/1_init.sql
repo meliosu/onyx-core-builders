@@ -113,7 +113,7 @@ CREATE TABLE housing (
     site_id INTEGER PRIMARY KEY REFERENCES site(id),
     number_of_floors INTEGER NOT NULL,
     number_of_entrances INTEGER NOT NULL,
-    type TEXT NOT NULL,
+    housing_type TEXT NOT NULL,
     energy_efficiency TEXT NOT NULL
 );
 

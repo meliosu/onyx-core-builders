@@ -473,9 +473,26 @@ async fn areas_list_api_handler(
         query_builder.push_bind(supervisor_id);
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    let count_query = format!("SELECT COUNT(*) FROM ({})", query_builder.sql());
+    let count_query = {
+        let mut query = sqlx::query_scalar::<_, i64>(&count_query);
+
+        if let Some(name) = &filter.name {
+            query = query.bind(name);
+        }
+
+        if let Some(department_id) = &filter.department_id {
+            query = query.bind(department_id);
+        }
+
+        if let Some(supervisor_id) = &filter.supervisor_id {
+            query = query.bind(supervisor_id);
+        }
+
+        query
+    };
+
+    let count = match count_query.fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting areas: {}</p>", e)),
     };

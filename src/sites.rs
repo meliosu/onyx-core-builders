@@ -13,6 +13,7 @@ use crate::{database::Database, general::{Qualification, SiteType, RiskLevel, Po
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
 use crate::utils::empty_string_as_none;
 use crate::utils::deserialize_from_str;
+use crate::utils::deserialize_checkbox;
 
 // Tab selector for site details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -26,7 +27,7 @@ pub enum SiteTab {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "site_fields_type", rename_all="snake_case")] 
 pub enum SiteFields {
     PowerPlant(PowerPlantFields),
     Road(RoadFields),
@@ -38,13 +39,16 @@ pub enum SiteFields {
 // Site type-specific field structs
 #[derive(Serialize, Deserialize)]
 pub struct PowerPlantFields {
+    #[serde(deserialize_with = "deserialize_from_str")]
     pub energy_output: f32,
     pub energy_source: String,
+    #[serde(deserialize_with = "deserialize_checkbox")]
     pub is_grid_connected: bool,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct RoadFields {
+    #[serde(deserialize_with = "deserialize_from_str")]
     pub length: f32,
     pub lanes: i32,
     pub surface: String,
@@ -54,22 +58,26 @@ pub struct RoadFields {
 pub struct HousingFields {
     pub number_of_floors: i32,
     pub number_of_entrances: i32,
-    #[serde(rename = "type")]
-    pub type_: String,
+    pub housing_type: String,
     pub energy_efficiency: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct BridgeFields {
+    #[serde(deserialize_with = "deserialize_from_str")]
     pub length: f32,
     pub road_material: String,
+    #[serde(deserialize_with = "deserialize_from_str")]
     pub max_load: f32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct ParkFields {
+    #[serde(deserialize_with = "deserialize_from_str")]
     pub area: f32,
+    #[serde(deserialize_with = "deserialize_checkbox")]
     pub has_playground: bool,
+    #[serde(deserialize_with = "deserialize_checkbox")]
     pub has_lighting: bool,
 }
 
@@ -157,14 +165,15 @@ pub struct SiteUpdateForm {
     pub type_fields: SiteFields,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct SiteCreateForm {
     pub name: String,
     pub area_id: i32,
     pub client_id: i32,
     #[serde(rename = "type")]
     pub type_: SiteType,
-    pub location: String,
+    #[serde(deserialize_with = "deserialize_from_str")]
+    pub location: sqlx::postgres::types::PgPoint,
     pub risk_level: RiskLevel,
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub description: Option<String>,
@@ -341,8 +350,7 @@ struct RoadData {
 struct HousingData {
     number_of_floors: i32,
     number_of_entrances: i32,
-    #[sqlx(rename = "type")]
-    type_: String,
+    housing_type: String,
     energy_efficiency: String,
 }
 
@@ -527,7 +535,7 @@ async fn site_api_details_handler(
                 Ok(Some(data)) => SiteFields::Housing(HousingFields {
                     number_of_floors: data.number_of_floors,
                     number_of_entrances: data.number_of_entrances,
-                    type_: data.type_,
+                    housing_type: data.housing_type,
                     energy_efficiency: data.energy_efficiency,
                 }),
                 Ok(None) => {
@@ -785,25 +793,25 @@ async fn site_update_handler(
             if current_type == SiteType::Housing {
                 sqlx::query(
                     "UPDATE housing 
-                     SET number_of_floors = $1, number_of_entrances = $2, type = $3, energy_efficiency = $4 
+                     SET number_of_floors = $1, number_of_entrances = $2, housing_type = $3, energy_efficiency = $4 
                      WHERE site_id = $5"
                 )
                 .bind(fields.number_of_floors)
                 .bind(fields.number_of_entrances)
-                .bind(&fields.type_)
+                .bind(&fields.housing_type)
                 .bind(&fields.energy_efficiency)
                 .bind(id)
                 .execute(&mut *tx)
                 .await
             } else {
                 sqlx::query(
-                    "INSERT INTO housing (site_id, number_of_floors, number_of_entrances, type, energy_efficiency) 
+                    "INSERT INTO housing (site_id, number_of_floors, number_of_entrances, housing_type, energy_efficiency) 
                      VALUES ($1, $2, $3, $4, $5)"
                 )
                 .bind(id)
                 .bind(fields.number_of_floors)
                 .bind(fields.number_of_entrances)
-                .bind(&fields.type_)
+                .bind(&fields.housing_type)
                 .bind(&fields.energy_efficiency)
                 .execute(&mut *tx)
                 .await
@@ -1347,13 +1355,13 @@ async fn site_create_handler(
         },
         SiteFields::Housing(fields) => {
             sqlx::query(
-                "INSERT INTO housing (site_id, number_of_floors, number_of_entrances, type, energy_efficiency) 
+                "INSERT INTO housing (site_id, number_of_floors, number_of_entrances, housing_type, energy_efficiency) 
                  VALUES ($1, $2, $3, $4, $5)"
             )
             .bind(site_id)
             .bind(fields.number_of_floors)
             .bind(fields.number_of_entrances)
-            .bind(&fields.type_)
+            .bind(&fields.housing_type)
             .bind(&fields.energy_efficiency)
             .execute(&mut *tx)
             .await
