@@ -133,7 +133,7 @@ CREATE TABLE park (
 
 CREATE TABLE electrician (
     id INTEGER PRIMARY KEY REFERENCES worker(id),
-    voltage_specializaition TEXT NOT NULL
+    voltage_specialization TEXT NOT NULL
 );
 
 CREATE TABLE plumber (
