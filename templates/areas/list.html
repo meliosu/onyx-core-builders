@@ -23,33 +23,25 @@
             </div>
             <div class="flex-1">
                 <label for="department_id" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                <div class="relative">
-                    <select id="department_id" name="department_id" 
-                            class="px-3 py-2 border rounded w-full appearance-none"
-                            hx-get="/api/selectors/departments"
-                            hx-target="#department-selector-modal"
-                            hx-trigger="click">
-                        <option value="">Filter by department</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </div>
-                </div>
+                <select id="department_id" name="department_id" 
+                        class="px-3 py-2 border rounded w-full"
+                        hx-get="/api/selectors/departments"
+                        hx-trigger="load"
+                        hx-target="#department_id">
+                    <option value="">Filter by department</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             <div class="flex-1">
                 <label for="supervisor_id" class="block text-sm font-medium text-gray-700 mb-1">Supervisor</label>
-                <div class="relative">
-                    <select id="supervisor_id" name="supervisor_id" 
-                            class="px-3 py-2 border rounded w-full appearance-none"
-                            hx-get="/api/selectors/technical-personnel"
-                            hx-target="#supervisor-selector-modal"
-                            hx-trigger="click">
-                        <option value="">Filter by supervisor</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <i class="fas fa-chevron-down text-gray-400"></i>
-                    </div>
-                </div>
+                <select id="supervisor_id" name="supervisor_id" 
+                        class="px-3 py-2 border rounded w-full"
+                        hx-get="/api/selectors/technical-personnel?qualification=engineer&position=foreman"
+                        hx-trigger="load"
+                        hx-target="#supervisor_id">
+                    <option value="">Filter by supervisor</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             <div>
                 <label for="sort_by" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>

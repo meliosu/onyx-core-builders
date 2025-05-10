@@ -35,32 +35,26 @@
             
             <div>
                 <label for="area_id" class="block text-sm font-medium text-gray-700 mb-1">Area <span class="text-error">*</span></label>
-                <div class="flex gap-2">
-                    <input type="hidden" id="area_id" name="area_id" value="{{ area_id }}" required>
-                    <input type="text" id="area_display" readonly value="{{ area_name }}" 
-                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
-                    <button type="button" 
-                            hx-get="/api/selectors/areas" 
-                            hx-target="#area-selector-modal"
-                            class="bg-custom-primary text-white px-4 py-2 rounded">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                <select id="area_id" name="area_id" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/areas?selected_id={{ area_id }}" 
+                       hx-trigger="load"
+                       hx-target="#area_id">
+                    <option value="">Select an area</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             
             <div>
                 <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client <span class="text-error">*</span></label>
-                <div class="flex gap-2">
-                    <input type="hidden" id="client_id" name="client_id" value="{{ client_id }}" required>
-                    <input type="text" id="client_display" readonly value="{{ client_name }}" 
-                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
-                    <button type="button" 
-                            hx-get="/api/selectors/clients" 
-                            hx-target="#client-selector-modal"
-                            class="bg-custom-primary text-white px-4 py-2 rounded">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                <select id="client_id" name="client_id" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/clients?selected_id={{ client_id }}" 
+                       hx-trigger="load"
+                       hx-target="#client_id">
+                    <option value="">Select a client</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             
             <div>

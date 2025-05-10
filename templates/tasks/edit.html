@@ -20,34 +20,26 @@
             
             <div>
                 <label for="site_id" class="block text-sm font-medium text-gray-700 mb-1">Site <span class="text-error">*</span></label>
-                <div class="flex gap-2">
-                    <input type="hidden" id="site_id" name="site_id" required value="{{ site_id }}">
-                    <input type="text" id="site_display" readonly value="{{ site_name }}" 
-                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
-                    <button type="button" 
-                            hx-get="/api/selectors/sites" 
-                            hx-target="#site-selector-modal"
-                            class="bg-custom-primary text-white px-4 py-2 rounded">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                <select id="site_id" name="site_id" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/sites?selected_id={{ site_id }}" 
+                       hx-trigger="load"
+                       hx-target="#site_id">
+                    <option value="">Select a site</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             
             <div>
                 <label for="brigade_id" class="block text-sm font-medium text-gray-700 mb-1">Brigade <span class="text-error">*</span></label>
-                <div class="flex gap-2">
-                    <input type="hidden" id="brigade_id" name="brigade_id" required value="{% if let Some(id) = brigade_id %}{{ id }}{% endif %}">
-                    <input type="text" id="brigade_display" readonly 
-                           value="{% if let Some(name) = brigadier_name %}{{ name }}{% endif %}"
-                           placeholder="Select brigade" 
-                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
-                    <button type="button" 
-                            hx-get="/api/selectors/brigades" 
-                            hx-target="#brigade-selector-modal"
-                            class="bg-custom-primary text-white px-4 py-2 rounded">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                <select id="brigade_id" name="brigade_id" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/brigades?selected_id={% if let Some(id) = brigade_id %}{{ id }}{% endif %}" 
+                       hx-trigger="load"
+                       hx-target="#brigade_id">
+                    <option value="">Select a brigade</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             
             <div>
