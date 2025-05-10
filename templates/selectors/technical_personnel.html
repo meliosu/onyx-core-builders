@@ -1,91 +1,12 @@
-<div class="selector-container">
-    <div class="mb-4">
-        <form hx-get="/api/selectors/technical-personnel" hx-target="#technical-personnel-results" class="flex flex-col gap-2">
-            <div class="flex gap-2">
-                <input type="text" name="name" placeholder="Search by name" 
-                       class="px-3 py-2 border rounded flex-1">
-                
-                <select name="qualification" class="px-3 py-2 border rounded">
-                    <option value="">All Qualifications</option>
-                    <option value="technician">Technician</option>
-                    <option value="technologist">Technologist</option>
-                    <option value="engineer">Engineer</option>
-                </select>
-                
-                <select name="position" class="px-3 py-2 border rounded">
-                    <option value="">All Positions</option>
-                    <option value="master">Master</option>
-                    <option value="foreman">Foreman</option>
-                </select>
-            </div>
-            
-            <div class="flex gap-2">
-                <select name="department_id" class="px-3 py-2 border rounded flex-1"
-                        hx-get="/api/selectors/areas" hx-target="#area-select-container" hx-trigger="change">
-                    <option value="">All Departments</option>
-                    <!-- These would typically be populated from the backend -->
-                </select>
-                
-                <div id="area-select-container" class="flex-1">
-                    <select name="area_id" class="px-3 py-2 border rounded w-full">
-                        <option value="">All Areas</option>
-                        <!-- These would be populated based on the selected department -->
-                    </select>
-                </div>
-                
-                <button type="submit" class="px-4 py-2 bg-secondary text-primary rounded font-medium hover:bg-opacity-90">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </div>
-        </form>
-    </div>
-    
-    <div id="technical-personnel-results">
+<div id="technical-personnel-results">
+    <select class="px-3 py-2 border rounded w-full">
         {% if personnel.is_empty() %}
-            <div class="text-center py-4 text-gray-500">
-                <p>No technical personnel found</p>
-            </div>
+            <option value="">No technical personnel found</option>
         {% else %}
-            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-                <table class="min-w-full divide-y divide-gray-300">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">ID</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Qualification</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
-                        {% for person in personnel %}
-                            <tr class="hover:bg-gray-50">
-                                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-                                    {{ person.id }}
-                                </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {{ person.name }}
-                                </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {% match person.qualification %}
-                                        {% when Qualification::Technician %}
-                                            Technician
-                                        {% when Qualification::Technologist %}
-                                            Technologist
-                                        {% when Qualification::Engineer %}
-                                            Engineer
-                                    {% endmatch %}
-                                </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    <button class="text-primary hover:text-secondary" 
-                                           onclick="selectTechnicalPersonnel('{{ person.id }}', '{{ person.name }}')">
-                                        <i class="fas fa-check-circle mr-1"></i> Select
-                                    </button>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <option value="">Select a technical personnel</option>
+            {% for person in personnel %}
+                <option value="{{ person.id }}">{{ person.name }}</option>
+            {% endfor %}
         {% endif %}
-    </div>
+    </select>
 </div>

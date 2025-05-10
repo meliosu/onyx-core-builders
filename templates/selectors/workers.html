@@ -1,91 +1,12 @@
-<div class="selector-container">
-    <div class="mb-4">
-        <form hx-get="/api/selectors/workers" hx-target="#workers-results" class="flex flex-col gap-2">
-            <div class="flex gap-2">
-                <input type="text" name="name" placeholder="Search by name" 
-                       class="px-3 py-2 border rounded flex-1">
-                
-                <select name="profession" class="px-3 py-2 border rounded">
-                    <option value="">All Professions</option>
-                    <option value="electrician">Electrician</option>
-                    <option value="plumber">Plumber</option>
-                    <option value="welder">Welder</option>
-                    <option value="driver">Driver</option>
-                    <option value="mason">Mason</option>
-                </select>
-            </div>
-            
-            <div class="flex gap-2">
-                <select name="brigade_id" class="px-3 py-2 border rounded flex-1">
-                    <option value="">All Brigades</option>
-                    <!-- These would typically be populated from the backend -->
-                </select>
-                
-                <div class="flex items-center">
-                    <input type="checkbox" id="is_brigadier" name="is_brigadier" 
-                           class="h-4 w-4 rounded border-gray-300 text-secondary focus:ring-secondary">
-                    <label for="is_brigadier" class="ml-2 text-sm text-gray-700">
-                        Is Brigadier
-                    </label>
-                </div>
-                
-                <button type="submit" class="px-4 py-2 bg-secondary text-primary rounded font-medium hover:bg-opacity-90">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </div>
-        </form>
-    </div>
-    
-    <div id="workers-results">
+<div id="workers-results">
+    <select class="px-3 py-2 border rounded w-full">
         {% if workers.is_empty() %}
-            <div class="text-center py-4 text-gray-500">
-                <p>No workers found</p>
-            </div>
+            <option value="">No workers found</option>
         {% else %}
-            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-                <table class="min-w-full divide-y divide-gray-300">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">ID</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Profession</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
-                        {% for worker in workers %}
-                            <tr class="hover:bg-gray-50">
-                                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-                                    {{ worker.id }}
-                                </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {{ worker.name }}
-                                </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {% match worker.profession %}
-                                        {% when Profession::Electrician %}
-                                            Electrician
-                                        {% when Profession::Plumber %}
-                                            Plumber
-                                        {% when Profession::Welder %}
-                                            Welder
-                                        {% when Profession::Driver %}
-                                            Driver
-                                        {% when Profession::Mason %}
-                                            Mason
-                                    {% endmatch %}
-                                </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    <button class="text-primary hover:text-secondary" 
-                                           onclick="selectWorker('{{ worker.id }}', '{{ worker.name }}')">
-                                        <i class="fas fa-check-circle mr-1"></i> Select
-                                    </button>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <option value="">Select a worker</option>
+            {% for worker in workers %}
+                <option value="{{ worker.id }}">{{ worker.name }}</option>
+            {% endfor %}
         {% endif %}
-    </div>
+    </select>
 </div>

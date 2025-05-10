@@ -1,60 +1,12 @@
-<div class="selector-container">
-    <div class="mb-4">
-        <form hx-get="/api/selectors/areas" hx-target="#areas-results" class="flex flex-col gap-2">
-            <div class="flex gap-2">
-                <input type="text" name="name" placeholder="Search by name" 
-                       class="px-3 py-2 border rounded flex-1">
-                       
-                <div class="relative" x-data="{ open: false }">
-                    <select name="department_id" class="px-3 py-2 border rounded">
-                        <option value="">All Departments</option>
-                        <!-- These would typically be populated from the backend -->
-                        <!-- This is usually handled by a separate department dropdown component -->
-                    </select>
-                </div>
-                
-                <button type="submit" class="px-4 py-2 bg-secondary text-primary rounded font-medium hover:bg-opacity-90">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </div>
-        </form>
-    </div>
-    
-    <div id="areas-results">
+<div id="areas-results">
+    <select class="px-3 py-2 border rounded w-full">
         {% if areas.is_empty() %}
-            <div class="text-center py-4 text-gray-500">
-                <p>No areas found</p>
-            </div>
+            <option value="">No areas found</option>
         {% else %}
-            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-                <table class="min-w-full divide-y divide-gray-300">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">ID</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Name</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
-                        {% for area in areas %}
-                            <tr class="hover:bg-gray-50">
-                                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-                                    {{ area.id }}
-                                </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {{ area.name }}
-                                </td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    <button class="text-primary hover:text-secondary" 
-                                           onclick="selectArea('{{ area.id }}', '{{ area.name }}')">
-                                        <i class="fas fa-check-circle mr-1"></i> Select
-                                    </button>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <option value="">Select an area</option>
+            {% for area in areas %}
+                <option value="{{ area.id }}">{{ area.name }}</option>
+            {% endfor %}
         {% endif %}
-    </div>
+    </select>
 </div>
