@@ -91,7 +91,7 @@ INSERT INTO worker (id, profession, union_name) VALUES
 (25, 'mason', NULL);
 
 -- Insert specialized worker details
-INSERT INTO electrician (id, voltage_specializaition) VALUES
+INSERT INTO electrician (id, voltage_specialization) VALUES
 (11, 'High Voltage'),
 (16, 'Low Voltage'),
 (21, 'Industrial');

@@ -178,7 +178,7 @@ The database should have the following tables and table fields:
 
 * electrican (subclass of worker)
   * id (references worker)
-  * voltage_specializaition (text)
+  * voltage_specialization (text)
 
 * plumber (subclass of worker)
   * id (references worker)
