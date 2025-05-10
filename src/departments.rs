@@ -530,7 +530,7 @@ async fn department_create_handler(
     // Create notification based on result
     let (notification_result, message, redirect) = match result {
         Ok(Some(row)) => {
-            let id: i64 = row.get(0);
+            let id: i32 = row.get(0);
             (
                 NotificationResult::Success,
                 Some(format!("Department '{}' created successfully", form.name)),
