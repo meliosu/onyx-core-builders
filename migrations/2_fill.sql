@@ -13,16 +13,16 @@ INSERT INTO client (name, inn, address, contact_person_email, contact_person_nam
 
 -- Insert employees (Technical personnel)
 INSERT INTO employee (id, class, first_name, last_name, middle_name, gender, photo, salary, phone_number) VALUES
-(1, 'technical_personnel', 'Dmitri', 'Petrov', 'Nikolaevich', 'male', 'photos/dmitri.jpg', 90000, '+7-900-123-4567'),
-(2, 'technical_personnel', 'Elena', 'Ivanova', NULL, 'female', 'photos/elena.jpg', 85000, '+7-900-234-5678'),
+(1, 'technical_personnel', 'Dmitri', 'Petrov', 'Nikolaevich', 'male', NULL, 90000, '+7-900-123-4567'),
+(2, 'technical_personnel', 'Elena', 'Ivanova', NULL, 'female', NULL, 85000, '+7-900-234-5678'),
 (3, 'technical_personnel', 'Sergei', 'Smirnov', 'Aleksandrovich', 'male', NULL, 95000, '+7-900-345-6789'),
-(4, 'technical_personnel', 'Olga', 'Kuznetsova', 'Ivanovna', 'female', 'photos/olga.jpg', 88000, '+7-900-456-7890'),
-(5, 'technical_personnel', 'Mikhail', 'Volkov', 'Petrovich', 'male', 'photos/mikhail.jpg', 92000, '+7-900-567-8901'),
+(4, 'technical_personnel', 'Olga', 'Kuznetsova', 'Ivanovna', 'female', NULL, 88000, '+7-900-456-7890'),
+(5, 'technical_personnel', 'Mikhail', 'Volkov', 'Petrovich', 'male', NULL, 92000, '+7-900-567-8901'),
 (6, 'technical_personnel', 'Natalia', 'Sokolova', NULL, 'female', NULL, 87000, '+7-900-678-9012'),
-(7, 'technical_personnel', 'Vladimir', 'Novikov', 'Sergeevich', 'male', 'photos/vladimir.jpg', 94000, '+7-900-789-0123'),
-(8, 'technical_personnel', 'Tatiana', 'Morozova', 'Dmitrievna', 'female', 'photos/tatiana.jpg', 86000, '+7-900-890-1234'),
+(7, 'technical_personnel', 'Vladimir', 'Novikov', 'Sergeevich', 'male', NULL, 94000, '+7-900-789-0123'),
+(8, 'technical_personnel', 'Tatiana', 'Morozova', 'Dmitrievna', 'female', NULL, 86000, '+7-900-890-1234'),
 (9, 'technical_personnel', 'Alexander', 'Lebedev', 'Mikhailovich', 'male', NULL, 91000, '+7-900-901-2345'),
-(10, 'technical_personnel', 'Ekaterina', 'Kozlova', 'Vladimirovna', 'female', 'photos/ekaterina.jpg', 89000, '+7-900-012-3456');
+(10, 'technical_personnel', 'Ekaterina', 'Kozlova', 'Vladimirovna', 'female', NULL, 89000, '+7-900-012-3456');
 
 -- Insert technical personnel details
 INSERT INTO technical_personnel (id, qualification, position, education_level, software_skills, is_project_manager) VALUES
