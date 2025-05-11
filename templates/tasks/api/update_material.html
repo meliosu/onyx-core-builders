@@ -1,0 +1,47 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Record Material Usage</h3>
+            <button onclick="document.getElementById('update-material-modal-container').innerHTML = ''" 
+                    class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form hx-put="/api/tasks/{{ task_id }}/materials/{{ material_id }}"
+              hx-target="#materials-content"
+              hx-on::after-request="document.getElementById('update-material-modal-container').innerHTML = ''"
+              class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Material</label>
+                <div class="px-3 py-2 border rounded bg-gray-50">{{ material_name }}</div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Expected Amount</label>
+                <div class="px-3 py-2 border rounded bg-gray-50">{{ expected_amount }} {{ units }}</div>
+            </div>
+
+            <div>
+                <label for="actual_amount" class="block text-sm font-medium text-gray-700 mb-1">
+                    Actual Amount Used <span class="text-error">*</span>
+                </label>
+                <input type="number" id="actual_amount" name="actual_amount" 
+                       step="0.01" min="0.01" required
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-4 border-t">
+                <button type="button"
+                        onclick="document.getElementById('update-material-modal-container').innerHTML = ''"
+                        class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                    <i class="fas fa-save mr-2"></i> Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

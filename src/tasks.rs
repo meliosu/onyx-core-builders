@@ -1167,6 +1167,51 @@ async fn task_update_material_handler(
     }
 }
 
+#[derive(Template, FromRow)]
+#[template(path = "tasks/api/update_material.html")]
+struct TaskUpdateMaterialTemplate {
+    task_id: i32,
+    material_id: i32,
+    material_name: String,
+    expected_amount: f32,
+    units: String,
+}
+
+async fn task_update_material_form_handler(
+    State(db): State<Database>,
+    Path((task_id, material_id)): Path<(i32, i32)>,
+) -> Html<String> {
+    // Get material details
+    let result = sqlx::query(
+        "SELECT m.name as material_name, m.units, e.expected_amount 
+         FROM expenditure e
+         JOIN material m ON e.material_id = m.id
+         WHERE e.task_id = $1 AND e.material_id = $2",
+    )
+    .bind(task_id)
+    .bind(material_id)
+    .fetch_optional(&*db.pool)
+    .await;
+
+    match result {
+        Ok(Some(row)) => {
+            let template = TaskUpdateMaterialTemplate {
+                task_id,
+                material_id,
+                material_name: row.get("material_name"),
+                expected_amount: row.get("expected_amount"),
+                units: row.get("units"),
+            };
+            match template.render() {
+                Ok(html) => Html::from(html),
+                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
+            }
+        },
+        Ok(None) => Html::from("<p>Material not found for this task</p>".to_string()),
+        Err(e) => Html::from(format!("<p>Error fetching material details: {}</p>", e)),
+    }
+}
+
 async fn task_complete_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
@@ -1273,4 +1318,8 @@ pub fn router() -> axum::Router<Database> {
         .route("/api/tasks/{id}/materials", post(task_add_material_handler))
         .route("/api/tasks/{id}/materials/{material_id}", put(task_update_material_handler))
         .route("/api/tasks/{id}/complete", put(task_complete_handler))
+        .route(
+            "/api/tasks/{id}/materials/{material_id}/update",
+            get(task_update_material_form_handler)
+        )
 }

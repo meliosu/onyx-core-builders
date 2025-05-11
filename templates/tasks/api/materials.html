@@ -71,14 +71,14 @@
                     {% endif %}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    ${{ material.cost }} / {{ material.units }}
+                    ₽{{ material.cost }} / {{ material.units }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    ${{ material.total_cost }}
+                    ₽{{ material.total_cost }}
                 </td>
                 <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
                     {% if material.actual_amount.is_none() %}
-                        <button hx-get="/api/materials/{{ material.material_id }}"
+                        <button hx-get="/api/tasks/{{ id }}/materials/{{ material.material_id }}/update"
                                 hx-target="#update-material-modal-container"
                                 class="text-custom-primary hover:text-custom-secondary">
                             <i class="fas fa-pencil-alt mr-1"></i> Record Usage
