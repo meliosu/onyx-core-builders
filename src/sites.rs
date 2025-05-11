@@ -523,7 +523,7 @@ async fn site_api_details_handler(
         },
         SiteType::Housing => {
             let housing_query = sqlx::query_as::<_, HousingData>(
-                "SELECT number_of_floors, number_of_entrances, type, energy_efficiency 
+                "SELECT number_of_floors, number_of_entrances, housing_type, energy_efficiency 
                  FROM housing 
                  WHERE site_id = $1"
             )

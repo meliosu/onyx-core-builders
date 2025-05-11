@@ -713,13 +713,14 @@ async fn department_personnel_handler(
          JOIN employee e ON tp.id = e.id
          WHERE tp.id = (SELECT supervisor_id FROM department WHERE id = $1)
          OR tp.id IN (SELECT supervisor_id FROM area WHERE department_id = $1)
+         OR tp.area_id IN (SELECT id FROM area WHERE department_id = $1)
          ORDER BY e.last_name, e.first_name"
     )
     .bind(id);
 
     let personnel = match query.fetch_all(&*db.pool).await {
         Ok(personnel) => personnel,
-        Err(_) => vec![],
+        Err(e) => return Html::from(format!("<p>Error fetching personnel: {}</p>", e)),
     };
 
     // Convert to template items
@@ -736,7 +737,7 @@ async fn department_personnel_handler(
 
     match template.render() {
         Ok(html) => Html::from(html),
-        Err(_) => Html::from("<p>Error rendering template</p>".to_string()),
+        Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
     }
 }
 

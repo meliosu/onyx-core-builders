@@ -710,7 +710,8 @@ async fn area_personnel_handler(
          FROM technical_personnel tp
          JOIN employee e ON tp.id = e.id
          WHERE tp.id = (SELECT supervisor_id FROM area WHERE id = $1)
-         ORDER BY name"
+         OR tp.area_id = $1
+         ORDER BY e.last_name, e.first_name"
     )
     .bind(id);
 

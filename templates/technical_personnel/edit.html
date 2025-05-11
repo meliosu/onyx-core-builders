@@ -94,6 +94,18 @@
                     Project Manager
                 </label>
             </div>
+
+            <div>
+                <label for="area_id" class="block text-sm font-medium text-gray-700 mb-1">Area Assignment</label>
+                <select id="area_id" name="area_id"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/areas"
+                       hx-trigger="load"
+                       hx-target="#area_id">
+                    <option value="">Not assigned to an area</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
+            </div>
         </div>
         
         <!-- Qualification-specific fields will be loaded here -->

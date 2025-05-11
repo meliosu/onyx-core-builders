@@ -88,6 +88,17 @@
                         </p>
                     </div>
                     
+                    {% if let Some(area_id) = area_id %}
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Assigned Area:</span> 
+                            <a href="/areas/{{ area_id }}" class="text-custom-primary hover:underline">
+                                {% if let Some(area_name) = area_name %}{{ area_name }}{% else %}Area #{{ area_id }}{% endif %}
+                            </a>
+                        </p>
+                    </div>
+                    {% endif %}
+                    
                     {% if let Some(dept_id) = supervising_department_id %}
                     <div>
                         <p class="text-sm text-gray-600">

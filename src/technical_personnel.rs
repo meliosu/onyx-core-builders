@@ -100,6 +100,8 @@ pub struct TechnicalPersonnelApiDetailsTemplate {
     pub supervising_department_name: Option<String>,
     pub supervising_area_id: Option<i32>,
     pub supervising_area_name: Option<String>,
+    pub area_id: Option<i32>,
+    pub area_name: Option<String>,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -124,6 +126,8 @@ pub struct TechnicalPersonnelUpdateForm {
     pub software_skills: Vec<String>,
     #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub is_project_manager: bool,
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub area_id: Option<i32>,
     #[serde(flatten)]
     pub qualification_fields: QualificationFields,
 }
@@ -145,6 +149,8 @@ pub struct TechnicalPersonnelCreateForm {
     pub software_skills: Vec<String>,
     #[serde(default)]
     pub is_project_manager: bool,
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub area_id: Option<i32>,
     #[serde(flatten)]
     pub qualification_fields: QualificationFields,
 }
@@ -180,8 +186,6 @@ pub struct TechnicalPersonnelListItem {
     pub last_name: String,
     pub qualification: Qualification,
     pub position: Option<Position>,
-    pub department_id: Option<i32>,
-    pub department_name: Option<String>,
     pub area_id: Option<i32>,
     pub area_name: Option<String>,
 }
@@ -335,33 +339,37 @@ async fn technical_personnel_api_details_handler(
         }
     };
 
-    // Get supervisor information
-    let supervisor_query = sqlx::query_as::<_, SupervisorInfo>(
+    // Get supervisor information and area assignment
+    let supervisor_query = sqlx::query(
         "SELECT 
             d.id as department_id, 
             d.name as department_name,
-            a.id as area_id, 
+            s_area.id as supervising_area_id, 
+            s_area.name as supervising_area_name,
+            a.id as area_id,
             a.name as area_name
          FROM technical_personnel tp
          LEFT JOIN department d ON tp.id = d.supervisor_id
-         LEFT JOIN area a ON tp.id = a.supervisor_id
+         LEFT JOIN area s_area ON tp.id = s_area.supervisor_id
+         LEFT JOIN area a ON tp.area_id = a.id
          WHERE tp.id = $1"
     )
     .bind(id)
     .fetch_optional(&*db.pool)
     .await;
 
-    let supervisor_info = match supervisor_query {
-        Ok(Some(info)) => info,
-        Ok(None) => SupervisorInfo {
-            department_id: None,
-            department_name: None,
-            area_id: None,
-            area_name: None,
-        },
-        Err(e) => {
-            return Html::from(format!("<p>Error fetching supervisor information: {}</p>", e));
-        }
+    let (supervising_department_id, supervising_department_name, 
+         supervising_area_id, supervising_area_name,
+         area_id, area_name) = match supervisor_query {
+        Ok(Some(row)) => (
+            row.get::<Option<i32>, _>("department_id"),
+            row.get::<Option<String>, _>("department_name"),
+            row.get::<Option<i32>, _>("supervising_area_id"),
+            row.get::<Option<String>, _>("supervising_area_name"),
+            row.get::<Option<i32>, _>("area_id"),
+            row.get::<Option<String>, _>("area_name"),
+        ),
+        Ok(None) | Err(_) => (None, None, None, None, None, None),
     };
 
     // Get qualification-specific fields based on qualification
@@ -435,10 +443,12 @@ async fn technical_personnel_api_details_handler(
         software_skills: personnel.software_skills,
         is_project_manager: personnel.is_project_manager,
         qualification_fields,
-        supervising_department_id: supervisor_info.department_id,
-        supervising_department_name: supervisor_info.department_name,
-        supervising_area_id: supervisor_info.area_id,
-        supervising_area_name: supervisor_info.area_name,
+        supervising_department_id,
+        supervising_department_name,
+        supervising_area_id,
+        supervising_area_name,
+        area_id,
+        area_name,
     };
 
     match template.render() {
@@ -535,14 +545,15 @@ async fn technical_personnel_update_handler(
     let tp_result = sqlx::query(
         "UPDATE technical_personnel 
          SET qualification = $1, position = $2, education_level = $3,
-             software_skills = $4, is_project_manager = $5
-         WHERE id = $6"
+             software_skills = $4, is_project_manager = $5, area_id = $6
+         WHERE id = $7"
     )
     .bind(form.qualification)
     .bind(form.position)
     .bind(&form.education_level)
     .bind(&form.software_skills)
     .bind(form.is_project_manager)
+    .bind(form.area_id)
     .bind(id)
     .execute(&mut *tx)
     .await;
@@ -761,14 +772,11 @@ async fn technical_personnel_list_api_handler(
             e.last_name, 
             tp.qualification,
             tp.position,
-            d.id as department_id,
-            d.name as department_name,
-            a.id as area_id,
+            tp.area_id,
             a.name as area_name
         FROM technical_personnel tp
         JOIN employee e ON tp.id = e.id
-        LEFT JOIN department d ON tp.id = d.supervisor_id
-        LEFT JOIN area a ON tp.id = a.supervisor_id"
+        LEFT JOIN area a ON tp.area_id = a.id"
     );
 
     let mut where_added = false;
@@ -792,19 +800,20 @@ async fn technical_personnel_list_api_handler(
 
     if let Some(department_id) = &filter.department_id {
         if where_added {
-            query_builder.push(" AND d.id = ");
+            query_builder.push(" AND EXISTS (SELECT 1 FROM area WHERE department_id = ");
         } else {
-            query_builder.push(" WHERE d.id = ");
+            query_builder.push(" WHERE EXISTS (SELECT 1 FROM area WHERE department_id = ");
             where_added = true;
         }
         query_builder.push_bind(department_id);
+        query_builder.push(" AND id = tp.area_id)");
     }
 
     if let Some(area_id) = &filter.area_id {
         if where_added {
-            query_builder.push(" AND a.id = ");
+            query_builder.push(" AND tp.area_id = ");
         } else {
-            query_builder.push(" WHERE a.id = ");
+            query_builder.push(" WHERE tp.area_id = ");
             where_added = true;
         }
         query_builder.push_bind(area_id);
@@ -827,8 +836,7 @@ async fn technical_personnel_list_api_handler(
     let mut count_query_builder = sqlx::QueryBuilder::new(
         "SELECT COUNT(*) FROM technical_personnel tp
         JOIN employee e ON tp.id = e.id
-        LEFT JOIN department d ON tp.id = d.supervisor_id
-        LEFT JOIN area a ON tp.id = a.supervisor_id"
+        LEFT JOIN area a ON tp.area_id = a.id"
     );
     
     let mut count_where_added = false;
@@ -851,19 +859,20 @@ async fn technical_personnel_list_api_handler(
 
     if let Some(department_id) = &filter.department_id {
         if count_where_added {
-            count_query_builder.push(" AND d.id = ");
+            count_query_builder.push(" AND EXISTS (SELECT 1 FROM area WHERE department_id = ");
         } else {
-            count_query_builder.push(" WHERE d.id = ");
+            count_query_builder.push(" WHERE EXISTS (SELECT 1 FROM area WHERE department_id = ");
             count_where_added = true;
         }
         count_query_builder.push_bind(department_id);
+        count_query_builder.push(" AND id = tp.area_id)");
     }
 
     if let Some(area_id) = &filter.area_id {
         if count_where_added {
-            count_query_builder.push(" AND a.id = ");
+            count_query_builder.push(" AND tp.area_id = ");
         } else {
-            count_query_builder.push(" WHERE a.id = ");
+            count_query_builder.push(" WHERE tp.area_id = ");
             count_where_added = true;
         }
         count_query_builder.push_bind(area_id);
@@ -977,8 +986,8 @@ async fn technical_personnel_create_handler(
 
     // Insert into technical_personnel table
     let tp_result = sqlx::query(
-        "INSERT INTO technical_personnel (id, qualification, position, education_level, software_skills, is_project_manager) 
-         VALUES ($1, $2, $3, $4, $5, $6)"
+        "INSERT INTO technical_personnel (id, qualification, position, education_level, software_skills, is_project_manager, area_id) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7)"
     )
     .bind(employee_id)
     .bind(form.qualification)
@@ -986,6 +995,7 @@ async fn technical_personnel_create_handler(
     .bind(&form.education_level)
     .bind(&form.software_skills)
     .bind(form.is_project_manager)
+    .bind(form.area_id)
     .execute(&mut *tx)
     .await;
 

@@ -212,6 +212,7 @@ The database should have the following tables and table fields:
   * education_level 
   * software_skills (list of software, optional)
   * is_project_manager (boolean)
+  * area_id (references area)
 
 * technician (subclass of technical personnel)
   * id (references technical_personnel)

@@ -18,7 +18,7 @@
                     Position
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Assignment
+                    Area Assignment
                 </th>
                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                     <span class="sr-only">Actions</span>
@@ -55,17 +55,11 @@
                     {% endmatch %}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    {% if let Some(dept_id) = person.department_id %}
-                        <a href="/departments/{{ dept_id }}" class="text-custom-primary hover:underline">
-                            {% if let Some(dept_name) = person.department_name %}{{ dept_name }}{% else %}Department #{{ dept_id }}{% endif %}
-                        </a>
-                    {% endif %}
                     {% if let Some(area_id) = person.area_id %}
                         <a href="/areas/{{ area_id }}" class="text-custom-primary hover:underline">
                             {% if let Some(area_name) = person.area_name %}{{ area_name }}{% else %}Area #{{ area_id }}{% endif %}
                         </a>
-                    {% endif %}
-                    {% if person.department_id.is_none() && person.area_id.is_none() %}
+                    {% else %}
                         <span class="text-gray-400">Not assigned</span>
                     {% endif %}
                 </td>

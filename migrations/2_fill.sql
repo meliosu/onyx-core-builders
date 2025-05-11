@@ -134,6 +134,18 @@ INSERT INTO area (department_id, supervisor_id, name) VALUES
 (4, 3, 'Urban Parks'),
 (4, 6, 'City Infrastructure');
 
+-- Update technical personnel with area assignments
+UPDATE technical_personnel SET area_id = 1 WHERE id = 1;
+UPDATE technical_personnel SET area_id = 1 WHERE id = 2;
+UPDATE technical_personnel SET area_id = 2 WHERE id = 3;
+UPDATE technical_personnel SET area_id = 3 WHERE id = 4;
+UPDATE technical_personnel SET area_id = 4 WHERE id = 5;
+UPDATE technical_personnel SET area_id = 3 WHERE id = 6;
+UPDATE technical_personnel SET area_id = 5 WHERE id = 7;
+UPDATE technical_personnel SET area_id = 6 WHERE id = 8;
+UPDATE technical_personnel SET area_id = 7 WHERE id = 9;
+UPDATE technical_personnel SET area_id = 8 WHERE id = 10;
+
 -- Insert brigades
 INSERT INTO brigade (brigadier_id) VALUES
 (11),
