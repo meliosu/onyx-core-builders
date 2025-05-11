@@ -24,6 +24,12 @@
                     Expected End
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Actual End
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Delay
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Status
                 </th>
                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -60,6 +66,35 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {{ task.expected_period_end.format("%Y-%m-%d") }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {% if let Some(end_date) = task.actual_period_end %}
+                        {{ end_date.format("%Y-%m-%d") }}
+                    {% else %}
+                        <span class="text-gray-400">Not completed</span>
+                    {% endif %}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    {% if let Some(end_date) = task.actual_period_end %}
+                        {% if *end_date > task.expected_period_end %}
+                            {% let days = (*end_date - task.expected_period_end).num_days() %}
+                            <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
+                                {{ days }} day{% if days != 1 %}s{% endif %} late
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10">
+                                On time
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        {% if task.deadline_exceeded %}
+                            <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-700/10">
+                                Overdue
+                            </span>
+                        {% else %}
+                            <span class="text-gray-400">-</span>
+                        {% endif %}
+                    {% endif %}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm">
                     {% match task.status %}

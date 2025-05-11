@@ -46,7 +46,6 @@ CREATE TABLE technical_personnel (
     education_level TEXT NOT NULL,
     software_skills TEXT[],
     is_project_manager BOOLEAN NOT NULL DEFAULT FALSE
-    -- area_id will be added later as an ALTER TABLE statement
 );
 
 CREATE TABLE department (
@@ -105,7 +104,7 @@ CREATE TABLE power_plant (
 
 CREATE TABLE road (
     site_id INTEGER PRIMARY KEY REFERENCES site(id),
-    length NUMERIC(10, 2) NOT NULL, 
+    length REAL NOT NULL, 
     lanes INTEGER NOT NULL,
     surface TEXT NOT NULL
 );

@@ -18,6 +18,9 @@
                     Available
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Allocated
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Purchase Date
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -41,6 +44,9 @@
                     <span class="{% if item.available_amount > 0 %}text-green-600{% else %}text-red-600{% endif %}">
                         {{ item.available_amount }}
                     </span>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {{ item.total_amount - item.available_amount }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {{ item.purchase_date }}
