@@ -619,9 +619,7 @@ async fn department_equipment_handler(
     let query = sqlx::query_as::<_, DepartmentEquipmentRow>(
         "SELECT e.id, e.name, COALESCE(ea.amount, 0) as amount
          FROM equipment e
-         LEFT JOIN equipment_allocation ea ON e.id = ea.equipment_id AND ea.department_id = $1 
-                                        AND ea.site_id IS NULL
-                                        AND (ea.period_end IS NULL OR ea.period_end > CURRENT_DATE)
+         LEFT JOIN equipment_allocation ea ON e.id = ea.equipment_id
          WHERE ea.department_id = $1
          ORDER BY e.name"
     )
@@ -629,7 +627,7 @@ async fn department_equipment_handler(
 
     let equipment = match query.fetch_all(&*db.pool).await {
         Ok(equip) => equip,
-        Err(_) => vec![],
+        Err(e) => return Html::from(format!("<p>Error fetching equipment: {e}</p>")),
     };
 
     // Convert to template items
