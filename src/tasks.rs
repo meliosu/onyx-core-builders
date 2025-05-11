@@ -129,6 +129,8 @@ pub struct TaskListFilter {
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
     #[serde(default, deserialize_with="empty_string_as_none")]
+    pub department_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub status: Option<TaskStatus>,
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub date_from: Option<NaiveDate>,
@@ -577,6 +579,17 @@ async fn tasks_list_api_handler(
         query_builder.push_bind(site_id);
     }
 
+    if let Some(department_id) = &filter.department_id {
+        if where_added {
+            query_builder.push(" AND EXISTS (SELECT 1 FROM area a WHERE a.department_id = ");
+        } else {
+            query_builder.push(" WHERE EXISTS (SELECT 1 FROM area a WHERE a.department_id = ");
+            where_added = true;
+        }
+        query_builder.push_bind(department_id);
+        query_builder.push(" AND a.id = s.area_id)");
+    }
+
     if let Some(brigade_id) = &filter.brigade_id {
         if where_added {
             query_builder.push(" AND t.brigade_id = ");
@@ -661,6 +674,17 @@ async fn tasks_list_api_handler(
             count_where_added = true;
         }
         count_query_builder.push_bind(site_id);
+    }
+
+    if let Some(department_id) = &filter.department_id {
+        if count_where_added {
+            count_query_builder.push(" AND EXISTS (SELECT 1 FROM area a WHERE a.department_id = ");
+        } else {
+            count_query_builder.push(" WHERE EXISTS (SELECT 1 FROM area a WHERE a.department_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(department_id);
+        count_query_builder.push(" AND a.id = s.area_id)");
     }
 
     if let Some(brigade_id) = &filter.brigade_id {
