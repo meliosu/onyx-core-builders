@@ -190,19 +190,12 @@
                     hx-push-url="false">
                 <i class="fas fa-truck mr-2"></i> Equipment
             </button>
-            <button class="px-6 py-3 border-r whitespace-nowrap {% if tab == SiteTab::Brigades %}text-custom-secondary border-b-2 border-b-custom-secondary -mb-px{% endif %}"
+            <button class="px-6 py-3 whitespace-nowrap {% if tab == SiteTab::Brigades %}text-custom-secondary border-b-2 border-b-custom-secondary -mb-px{% endif %}"
                     hx-get="/api/sites/{{ id }}"
                     hx-target="#site-content"
                     hx-vals='{"tab": "brigades"}'
                     hx-push-url="false">
                 <i class="fas fa-people-group mr-2"></i> Brigades
-            </button>
-            <button class="px-6 py-3 whitespace-nowrap {% if tab == SiteTab::Reports %}text-custom-secondary border-b-2 border-b-custom-secondary -mb-px{% endif %}"
-                    hx-get="/api/sites/{{ id }}"
-                    hx-target="#site-content"
-                    hx-vals='{"tab": "reports"}'
-                    hx-push-url="false">
-                <i class="fas fa-file-alt mr-2"></i> Reports
             </button>
         </div>
     </div>
@@ -240,15 +233,6 @@
             {% when SiteTab::Brigades %}
                 <div id="brigades-content"
                      hx-get="/api/sites/{{ id }}/brigades"
-                     hx-trigger="load"
-                     hx-vals='{"page_number": 1, "page_size": 10}'>
-                    <div class="flex justify-center items-center h-40">
-                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
-                    </div>
-                </div>
-            {% when SiteTab::Reports %}
-                <div id="reports-content"
-                     hx-get="/api/sites/{{ id }}/reports"
                      hx-trigger="load"
                      hx-vals='{"page_number": 1, "page_size": 10}'>
                     <div class="flex justify-center items-center h-40">

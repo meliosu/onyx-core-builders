@@ -11,7 +11,7 @@ use sqlx::FromRow;
 use sqlx::Row;
 
 use crate::{database::Database, general::{Qualification, SiteType, NotificationResult}};
-use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationTemplate};
+use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationTemplate, Position};
 use crate::utils::empty_string_as_none;
 
 // Tab selector for department details
@@ -163,6 +163,7 @@ pub struct PersonnelListItem {
     pub id: i32,
     pub name: String,
     pub qualification: Qualification,
+    pub position: Option<Position>,
 }
 
 // Handler functions for page endpoints
@@ -698,6 +699,7 @@ struct DepartmentPersonnelRow {
     id: i32,
     name: String,
     qualification: Qualification,
+    position: Option<Position>,
 }
 
 async fn department_personnel_handler(
@@ -706,7 +708,7 @@ async fn department_personnel_handler(
 ) -> Html<String> {
     // Query technical personnel for this department
     let query = sqlx::query_as::<_, DepartmentPersonnelRow>(
-        "SELECT tp.id, CONCAT(e.last_name, ' ', e.first_name) as name, tp.qualification
+        "SELECT tp.id, CONCAT(e.last_name, ' ', e.first_name) as name, tp.qualification, tp.position
          FROM technical_personnel tp
          JOIN employee e ON tp.id = e.id
          WHERE tp.id = (SELECT supervisor_id FROM department WHERE id = $1)
@@ -726,6 +728,7 @@ async fn department_personnel_handler(
         id: p.id,
         name: p.name,
         qualification: p.qualification,
+        position: p.position,
     }).collect();
 
     let template = DepartmentPersonnelTemplate { 

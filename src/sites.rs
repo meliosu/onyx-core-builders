@@ -23,7 +23,6 @@ pub enum SiteTab {
     Materials,
     Equipment,
     Brigades,
-    Reports,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -242,6 +241,7 @@ pub struct TaskListItem {
     pub expected_period_end: NaiveDate,
     pub actual_period_end: Option<NaiveDate>,
     pub status: String,
+    pub delay: Option<i32>,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -295,24 +295,6 @@ pub struct BrigadeListItem {
     pub brigadier_name: Option<String>,
     pub worker_count: i64,
     pub current_task: Option<String>,
-}
-
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/api/reports.html")]
-pub struct SiteReportsTemplate {
-    pub id: i32,
-    pub reports: Vec<ReportListItem>,
-    pub pagination: Pagination,
-}
-
-#[derive(Serialize, Deserialize, FromRow)]
-pub struct ReportListItem {
-    pub task_id: i32,
-    pub task_name: String,
-    pub period_start: NaiveDate,
-    pub expected_period_end: NaiveDate,
-    pub actual_period_end: Option<NaiveDate>,
-    pub delay: i32,
 }
 
 // Helper structs for database operations
@@ -1447,10 +1429,17 @@ async fn site_schedule_handler(
                     t.expected_period_end, 
                     t.actual_period_end,
                     CASE
-                        WHEN t.actual_period_end IS NOT NULL THEN 'Completed'
-                        WHEN t.brigade_id IS NOT NULL THEN 'In Progress'
-                        ELSE 'Planned'
-                    END as status
+                        WHEN t.actual_period_end IS NOT NULL THEN 'completed'
+                        WHEN t.brigade_id IS NOT NULL THEN 'in_progress'
+                        ELSE 'planned'
+                    END as status,
+                    CASE
+                        WHEN t.actual_period_end IS NULL AND CURRENT_DATE > t.expected_period_end THEN
+                            (CURRENT_DATE - t.expected_period_end)::integer
+                        WHEN t.actual_period_end IS NOT NULL THEN
+                            (t.actual_period_end - t.expected_period_end)::integer
+                        ELSE NULL
+                    END as delay
                 FROM task t
                 WHERE t.site_id = $1
                 ORDER BY 
@@ -1669,67 +1658,6 @@ async fn site_brigades_handler(
     }
 }
 
-async fn site_reports_handler(
-    State(db): State<Database>,
-    Path(id): Path<i32>,
-    Query(pagination): Query<Pagination>,
-) -> Html<String> {
-    // Check if site exists
-    let site_exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM site WHERE id = $1)")
-        .bind(id)
-        .fetch_one(&*db.pool)
-        .await;
-    
-    match site_exists {
-        Ok(true) => {
-            // Fetch task reports for this site
-            let reports_query = sqlx::query_as::<_, ReportListItem>(
-                "SELECT 
-                    t.id as task_id, 
-                    t.name as task_name,
-                    t.period_start,
-                    t.expected_period_end,
-                    t.actual_period_end,
-                    CASE
-                        WHEN t.actual_period_end IS NULL THEN 0
-                        ELSE (t.actual_period_end - t.expected_period_end)::integer
-                    END as delay
-                FROM task t
-                WHERE t.site_id = $1 AND (t.actual_period_end IS NOT NULL OR
-                                         (t.actual_period_end IS NULL AND 
-                                          t.expected_period_end < CURRENT_TIMESTAMP))
-                ORDER BY t.period_start DESC
-                LIMIT $2 OFFSET $3"
-            )
-            .bind(id)
-            .bind(pagination.page_size as i32)
-            .bind((pagination.page_number as i32 - 1) * pagination.page_size as i32);
-            
-            let reports = match reports_query.fetch_all(&*db.pool).await {
-                Ok(reports) => reports,
-                Err(e) => return Html::from(format!("<p>Error fetching reports: {}</p>", e)),
-            };
-            
-            let template = SiteReportsTemplate {
-                id,
-                reports,
-                pagination,
-            };
-            
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
-            }
-        },
-        Ok(false) => {
-            Html::from(format!("<p>Site with ID {} does not exist</p>", id))
-        },
-        Err(e) => {
-            Html::from(format!("<p>Error checking site: {}</p>", e))
-        }
-    }
-}
-
 // Router setup
 pub fn router() -> axum::Router<Database> {
     axum::Router::new()
@@ -1749,5 +1677,4 @@ pub fn router() -> axum::Router<Database> {
         .route("/api/sites/{id}/materials", get(site_materials_handler))
         .route("/api/sites/{id}/equipment", get(site_equipment_handler))
         .route("/api/sites/{id}/brigades", get(site_brigades_handler))
-        .route("/api/sites/{id}/reports", get(site_reports_handler))
 }
