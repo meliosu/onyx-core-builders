@@ -834,6 +834,47 @@ async fn materials_selector_handler(
     }
 }
 
+#[derive(Template)]
+#[template(path = "selectors/modal/materials.html")]
+pub struct MaterialModalSelectorTemplate {
+    pub materials: Vec<MaterialSelectorItem>,
+    pub query: MaterialQuery,
+}
+
+async fn materials_modal_selector_handler(
+    State(db): State<Database>,
+    Query(q): Query<MaterialQuery>,
+    Form(filter): Form<MaterialFilter>,
+) -> Html<String> {
+    let mut query_builder = sqlx::QueryBuilder::new(
+        "SELECT id, name, units FROM material"
+    );
+
+    if let Some(name) = &filter.name {
+        query_builder.push(" WHERE name ILIKE ");
+        query_builder.push_bind(format!("%{}%", name));
+    }
+
+    query_builder.push(" ORDER BY name");
+
+    let query = query_builder.build_query_as::<MaterialSelectorItem>();
+    let materials = match query.fetch_all(&*db.pool).await {
+        Ok(materials) => materials,
+        Err(err) => {
+            return Html::from(format!("<p class=\"text-error\">Error loading materials: {}</p>", err));
+        }
+    };
+
+    let template = MaterialModalSelectorTemplate { 
+        materials,
+        query: q,
+    };
+    match template.render() {
+        Ok(html) => Html::from(html),
+        Err(err) => Html::from(format!("<p class=\"text-error\">Error rendering template: {}</p>", err)),
+    }
+}
+
 // Task selectors
 async fn tasks_selector_handler(
     State(db): State<Database>,
@@ -937,4 +978,5 @@ pub fn router() -> axum::Router<Database> {
         .route("/api/selectors/equipment", get(equipment_selector_handler))
         .route("/api/selectors/materials", get(materials_selector_handler))
         .route("/api/selectors/tasks", get(tasks_selector_handler))
+        .route("/api/selectors/materials/modal", get(materials_modal_selector_handler))
 }

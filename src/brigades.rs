@@ -308,78 +308,47 @@ async fn brigade_update_handler(
     Path(id): Path<i32>,
     Form(form): Form<BrigadeUpdateForm>,
 ) -> Html<String> {
-    // Check if worker exists and is not already a brigadier in another brigade
-    let worker_exists = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS (
-            SELECT 1 FROM worker WHERE id = $1 AND 
-            NOT EXISTS (SELECT 1 FROM brigade WHERE brigadier_id = $1 AND id != $2)
-        )"
+    // Update brigade
+    let update_result = sqlx::query("UPDATE brigade SET brigadier_id = $1 WHERE id = $2")
+        .bind(form.brigadier_id)
+        .bind(id)
+        .execute(&*db.pool)
+        .await;
+    
+    // Get worker name for notification
+    let worker_name = sqlx::query_scalar::<_, String>(
+        "SELECT CONCAT(e.last_name, ' ', e.first_name) 
+            FROM employee e 
+            WHERE e.id = $1"
     )
     .bind(form.brigadier_id)
-    .bind(id)
-    .fetch_one(&*db.pool)
-    .await;
+    .fetch_optional(&*db.pool)
+    .await
+    .ok()
+    .flatten();
     
-    match worker_exists {
-        Ok(true) => {
-            // Update brigade
-            let update_result = sqlx::query("UPDATE brigade SET brigadier_id = $1 WHERE id = $2")
-                .bind(form.brigadier_id)
-                .bind(id)
-                .execute(&*db.pool)
-                .await;
-            
-            // Get worker name for notification
-            let worker_name = sqlx::query_scalar::<_, String>(
-                "SELECT CONCAT(e.last_name, ' ', e.first_name) 
-                 FROM employee e 
-                 WHERE e.id = $1"
-            )
-            .bind(form.brigadier_id)
-            .fetch_optional(&*db.pool)
-            .await
-            .ok()
-            .flatten();
-            
-            let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
-            
-            let (result, message) = match update_result {
-                Ok(_) => (
-                    NotificationResult::Success, 
-                    Some(format!("Brigade updated with new brigadier: {}", worker_name))
-                ),
-                Err(e) => (
-                    NotificationResult::Error, 
-                    Some(format!("Failed to update brigade: {}", e))
-                ),
-            };
-            
-            let template = NotificationTemplate {
-                result,
-                message,
-                redirect: Some(format!("/brigades/{}", id)),
-            };
-            
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
-            }
-        },
-        Ok(false) => {
-            let template = NotificationTemplate {
-                result: NotificationResult::Error,
-                message: Some("Worker does not exist or is already a brigadier in another brigade".to_string()),
-                redirect: Some(format!("/brigades/{}/edit", id)),
-            };
-            
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
-            }
-        },
-        Err(e) => {
-            Html::from(format!("<p>Error checking worker: {}</p>", e))
-        }
+    let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
+    
+    let (result, message) = match update_result {
+        Ok(_) => (
+            NotificationResult::Success, 
+            Some(format!("Brigade updated with new brigadier: {}", worker_name))
+        ),
+        Err(e) => (
+            NotificationResult::Error, 
+            Some(format!("Failed to update brigade: {}", e))
+        ),
+    };
+    
+    let template = NotificationTemplate {
+        result,
+        message,
+        redirect: Some(format!("/brigades/{}", id)),
+    };
+    
+    match template.render() {
+        Ok(html) => Html::from(html),
+        Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
     }
 }
 
@@ -609,87 +578,95 @@ async fn brigade_create_handler(
     State(db): State<Database>,
     Form(form): Form<BrigadeCreateForm>,
 ) -> Html<String> {
-    // Check if worker exists and is not already a brigadier
-    let worker_exists = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS (
-            SELECT 1 FROM worker WHERE id = $1 AND 
-            NOT EXISTS (SELECT 1 FROM brigade WHERE brigadier_id = $1)
-        )"
-    )
-    .bind(form.brigadier_id)
-    .fetch_one(&*db.pool)
-    .await;
-    
-    match worker_exists {
-        Ok(true) => {
-            // Insert new brigade
-            let result = sqlx::query("INSERT INTO brigade (brigadier_id) VALUES ($1) RETURNING id")
-                .bind(form.brigadier_id)
-                .fetch_optional(&*db.pool)
-                .await;
-            
-            // Get worker name for notification
-            let worker_name = sqlx::query_scalar::<_, String>(
-                "SELECT CONCAT(e.last_name, ' ', e.first_name) 
-                 FROM employee e 
-                 WHERE e.id = $1"
-            )
-            .bind(form.brigadier_id)
-            .fetch_optional(&*db.pool)
-            .await
-            .ok()
-            .flatten();
-            
-            let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
-                
-            // Create notification based on result
-            let (notification_result, message, redirect) = match result {
-                Ok(Some(row)) => {
-                    let id: i32 = row.get(0);
-                    (
-                        NotificationResult::Success,
-                        Some(format!("Brigade with brigadier {} created successfully", worker_name)),
-                        Some(format!("/brigades/{}", id))
-                    )
-                },
-                Ok(None) => (
-                    NotificationResult::Error, 
-                    Some("Failed to create brigade: no ID returned".to_string()),
-                    Some("/brigades".to_string())
-                ),
-                Err(e) => (
-                    NotificationResult::Error, 
-                    Some(format!("Failed to create brigade: {}", e)),
-                    Some("/brigades".to_string())
-                ),
-            };
-            
-            let template = NotificationTemplate {
-                result: notification_result,
-                message,
-                redirect,
-            };
+    // Begin transaction
+    let mut tx = match db.pool.begin().await {
+        Ok(tx) => tx,
+        Err(e) => {
+            return Html::from(format!("<p>Error starting transaction: {}</p>", e));
+        }
+    };
 
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
+    // Insert new brigade and get its ID
+    let result = sqlx::query("INSERT INTO brigade (brigadier_id) VALUES ($1) RETURNING id")
+        .bind(form.brigadier_id)
+        .fetch_optional(&mut *tx)
+        .await;
+    
+    match result {
+        Ok(Some(row)) => {
+            let brigade_id: i32 = row.get(0);
+            
+            // Add brigadier to assignments
+            let assign_result = sqlx::query(
+                "INSERT INTO assignment (brigade_id, worker_id) VALUES ($1, $2)"
+            )
+            .bind(brigade_id)
+            .bind(form.brigadier_id)
+            .execute(&mut *tx)
+            .await;
+
+            match assign_result {
+                Ok(_) => {
+                    // Commit transaction after both operations succeed
+                    if let Err(e) = tx.commit().await {
+                        return Html::from(format!("<p>Error committing transaction: {}</p>", e));
+                    }
+
+                    // Get worker name for notification
+                    let worker_name = sqlx::query_scalar::<_, String>(
+                        "SELECT CONCAT(e.last_name, ' ', e.first_name) 
+                            FROM employee e 
+                            WHERE e.id = $1"
+                    )
+                    .bind(form.brigadier_id)
+                    .fetch_optional(&*db.pool)
+                    .await
+                    .ok()
+                    .flatten();
+                    
+                    let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
+
+                    let template = NotificationTemplate {
+                        result: NotificationResult::Success,
+                        message: Some(format!("Brigade with brigadier {} created successfully", worker_name)),
+                        redirect: Some(format!("/brigades/{}", brigade_id)),
+                    };
+
+                    match template.render() {
+                        Ok(html) => Html::from(html),
+                        Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
+                    }
+                },
+                Err(e) => {
+                    let _ = tx.rollback().await;
+                    Html::from(format!("<p>Error adding brigadier to assignments: {}</p>", e))
+                }
             }
         },
-        Ok(false) => {
+        Ok(None) => {
+            let _ = tx.rollback().await;
             let template = NotificationTemplate {
                 result: NotificationResult::Error,
-                message: Some("Worker does not exist or is already a brigadier".to_string()),
-                redirect: Some("/brigades/new".to_string()),
+                message: Some("Failed to create brigade: no ID returned".to_string()),
+                redirect: Some("/brigades".to_string()),
             };
-            
             match template.render() {
                 Ok(html) => Html::from(html),
                 Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
             }
         },
         Err(e) => {
-            Html::from(format!("<p>Error checking worker: {}</p>", e))
-        }
+            let _ = tx.rollback().await;
+            let template = NotificationTemplate {
+                result: NotificationResult::Error,
+                message: Some(format!("Failed to create brigade: {}", e)),
+                redirect: Some("/brigades".to_string()),
+            };
+            match template.render() {
+                Ok(html) => Html::from(html),
+                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
+            }
+        },
     }
 }
 
@@ -776,80 +753,50 @@ async fn worker_add_handler(
     Path(id): Path<i32>,
     Form(form): Form<WorkerAddForm>,
 ) -> Html<String> {
-    // Check if worker exists and is not already in this or another brigade
-    let worker_check = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS (
-            SELECT 1 FROM worker WHERE id = $1 AND 
-            NOT EXISTS (SELECT 1 FROM assignment WHERE worker_id = $1)
-        )"
+    // Add worker to brigade
+    let result = sqlx::query(
+        "INSERT INTO assignment (brigade_id, worker_id) VALUES ($1, $2)"
     )
+    .bind(id)
     .bind(form.worker_id)
-    .fetch_one(&*db.pool)
+    .execute(&*db.pool)
     .await;
     
-    match worker_check {
-        Ok(true) => {
-            // Add worker to brigade
-            let result = sqlx::query(
-                "INSERT INTO assignment (brigade_id, worker_id) VALUES ($1, $2)"
-            )
-            .bind(id)
-            .bind(form.worker_id)
-            .execute(&*db.pool)
-            .await;
-            
-            // Get worker name for notification
-            let worker_name = sqlx::query_scalar::<_, String>(
-                "SELECT CONCAT(e.last_name, ' ', e.first_name) 
-                 FROM employee e 
-                 WHERE e.id = $1"
-            )
-            .bind(form.worker_id)
-            .fetch_optional(&*db.pool)
-            .await
-            .ok()
-            .flatten();
-            
-            let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
-            
-            // Create notification based on result
-            let (notification_result, message) = match result {
-                Ok(_) => (
-                    NotificationResult::Success,
-                    Some(format!("Worker {} added to brigade successfully", worker_name)),
-                ),
-                Err(e) => (
-                    NotificationResult::Error, 
-                    Some(format!("Failed to add worker to brigade: {}", e)),
-                ),
-            };
-            
-            let template = NotificationTemplate {
-                result: notification_result,
-                message,
-                redirect: None,
-            };
+    // Get worker name for notification
+    let worker_name = sqlx::query_scalar::<_, String>(
+        "SELECT CONCAT(e.last_name, ' ', e.first_name) 
+            FROM employee e 
+            WHERE e.id = $1"
+    )
+    .bind(form.worker_id)
+    .fetch_optional(&*db.pool)
+    .await
+    .ok()
+    .flatten();
+    
+    let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
+    
+    // Create notification based on result
+    let (notification_result, message) = match result {
+        Ok(_) => (
+            NotificationResult::Success,
+            Some(format!("Worker {} added to brigade successfully", worker_name)),
+        ),
+        Err(e) => (
+            NotificationResult::Error, 
+            Some(format!("Failed to add worker to brigade: {}", e)),
+        ),
+    };
+    
+    let template = NotificationTemplate {
+        result: notification_result,
+        message,
+        redirect: None,
+    };
 
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
-            }
-        },
-        Ok(false) => {
-            let template = NotificationTemplate {
-                result: NotificationResult::Error,
-                message: Some("Worker does not exist or is already assigned to a brigade".to_string()),
-                redirect: None,
-            };
-            
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
-            }
-        },
-        Err(e) => {
-            Html::from(format!("<p>Error checking worker: {}</p>", e))
-        }
+    match template.render() {
+        Ok(html) => Html::from(html),
+        Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
     }
 }
 

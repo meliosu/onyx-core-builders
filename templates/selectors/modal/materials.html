@@ -1,0 +1,32 @@
+<div class="bg-white rounded-lg max-w-xl w-full p-6">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Select Material</h3>
+        <button onclick="document.getElementById('material-selector-modal').classList.add('hidden')" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Search Form -->
+    <form class="mb-4" hx-get="/api/selectors/materials/modal" hx-target="#material-selector-content">
+        <div class="relative">
+            <input type="text" 
+                   name="name" 
+                   placeholder="Search materials..." 
+                   class="px-3 py-2 border rounded w-full"
+                   hx-trigger="keyup changed delay:200ms">
+        </div>
+    </form>
+
+    <!-- Materials List -->
+    <div class="max-h-96 overflow-y-auto">
+        <div class="space-y-2">
+            {% for material in materials %}
+            <button onclick="selectMaterial('{{ material.id }}', '{{ material.name }} ({{ material.units }})')"
+                    class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded {% if Some(*material.id) == query.selected_id %}bg-blue-50{% endif %}">
+                <div class="font-medium">{{ material.name }}</div>
+                <div class="text-sm text-gray-500">{{ material.units }}</div>
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
