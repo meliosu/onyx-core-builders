@@ -132,6 +132,7 @@ pub struct BrigadeTasksTemplate {
     pub id: i32,
     pub tasks: Vec<TaskListItem>,
     pub pagination: Pagination,
+    pub filters: TaskFilter,
 }
 
 #[derive(Serialize, Deserialize, FromRow)]
@@ -143,6 +144,16 @@ pub struct TaskListItem {
     pub period_start: NaiveDate,
     pub period_end: Option<NaiveDate>,
     pub status: String,
+}
+
+#[derive(Serialize, Deserialize, Default)]
+pub struct TaskFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub start_date: Option<NaiveDate>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub end_date: Option<NaiveDate>,
 }
 
 // Handler functions for page endpoints
@@ -895,6 +906,7 @@ async fn brigade_tasks_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
     Query(pagination): Query<Pagination>,
+    Query(filters): Query<TaskFilter>,
 ) -> Html<String> {
     // Check if brigade exists
     let brigade_exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM brigade WHERE id = $1)")
@@ -904,8 +916,8 @@ async fn brigade_tasks_handler(
     
     match brigade_exists {
         Ok(true) => {
-            // Build query for tasks assigned to this brigade
-            let query = sqlx::query_as::<_, TaskListItem>(
+            // Build query for tasks assigned to this brigade with filtering
+            let mut query_builder = sqlx::QueryBuilder::new(
                 "SELECT 
                     t.id,
                     t.name,
@@ -914,37 +926,78 @@ async fn brigade_tasks_handler(
                     t.period_start,
                     t.actual_period_end as period_end,
                     CASE
-                        WHEN t.actual_period_end IS NULL THEN 'In Progress'
-                        ELSE 'Completed'
+                        WHEN t.actual_period_end IS NULL THEN 'in_progress'
+                        ELSE 'completed'
                     END as status
                 FROM task t
                 JOIN site s ON t.site_id = s.id
-                WHERE t.brigade_id = $1
-                ORDER BY 
-                    CASE WHEN t.actual_period_end IS NULL THEN 0 ELSE 1 END,
-                    t.period_start DESC
-                LIMIT $2 OFFSET $3"
-            )
-            .bind(id)
-            .bind(pagination.page_size as i32)
-            .bind((pagination.page_number as i32 - 1) * pagination.page_size as i32);
+                WHERE t.brigade_id = "
+            );
             
-            let tasks = match query.fetch_all(&*db.pool).await {
+            query_builder.push_bind(id);
+            
+            // Add name filter if provided
+            if let Some(ref name) = filters.name {
+                query_builder.push(" AND t.name ILIKE ");
+                query_builder.push_bind(format!("%{}%", name));
+            }
+            
+            // Add start date filter if provided
+            if let Some(start_date) = filters.start_date {
+                query_builder.push(" AND (t.period_start >= ");
+                query_builder.push_bind(start_date);
+                query_builder.push(" OR t.period_start IS NULL)");
+            }
+            
+            // Add end date filter if provided
+            if let Some(end_date) = filters.end_date {
+                query_builder.push(" AND (t.actual_period_end <= ");
+                query_builder.push_bind(end_date);
+                query_builder.push(" OR t.actual_period_end IS NULL)");
+            }
+            
+            // Add ordering
+            query_builder.push(" ORDER BY 
+                CASE WHEN t.actual_period_end IS NULL THEN 0 ELSE 1 END,
+                t.period_start DESC
+                LIMIT ");
+            query_builder.push_bind(pagination.page_size as i32);
+            query_builder.push(" OFFSET ");
+            query_builder.push_bind((pagination.page_number as i32 - 1) * pagination.page_size as i32);
+            
+            let tasks = match query_builder.build_query_as::<TaskListItem>().fetch_all(&*db.pool).await {
                 Ok(tasks) => tasks,
                 Err(e) => return Html::from(format!("<p>Error fetching tasks: {}</p>", e)),
             };
             
-            // Count total tasks
-            let count = sqlx::query_scalar::<_, i64>(
+            // Count total tasks with the same filters
+            let mut count_query_builder = sqlx::QueryBuilder::new(
                 "SELECT COUNT(*) 
-                 FROM task 
-                 WHERE brigade_id = $1"
-            )
-            .bind(id)
-            .fetch_one(&*db.pool)
-            .await;
+                 FROM task t
+                 WHERE t.brigade_id = "
+            );
             
-            let count = match count {
+            count_query_builder.push_bind(id);
+            
+            // Add the same filters to count query
+            if let Some(ref name) = filters.name {
+                count_query_builder.push(" AND t.name ILIKE ");
+                count_query_builder.push_bind(format!("%{}%", name));
+            }
+            
+            if let Some(start_date) = filters.start_date {
+                count_query_builder.push(" AND (t.period_start >= ");
+                count_query_builder.push_bind(start_date);
+                count_query_builder.push(" OR t.period_start IS NULL)");
+            }
+            
+            if let Some(end_date) = filters.end_date {
+                count_query_builder.push(" AND (t.actual_period_end <= ");
+                count_query_builder.push_bind(end_date);
+                count_query_builder.push(" OR t.actual_period_end IS NULL)");
+            }
+            
+            let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
                 Ok(count) => count,
                 Err(e) => return Html::from(format!("<p>Error counting tasks: {}</p>", e)),
             };
@@ -959,6 +1012,7 @@ async fn brigade_tasks_handler(
                     page_number: pagination.page_number,
                     page_size: pagination.page_size,
                 },
+                filters,
             };
             
             match template.render() {
