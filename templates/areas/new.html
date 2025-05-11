@@ -19,33 +19,26 @@
 
         <div>
             <label for="department_id" class="block text-sm font-medium text-gray-700 mb-1">Department <span class="text-error">*</span></label>
-            <div class="flex gap-2">
-                <input type="hidden" id="department_id" name="department_id" required>
-                <input type="text" id="department_display" readonly placeholder="Select department" 
-                       class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
-                <button type="button" 
-                        hx-get="/api/selectors/departments" 
-                        hx-target="#department-selector-modal"
-                        class="bg-custom-primary text-white px-4 py-2 rounded">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
+            <select id="department_id" name="department_id" required
+                    class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                    hx-get="/api/selectors/departments"
+                    hx-trigger="load"
+                    hx-target="#department_id">
+                <option value="">Select a department</option>
+                <!-- Options will be loaded via HTMX -->
+            </select>
         </div>
 
         <div>
             <label for="supervisor_id" class="block text-sm font-medium text-gray-700 mb-1">Supervisor</label>
-            <div class="flex gap-2">
-                <input type="hidden" id="supervisor_id" name="supervisor_id">
-                <input type="text" id="supervisor_display" readonly placeholder="Select supervisor" 
-                       class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
-                <button type="button" 
-                        hx-get="/api/selectors/technical-personnel" 
-                        hx-target="#supervisor-selector-modal"
-                        hx-vals='{"qualification": "engineer", "position": "foreman"}'
-                        class="bg-custom-primary text-white px-4 py-2 rounded">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
+            <select id="supervisor_id" name="supervisor_id"
+                    class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                    hx-get="/api/selectors/technical-personnel"
+                    hx-trigger="load"
+                    hx-target="#supervisor_id">
+                <option value="">Select a supervisor</option>
+                <!-- Options will be loaded via HTMX -->
+            </select>
         </div>
 
         <div class="flex justify-end space-x-4 pt-4 border-t">
@@ -56,31 +49,4 @@
         </div>
     </form>
 </div>
-
-<!-- Selector modal placeholders -->
-<div id="department-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <!-- Department selector will be loaded here -->
-</div>
-
-<div id="supervisor-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <!-- Technical personnel selector will be loaded here -->
-</div>
-
-<!-- Notification container -->
-<div id="notification-container"></div>
-
-<script>
-// Minimal JS for selecting department and supervisor
-function selectDepartment(id, name) {
-    document.getElementById('department_id').value = id;
-    document.getElementById('department_display').value = name;
-    document.getElementById('department-selector-modal').classList.add('hidden');
-}
-
-function selectTechnicalPersonnel(id, name) {
-    document.getElementById('supervisor_id').value = id;
-    document.getElementById('supervisor_display').value = name;
-    document.getElementById('supervisor-selector-modal').classList.add('hidden');
-}
-</script>
 {% endblock %}

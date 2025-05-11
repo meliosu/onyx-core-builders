@@ -2523,8 +2523,4 @@ HTMX endpoints are listed after Full Page Endpoints.
 }
 ```
 
-## 13. Report Endpoints
-
-TODO...
-
 **This document describes the http endpoints used by the Onyx Core Builders Informational System**

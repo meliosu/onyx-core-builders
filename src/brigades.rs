@@ -11,6 +11,7 @@ use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Qualification, SiteType, Position, Profession}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
+use crate::utils::empty_string_as_none;
 
 // Tab selector for brigade details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -58,7 +59,7 @@ pub struct BrigadeApiDetailsTemplate {
     pub id: i32,
     pub brigadier_id: i32,
     pub brigadier_name: String,
-    pub worker_count: i32,
+    pub worker_count: i64,
     pub current_task_id: Option<i32>,
     pub current_task_name: Option<String>,
     pub current_site_id: Option<i32>,
@@ -80,9 +81,10 @@ pub struct BrigadeCreateForm {
 pub struct BrigadeListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigadier_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub site_id: Option<i32>,
-    pub task_name: Option<String>,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -98,7 +100,7 @@ pub struct BrigadeListItem {
     pub id: i32,
     pub brigadier_id: i32,
     pub brigadier_name: String,
-    pub worker_count: i32,
+    pub worker_count: i64,
     pub current_site_id: Option<i32>,
     pub current_site_name: Option<String>,
 }
@@ -130,6 +132,7 @@ pub struct BrigadeTasksTemplate {
     pub id: i32,
     pub tasks: Vec<TaskListItem>,
     pub pagination: Pagination,
+    pub filters: TaskFilter,
 }
 
 #[derive(Serialize, Deserialize, FromRow)]
@@ -138,9 +141,19 @@ pub struct TaskListItem {
     pub name: String,
     pub site_id: i32,
     pub site_name: String,
-    pub period_start: NaiveDateTime,
-    pub period_end: Option<NaiveDateTime>,
+    pub period_start: NaiveDate,
+    pub period_end: Option<NaiveDate>,
     pub status: String,
+}
+
+#[derive(Serialize, Deserialize, Default)]
+pub struct TaskFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub start_date: Option<NaiveDate>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub end_date: Option<NaiveDate>,
 }
 
 // Handler functions for page endpoints
@@ -269,7 +282,7 @@ async fn brigade_api_details_handler(
             let id: i32 = row.get("id");
             let brigadier_id: i32 = row.get("brigadier_id");
             let brigadier_name: String = row.get("brigadier_name");
-            let worker_count: i32 = row.get("worker_count");
+            let worker_count: i64 = row.get("worker_count");
             let current_task_id: Option<i32> = row.get("current_task_id");
             let current_task_name: Option<String> = row.get("current_task_name");
             let current_site_id: Option<i32> = row.get("current_site_id");
@@ -306,78 +319,47 @@ async fn brigade_update_handler(
     Path(id): Path<i32>,
     Form(form): Form<BrigadeUpdateForm>,
 ) -> Html<String> {
-    // Check if worker exists and is not already a brigadier in another brigade
-    let worker_exists = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS (
-            SELECT 1 FROM worker WHERE id = $1 AND 
-            NOT EXISTS (SELECT 1 FROM brigade WHERE brigadier_id = $1 AND id != $2)
-        )"
+    // Update brigade
+    let update_result = sqlx::query("UPDATE brigade SET brigadier_id = $1 WHERE id = $2")
+        .bind(form.brigadier_id)
+        .bind(id)
+        .execute(&*db.pool)
+        .await;
+    
+    // Get worker name for notification
+    let worker_name = sqlx::query_scalar::<_, String>(
+        "SELECT CONCAT(e.last_name, ' ', e.first_name) 
+            FROM employee e 
+            WHERE e.id = $1"
     )
     .bind(form.brigadier_id)
-    .bind(id)
-    .fetch_one(&*db.pool)
-    .await;
+    .fetch_optional(&*db.pool)
+    .await
+    .ok()
+    .flatten();
     
-    match worker_exists {
-        Ok(true) => {
-            // Update brigade
-            let update_result = sqlx::query("UPDATE brigade SET brigadier_id = $1 WHERE id = $2")
-                .bind(form.brigadier_id)
-                .bind(id)
-                .execute(&*db.pool)
-                .await;
-            
-            // Get worker name for notification
-            let worker_name = sqlx::query_scalar::<_, String>(
-                "SELECT CONCAT(e.last_name, ' ', e.first_name) 
-                 FROM employee e 
-                 WHERE e.id = $1"
-            )
-            .bind(form.brigadier_id)
-            .fetch_optional(&*db.pool)
-            .await
-            .ok()
-            .flatten();
-            
-            let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
-            
-            let (result, message) = match update_result {
-                Ok(_) => (
-                    NotificationResult::Success, 
-                    Some(format!("Brigade updated with new brigadier: {}", worker_name))
-                ),
-                Err(e) => (
-                    NotificationResult::Error, 
-                    Some(format!("Failed to update brigade: {}", e))
-                ),
-            };
-            
-            let template = NotificationTemplate {
-                result,
-                message,
-                redirect: Some(format!("/brigades/{}", id)),
-            };
-            
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
-            }
-        },
-        Ok(false) => {
-            let template = NotificationTemplate {
-                result: NotificationResult::Error,
-                message: Some("Worker does not exist or is already a brigadier in another brigade".to_string()),
-                redirect: Some(format!("/brigades/{}/edit", id)),
-            };
-            
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
-            }
-        },
-        Err(e) => {
-            Html::from(format!("<p>Error checking worker: {}</p>", e))
-        }
+    let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
+    
+    let (result, message) = match update_result {
+        Ok(_) => (
+            NotificationResult::Success, 
+            Some(format!("Brigade updated with new brigadier: {}", worker_name))
+        ),
+        Err(e) => (
+            NotificationResult::Error, 
+            Some(format!("Failed to update brigade: {}", e))
+        ),
+    };
+    
+    let template = NotificationTemplate {
+        result,
+        message,
+        redirect: Some(format!("/brigades/{}", id)),
+    };
+    
+    match template.render() {
+        Ok(html) => Html::from(html),
+        Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
     }
 }
 
@@ -522,20 +504,34 @@ async fn brigades_list_api_handler(
         query_builder.push(")");
     }
 
-    if let Some(task_name) = &filter.task_name {
-        if where_added {
-            query_builder.push(" AND EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.name ILIKE ");
-        } else {
-            query_builder.push(" WHERE EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.name ILIKE ");
-            where_added = true;
-        }
-        query_builder.push_bind(format!("%{}%", task_name));
-        query_builder.push(")");
+    // Count total results for pagination - REPLACE THIS SECTION
+    let mut count_query_builder = sqlx::QueryBuilder::new(
+        "SELECT COUNT(*) FROM brigade b
+         JOIN worker w ON b.brigadier_id = w.id
+         JOIN employee e ON w.id = e.id"
+    );
+
+    let mut count_where_added = false;
+
+    // Add the same filter conditions to the count query
+    if let Some(brigadier_id) = &filter.brigadier_id {
+        count_query_builder.push(" WHERE b.brigadier_id = ");
+        count_query_builder.push_bind(brigadier_id);
+        count_where_added = true;
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    if let Some(site_id) = &filter.site_id {
+        if count_where_added {
+            count_query_builder.push(" AND EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.site_id = ");
+        } else {
+            count_query_builder.push(" WHERE EXISTS (SELECT 1 FROM task t WHERE t.brigade_id = b.id AND t.site_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(site_id);
+        count_query_builder.push(")");
+    }
+
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting brigades: {}</p>", e)),
     };
@@ -593,87 +589,95 @@ async fn brigade_create_handler(
     State(db): State<Database>,
     Form(form): Form<BrigadeCreateForm>,
 ) -> Html<String> {
-    // Check if worker exists and is not already a brigadier
-    let worker_exists = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS (
-            SELECT 1 FROM worker WHERE id = $1 AND 
-            NOT EXISTS (SELECT 1 FROM brigade WHERE brigadier_id = $1)
-        )"
-    )
-    .bind(form.brigadier_id)
-    .fetch_one(&*db.pool)
-    .await;
-    
-    match worker_exists {
-        Ok(true) => {
-            // Insert new brigade
-            let result = sqlx::query("INSERT INTO brigade (brigadier_id) VALUES ($1) RETURNING id")
-                .bind(form.brigadier_id)
-                .fetch_optional(&*db.pool)
-                .await;
-            
-            // Get worker name for notification
-            let worker_name = sqlx::query_scalar::<_, String>(
-                "SELECT CONCAT(e.last_name, ' ', e.first_name) 
-                 FROM employee e 
-                 WHERE e.id = $1"
-            )
-            .bind(form.brigadier_id)
-            .fetch_optional(&*db.pool)
-            .await
-            .ok()
-            .flatten();
-            
-            let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
-                
-            // Create notification based on result
-            let (notification_result, message, redirect) = match result {
-                Ok(Some(row)) => {
-                    let id: i32 = row.get(0);
-                    (
-                        NotificationResult::Success,
-                        Some(format!("Brigade with brigadier {} created successfully", worker_name)),
-                        Some(format!("/brigades/{}", id))
-                    )
-                },
-                Ok(None) => (
-                    NotificationResult::Error, 
-                    Some("Failed to create brigade: no ID returned".to_string()),
-                    Some("/brigades".to_string())
-                ),
-                Err(e) => (
-                    NotificationResult::Error, 
-                    Some(format!("Failed to create brigade: {}", e)),
-                    Some("/brigades".to_string())
-                ),
-            };
-            
-            let template = NotificationTemplate {
-                result: notification_result,
-                message,
-                redirect,
-            };
+    // Begin transaction
+    let mut tx = match db.pool.begin().await {
+        Ok(tx) => tx,
+        Err(e) => {
+            return Html::from(format!("<p>Error starting transaction: {}</p>", e));
+        }
+    };
 
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
+    // Insert new brigade and get its ID
+    let result = sqlx::query("INSERT INTO brigade (brigadier_id) VALUES ($1) RETURNING id")
+        .bind(form.brigadier_id)
+        .fetch_optional(&mut *tx)
+        .await;
+    
+    match result {
+        Ok(Some(row)) => {
+            let brigade_id: i32 = row.get(0);
+            
+            // Add brigadier to assignments
+            let assign_result = sqlx::query(
+                "INSERT INTO assignment (brigade_id, worker_id) VALUES ($1, $2)"
+            )
+            .bind(brigade_id)
+            .bind(form.brigadier_id)
+            .execute(&mut *tx)
+            .await;
+
+            match assign_result {
+                Ok(_) => {
+                    // Commit transaction after both operations succeed
+                    if let Err(e) = tx.commit().await {
+                        return Html::from(format!("<p>Error committing transaction: {}</p>", e));
+                    }
+
+                    // Get worker name for notification
+                    let worker_name = sqlx::query_scalar::<_, String>(
+                        "SELECT CONCAT(e.last_name, ' ', e.first_name) 
+                            FROM employee e 
+                            WHERE e.id = $1"
+                    )
+                    .bind(form.brigadier_id)
+                    .fetch_optional(&*db.pool)
+                    .await
+                    .ok()
+                    .flatten();
+                    
+                    let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
+
+                    let template = NotificationTemplate {
+                        result: NotificationResult::Success,
+                        message: Some(format!("Brigade with brigadier {} created successfully", worker_name)),
+                        redirect: Some(format!("/brigades/{}", brigade_id)),
+                    };
+
+                    match template.render() {
+                        Ok(html) => Html::from(html),
+                        Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
+                    }
+                },
+                Err(e) => {
+                    let _ = tx.rollback().await;
+                    Html::from(format!("<p>Error adding brigadier to assignments: {}</p>", e))
+                }
             }
         },
-        Ok(false) => {
+        Ok(None) => {
+            let _ = tx.rollback().await;
             let template = NotificationTemplate {
                 result: NotificationResult::Error,
-                message: Some("Worker does not exist or is already a brigadier".to_string()),
-                redirect: Some("/brigades/new".to_string()),
+                message: Some("Failed to create brigade: no ID returned".to_string()),
+                redirect: Some("/brigades".to_string()),
             };
-            
             match template.render() {
                 Ok(html) => Html::from(html),
                 Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
             }
         },
         Err(e) => {
-            Html::from(format!("<p>Error checking worker: {}</p>", e))
-        }
+            let _ = tx.rollback().await;
+            let template = NotificationTemplate {
+                result: NotificationResult::Error,
+                message: Some(format!("Failed to create brigade: {}", e)),
+                redirect: Some("/brigades".to_string()),
+            };
+            match template.render() {
+                Ok(html) => Html::from(html),
+                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
+            }
+        },
     }
 }
 
@@ -760,80 +764,50 @@ async fn worker_add_handler(
     Path(id): Path<i32>,
     Form(form): Form<WorkerAddForm>,
 ) -> Html<String> {
-    // Check if worker exists and is not already in this or another brigade
-    let worker_check = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS (
-            SELECT 1 FROM worker WHERE id = $1 AND 
-            NOT EXISTS (SELECT 1 FROM assignment WHERE worker_id = $1)
-        )"
+    // Add worker to brigade
+    let result = sqlx::query(
+        "INSERT INTO assignment (brigade_id, worker_id) VALUES ($1, $2)"
     )
+    .bind(id)
     .bind(form.worker_id)
-    .fetch_one(&*db.pool)
+    .execute(&*db.pool)
     .await;
     
-    match worker_check {
-        Ok(true) => {
-            // Add worker to brigade
-            let result = sqlx::query(
-                "INSERT INTO assignment (brigade_id, worker_id) VALUES ($1, $2)"
-            )
-            .bind(id)
-            .bind(form.worker_id)
-            .execute(&*db.pool)
-            .await;
-            
-            // Get worker name for notification
-            let worker_name = sqlx::query_scalar::<_, String>(
-                "SELECT CONCAT(e.last_name, ' ', e.first_name) 
-                 FROM employee e 
-                 WHERE e.id = $1"
-            )
-            .bind(form.worker_id)
-            .fetch_optional(&*db.pool)
-            .await
-            .ok()
-            .flatten();
-            
-            let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
-            
-            // Create notification based on result
-            let (notification_result, message) = match result {
-                Ok(_) => (
-                    NotificationResult::Success,
-                    Some(format!("Worker {} added to brigade successfully", worker_name)),
-                ),
-                Err(e) => (
-                    NotificationResult::Error, 
-                    Some(format!("Failed to add worker to brigade: {}", e)),
-                ),
-            };
-            
-            let template = NotificationTemplate {
-                result: notification_result,
-                message,
-                redirect: None,
-            };
+    // Get worker name for notification
+    let worker_name = sqlx::query_scalar::<_, String>(
+        "SELECT CONCAT(e.last_name, ' ', e.first_name) 
+            FROM employee e 
+            WHERE e.id = $1"
+    )
+    .bind(form.worker_id)
+    .fetch_optional(&*db.pool)
+    .await
+    .ok()
+    .flatten();
+    
+    let worker_name = worker_name.unwrap_or_else(|| "Unknown worker".to_string());
+    
+    // Create notification based on result
+    let (notification_result, message) = match result {
+        Ok(_) => (
+            NotificationResult::Success,
+            Some(format!("Worker {} added to brigade successfully", worker_name)),
+        ),
+        Err(e) => (
+            NotificationResult::Error, 
+            Some(format!("Failed to add worker to brigade: {}", e)),
+        ),
+    };
+    
+    let template = NotificationTemplate {
+        result: notification_result,
+        message,
+        redirect: Some(format!("/brigades/{id}?tab=workers"))
+    };
 
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
-            }
-        },
-        Ok(false) => {
-            let template = NotificationTemplate {
-                result: NotificationResult::Error,
-                message: Some("Worker does not exist or is already assigned to a brigade".to_string()),
-                redirect: None,
-            };
-            
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
-            }
-        },
-        Err(e) => {
-            Html::from(format!("<p>Error checking worker: {}</p>", e))
-        }
+    match template.render() {
+        Ok(html) => Html::from(html),
+        Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
     }
 }
 
@@ -893,7 +867,7 @@ async fn worker_remove_handler(
             // Create notification based on result
             let (notification_result, message) = match result {
                 Ok(result) => {
-                    if result.rows_affected() == 0 {
+                    if (result.rows_affected() == 0) {
                         (
                             NotificationResult::Error,
                             Some(format!("Worker {} is not in this brigade", worker_name)),
@@ -932,6 +906,7 @@ async fn brigade_tasks_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
     Query(pagination): Query<Pagination>,
+    Query(filters): Query<TaskFilter>,
 ) -> Html<String> {
     // Check if brigade exists
     let brigade_exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM brigade WHERE id = $1)")
@@ -941,8 +916,8 @@ async fn brigade_tasks_handler(
     
     match brigade_exists {
         Ok(true) => {
-            // Build query for tasks assigned to this brigade
-            let query = sqlx::query_as::<_, TaskListItem>(
+            // Build query for tasks assigned to this brigade with filtering
+            let mut query_builder = sqlx::QueryBuilder::new(
                 "SELECT 
                     t.id,
                     t.name,
@@ -951,37 +926,78 @@ async fn brigade_tasks_handler(
                     t.period_start,
                     t.actual_period_end as period_end,
                     CASE
-                        WHEN t.actual_period_end IS NULL THEN 'In Progress'
-                        ELSE 'Completed'
+                        WHEN t.actual_period_end IS NULL THEN 'in_progress'
+                        ELSE 'completed'
                     END as status
                 FROM task t
                 JOIN site s ON t.site_id = s.id
-                WHERE t.brigade_id = $1
-                ORDER BY 
-                    CASE WHEN t.actual_period_end IS NULL THEN 0 ELSE 1 END,
-                    t.period_start DESC
-                LIMIT $2 OFFSET $3"
-            )
-            .bind(id)
-            .bind(pagination.page_size as i32)
-            .bind((pagination.page_number as i32 - 1) * pagination.page_size as i32);
+                WHERE t.brigade_id = "
+            );
             
-            let tasks = match query.fetch_all(&*db.pool).await {
+            query_builder.push_bind(id);
+            
+            // Add name filter if provided
+            if let Some(ref name) = filters.name {
+                query_builder.push(" AND t.name ILIKE ");
+                query_builder.push_bind(format!("%{}%", name));
+            }
+            
+            // Add start date filter if provided
+            if let Some(start_date) = filters.start_date {
+                query_builder.push(" AND (t.period_start >= ");
+                query_builder.push_bind(start_date);
+                query_builder.push(" OR t.period_start IS NULL)");
+            }
+            
+            // Add end date filter if provided
+            if let Some(end_date) = filters.end_date {
+                query_builder.push(" AND (t.actual_period_end <= ");
+                query_builder.push_bind(end_date);
+                query_builder.push(" OR t.actual_period_end IS NULL)");
+            }
+            
+            // Add ordering
+            query_builder.push(" ORDER BY 
+                CASE WHEN t.actual_period_end IS NULL THEN 0 ELSE 1 END,
+                t.period_start DESC
+                LIMIT ");
+            query_builder.push_bind(pagination.page_size as i32);
+            query_builder.push(" OFFSET ");
+            query_builder.push_bind((pagination.page_number as i32 - 1) * pagination.page_size as i32);
+            
+            let tasks = match query_builder.build_query_as::<TaskListItem>().fetch_all(&*db.pool).await {
                 Ok(tasks) => tasks,
                 Err(e) => return Html::from(format!("<p>Error fetching tasks: {}</p>", e)),
             };
             
-            // Count total tasks
-            let count = sqlx::query_scalar::<_, i64>(
+            // Count total tasks with the same filters
+            let mut count_query_builder = sqlx::QueryBuilder::new(
                 "SELECT COUNT(*) 
-                 FROM task 
-                 WHERE brigade_id = $1"
-            )
-            .bind(id)
-            .fetch_one(&*db.pool)
-            .await;
+                 FROM task t
+                 WHERE t.brigade_id = "
+            );
             
-            let count = match count {
+            count_query_builder.push_bind(id);
+            
+            // Add the same filters to count query
+            if let Some(ref name) = filters.name {
+                count_query_builder.push(" AND t.name ILIKE ");
+                count_query_builder.push_bind(format!("%{}%", name));
+            }
+            
+            if let Some(start_date) = filters.start_date {
+                count_query_builder.push(" AND (t.period_start >= ");
+                count_query_builder.push_bind(start_date);
+                count_query_builder.push(" OR t.period_start IS NULL)");
+            }
+            
+            if let Some(end_date) = filters.end_date {
+                count_query_builder.push(" AND (t.actual_period_end <= ");
+                count_query_builder.push_bind(end_date);
+                count_query_builder.push(" OR t.actual_period_end IS NULL)");
+            }
+            
+            let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
                 Ok(count) => count,
                 Err(e) => return Html::from(format!("<p>Error counting tasks: {}</p>", e)),
             };
@@ -996,6 +1012,7 @@ async fn brigade_tasks_handler(
                     page_number: pagination.page_number,
                     page_size: pagination.page_size,
                 },
+                filters,
             };
             
             match template.render() {

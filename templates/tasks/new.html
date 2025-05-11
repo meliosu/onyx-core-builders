@@ -20,32 +20,26 @@
             
             <div>
                 <label for="site_id" class="block text-sm font-medium text-gray-700 mb-1">Site <span class="text-error">*</span></label>
-                <div class="flex gap-2">
-                    <input type="hidden" id="site_id" name="site_id" required>
-                    <input type="text" id="site_display" readonly placeholder="Select site" 
-                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
-                    <button type="button" 
-                            hx-get="/api/selectors/sites" 
-                            hx-target="#site-selector-modal"
-                            class="bg-custom-primary text-white px-4 py-2 rounded">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                <select id="site_id" name="site_id" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/sites" 
+                       hx-trigger="load"
+                       hx-target="#site_id">
+                    <option value="">Select a site</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             
             <div>
                 <label for="brigade_id" class="block text-sm font-medium text-gray-700 mb-1">Brigade <span class="text-error">*</span></label>
-                <div class="flex gap-2">
-                    <input type="hidden" id="brigade_id" name="brigade_id" required>
-                    <input type="text" id="brigade_display" readonly placeholder="Select brigade" 
-                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
-                    <button type="button" 
-                            hx-get="/api/selectors/brigades" 
-                            hx-target="#brigade-selector-modal"
-                            class="bg-custom-primary text-white px-4 py-2 rounded">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                <select id="brigade_id" name="brigade_id" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/brigades" 
+                       hx-trigger="load"
+                       hx-target="#brigade_id">
+                    <option value="">Select a brigade</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             
             <div>
@@ -75,31 +69,4 @@
         </div>
     </form>
 </div>
-
-<!-- Selector modal placeholders -->
-<div id="site-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <!-- Site selector will be loaded here -->
-</div>
-
-<div id="brigade-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <!-- Brigade selector will be loaded here -->
-</div>
-
-<!-- Notification container -->
-<div id="notification-container"></div>
-
-<script>
-// Minimal JS for handling selectors
-function selectSite(id, name) {
-    document.getElementById('site_id').value = id;
-    document.getElementById('site_display').value = name;
-    document.getElementById('site-selector-modal').classList.add('hidden');
-}
-
-function selectBrigade(id, name) {
-    document.getElementById('brigade_id').value = id;
-    document.getElementById('brigade_display').value = name;
-    document.getElementById('brigade-selector-modal').classList.add('hidden');
-}
-</script>
 {% endblock %}

@@ -10,6 +10,8 @@ use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{SiteType, NotificationResult, NotificationTemplate}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo};
+use crate::utils::empty_string_as_none;
+use crate::utils::deserialize_checkbox;
 
 // Types for page endpoints
 
@@ -32,7 +34,7 @@ pub struct ClientNewTemplate;
 pub struct ClientEditTemplate {
     pub id: i32,
     pub name: String,
-    pub inn: i32,
+    pub inn: String,
     pub address: String,
     pub contact_person_email: String,
     pub contact_person_name: String,
@@ -46,7 +48,7 @@ pub struct ClientEditTemplate {
 pub struct ClientApiDetailsTemplate {
     pub id: i32,
     pub name: String,
-    pub inn: i32,
+    pub inn: String,
     pub address: String,
     pub contact_person_email: String,
     pub contact_person_name: String,
@@ -66,20 +68,22 @@ pub struct ClientSite {
 #[derive(Serialize, Deserialize)]
 pub struct ClientUpdateForm {
     pub name: String,
-    pub inn: i32,
+    pub inn: String,
     pub address: String,
     pub contact_person_email: String,
     pub contact_person_name: String,
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub is_vip: bool,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct ClientCreateForm {
     pub name: String,
-    pub inn: i32,
+    pub inn: String,
     pub address: String,
     pub contact_person_email: String,
     pub contact_person_name: String,
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub is_vip: bool,
 }
 
@@ -87,8 +91,11 @@ pub struct ClientCreateForm {
 pub struct ClientListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
-    pub inn: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub inn: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub is_vip: Option<bool>,
 }
 
@@ -104,7 +111,7 @@ pub struct ClientListTemplate {
 pub struct ClientListItem {
     pub id: i32,
     pub name: String,
-    pub inn: i32,
+    pub inn: String,
     pub is_vip: bool,
 }
 
@@ -144,7 +151,7 @@ async fn client_new_handler(State(db): State<Database>) -> Html<String> {
 struct ClientEditData {
     id: i32,
     name: String,
-    inn: i32,
+    inn: String,
     address: String,
     contact_person_email: String,
     contact_person_name: String,
@@ -196,7 +203,7 @@ async fn client_edit_handler(
 struct ClientDetails {
     id: i32,
     name: String,
-    inn: i32,
+    inn: String,
     address: String,
     contact_person_email: String,
     contact_person_name: String,
@@ -207,6 +214,7 @@ struct ClientDetails {
 struct ClientSiteRow {
     id: i32,
     name: String,
+    #[sqlx(rename = "type")]
     type_: SiteType,
     status: String,
 }
@@ -237,7 +245,7 @@ async fn client_api_details_handler(
 
     // Fetch the client's sites
     let sites_query = sqlx::query_as::<_, ClientSiteRow>(
-        "SELECT id, name, type as type_,
+        "SELECT id, name, type,
          CASE
             WHEN EXISTS (SELECT 1 FROM task WHERE site_id = site.id AND actual_period_end IS NULL) THEN 'In Progress'
             WHEN NOT EXISTS (SELECT 1 FROM task WHERE site_id = site.id) THEN 'Planned'
@@ -290,7 +298,7 @@ async fn client_update_handler(
     Form(form): Form<ClientUpdateForm>,
 ) -> Html<String> {
     // Check if INN is unique (if changed)
-    let current_inn = sqlx::query_scalar::<_, i32>("SELECT inn FROM client WHERE id = $1")
+    let current_inn = sqlx::query_scalar::<_, String>("SELECT inn FROM client WHERE id = $1")
         .bind(id)
         .fetch_optional(&*db.pool)
         .await;
@@ -298,7 +306,7 @@ async fn client_update_handler(
     if let Ok(Some(inn)) = current_inn {
         if inn != form.inn {
             let inn_exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM client WHERE inn = $1 AND id != $2)")
-                .bind(form.inn)
+                .bind(&form.inn)
                 .bind(id)
                 .fetch_one(&*db.pool)
                 .await;
@@ -324,7 +332,7 @@ async fn client_update_handler(
          WHERE id = $7"
     )
     .bind(&form.name)
-    .bind(form.inn)
+    .bind(&form.inn)
     .bind(&form.address)
     .bind(&form.contact_person_email)
     .bind(&form.contact_person_name)
@@ -407,7 +415,7 @@ async fn client_delete_handler(
 struct ClientListRow {
     id: i32,
     name: String,
-    inn: i32,
+    inn: String,
     is_vip: bool,
 }
 
@@ -450,9 +458,39 @@ async fn clients_list_api_handler(
         query_builder.push_bind(is_vip);
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - REPLACE THIS SECTION
+    let mut count_query_builder = sqlx::QueryBuilder::new("SELECT COUNT(*) FROM client");
+
+    let mut count_where_added = false;
+
+    // Add the same filter conditions to the count query
+    if let Some(name) = &filter.name {
+        count_query_builder.push(" WHERE name ILIKE ");
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_where_added = true;
+    }
+
+    if let Some(inn) = &filter.inn {
+        if count_where_added {
+            count_query_builder.push(" AND inn = ");
+        } else {
+            count_query_builder.push(" WHERE inn = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(inn);
+    }
+
+    if let Some(is_vip) = &filter.is_vip {
+        if count_where_added {
+            count_query_builder.push(" AND is_vip = ");
+        } else {
+            count_query_builder.push(" WHERE is_vip = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(is_vip);
+    }
+
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting clients: {}</p>", e)),
     };
@@ -520,7 +558,7 @@ async fn client_create_handler(
 ) -> Html<String> {
     // Check if INN is unique
     let inn_exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM client WHERE inn = $1)")
-        .bind(form.inn)
+        .bind(&form.inn)
         .fetch_one(&*db.pool)
         .await;
     
@@ -543,7 +581,7 @@ async fn client_create_handler(
          RETURNING id"
     )
     .bind(&form.name)
-    .bind(form.inn)
+    .bind(&form.inn)
     .bind(&form.address)
     .bind(&form.contact_person_email)
     .bind(&form.contact_person_name)

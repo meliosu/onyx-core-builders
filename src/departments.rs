@@ -11,7 +11,8 @@ use sqlx::FromRow;
 use sqlx::Row;
 
 use crate::{database::Database, general::{Qualification, SiteType, NotificationResult}};
-use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationTemplate};
+use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationTemplate, Position};
+use crate::utils::empty_string_as_none;
 
 // Tab selector for department details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -68,14 +69,14 @@ pub struct DepartmentApiDetailsTemplate {
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentUpdateForm {
     pub name: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub supervisor_id: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct DepartmentCreateForm {
     pub name: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub supervisor_id: Option<i32>,
 }
 
@@ -83,7 +84,9 @@ pub struct DepartmentCreateForm {
 pub struct DepartmentListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub supervisor_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
@@ -124,8 +127,6 @@ pub struct AreaListItem {
 pub struct DepartmentEquipmentTemplate {
     pub id: i32,
     pub equipment: Vec<EquipmentListItem>,
-    #[serde(flatten)]
-    pub pagination: Pagination,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -140,14 +141,13 @@ pub struct EquipmentListItem {
 pub struct DepartmentSitesTemplate {
     pub id: i32,
     pub sites: Vec<SiteListItem>,
-    #[serde(flatten)]
-    pub pagination: Pagination,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct SiteListItem {
     pub id: i32,
     pub name: String,
+    #[serde(rename = "type")]
     pub type_: SiteType, 
 }
 
@@ -156,8 +156,6 @@ pub struct SiteListItem {
 pub struct DepartmentPersonnelTemplate {
     pub id: i32,
     pub personnel: Vec<PersonnelListItem>,
-    #[serde(flatten)]
-    pub pagination: Pagination,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -165,6 +163,7 @@ pub struct PersonnelListItem {
     pub id: i32,
     pub name: String,
     pub qualification: Qualification,
+    pub position: Option<Position>,
 }
 
 // Handler functions for page endpoints
@@ -423,12 +422,36 @@ async fn departments_list_api_handler(
         query_builder.push_bind(supervisor_id);
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = sqlx::query_scalar::<_, i64>(&count_query)
-        .fetch_one(&*db.pool)
-        .await
-        .unwrap_or(0);
+    // Count total results for pagination - REPLACE THIS SECTION
+    let mut count_query_builder = sqlx::QueryBuilder::new(
+        "SELECT COUNT(*) FROM department d
+         LEFT JOIN technical_personnel tp ON d.supervisor_id = tp.id
+         LEFT JOIN employee e ON tp.id = e.id"
+    );
+
+    let mut count_where_added = false;
+
+    // Add the same filter conditions to the count query
+    if let Some(name) = &filter.name {
+        count_query_builder.push(" WHERE d.name ILIKE ");
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_where_added = true;
+    }
+
+    if let Some(supervisor_id) = &filter.supervisor_id {
+        if count_where_added {
+            count_query_builder.push(" AND d.supervisor_id = ");
+        } else {
+            count_query_builder.push(" WHERE d.supervisor_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(supervisor_id);
+    }
+
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
+        Ok(count) => count,
+        Err(e) => return Html::from(format!("<p>Error counting departments: {}</p>", e)),
+    };
 
     // Add sorting
     query_builder.push(" ORDER BY ");
@@ -502,7 +525,7 @@ async fn department_create_handler(
     // Create notification based on result
     let (notification_result, message, redirect) = match result {
         Ok(Some(row)) => {
-            let id: i64 = row.get(0);
+            let id: i32 = row.get(0);
             (
                 NotificationResult::Success,
                 Some(format!("Department '{}' created successfully", form.name)),
@@ -592,26 +615,20 @@ struct DepartmentEquipmentRow {
 async fn department_equipment_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
-    Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query equipment for this department
     let query = sqlx::query_as::<_, DepartmentEquipmentRow>(
         "SELECT e.id, e.name, COALESCE(ea.amount, 0) as amount
          FROM equipment e
-         LEFT JOIN equipment_allocation ea ON e.id = ea.equipment_id AND ea.department_id = $1 
-                                        AND ea.site_id IS NULL
-                                        AND (ea.period_end IS NULL OR ea.period_end > CURRENT_DATE)
+         LEFT JOIN equipment_allocation ea ON e.id = ea.equipment_id
          WHERE ea.department_id = $1
-         ORDER BY e.name
-         LIMIT $2 OFFSET $3"
+         ORDER BY e.name"
     )
-    .bind(id)
-    .bind(pagination.page_size as i64)
-    .bind((pagination.page_number as i64 - 1) * pagination.page_size as i64);
+    .bind(id);
 
     let equipment = match query.fetch_all(&*db.pool).await {
         Ok(equip) => equip,
-        Err(_) => vec![],
+        Err(e) => return Html::from(format!("<p>Error fetching equipment: {e}</p>")),
     };
 
     // Convert to template items
@@ -624,7 +641,6 @@ async fn department_equipment_handler(
     let template = DepartmentEquipmentTemplate { 
         id,
         equipment: equipment_items,
-        pagination,
     };
 
     match template.render() {
@@ -637,26 +653,23 @@ async fn department_equipment_handler(
 struct DepartmentSiteRow {
     id: i32,
     name: String,
+    #[sqlx(rename = "type")]
     type_: SiteType,
 }
 
 async fn department_sites_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
-    Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query sites for this department
     let query = sqlx::query_as::<_, DepartmentSiteRow>(
-        "SELECT s.id, s.name, s.type as type_
+        "SELECT s.id, s.name, s.type
          FROM site s
          JOIN area a ON s.area_id = a.id
          WHERE a.department_id = $1
-         ORDER BY s.name
-         LIMIT $2 OFFSET $3"
+         ORDER BY s.name"
     )
-    .bind(id)
-    .bind(pagination.page_size as i64)
-    .bind((pagination.page_number as i64 - 1) * pagination.page_size as i64);
+    .bind(id);
 
     let sites = match query.fetch_all(&*db.pool).await {
         Ok(sites) => sites,
@@ -673,7 +686,6 @@ async fn department_sites_handler(
     let template = DepartmentSitesTemplate { 
         id,
         sites: site_items,
-        pagination,
     };
 
     match template.render() {
@@ -687,30 +699,28 @@ struct DepartmentPersonnelRow {
     id: i32,
     name: String,
     qualification: Qualification,
+    position: Option<Position>,
 }
 
 async fn department_personnel_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
-    Query(pagination): Query<Pagination>,
 ) -> Html<String> {
     // Query technical personnel for this department
     let query = sqlx::query_as::<_, DepartmentPersonnelRow>(
-        "SELECT tp.id, CONCAT(e.last_name, ' ', e.first_name) as name, tp.qualification
+        "SELECT tp.id, CONCAT(e.last_name, ' ', e.first_name) as name, tp.qualification, tp.position
          FROM technical_personnel tp
          JOIN employee e ON tp.id = e.id
          WHERE tp.id = (SELECT supervisor_id FROM department WHERE id = $1)
          OR tp.id IN (SELECT supervisor_id FROM area WHERE department_id = $1)
-         ORDER BY e.last_name, e.first_name
-         LIMIT $2 OFFSET $3"
+         OR tp.area_id IN (SELECT id FROM area WHERE department_id = $1)
+         ORDER BY e.last_name, e.first_name"
     )
-    .bind(id)
-    .bind(pagination.page_size as i64)
-    .bind((pagination.page_number as i64 - 1) * pagination.page_size as i64);
+    .bind(id);
 
     let personnel = match query.fetch_all(&*db.pool).await {
         Ok(personnel) => personnel,
-        Err(_) => vec![],
+        Err(e) => return Html::from(format!("<p>Error fetching personnel: {}</p>", e)),
     };
 
     // Convert to template items
@@ -718,17 +728,17 @@ async fn department_personnel_handler(
         id: p.id,
         name: p.name,
         qualification: p.qualification,
+        position: p.position,
     }).collect();
 
     let template = DepartmentPersonnelTemplate { 
         id,
         personnel: personnel_items,
-        pagination,
     };
 
     match template.render() {
         Ok(html) => Html::from(html),
-        Err(_) => Html::from("<p>Error rendering template</p>".to_string()),
+        Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
     }
 }
 

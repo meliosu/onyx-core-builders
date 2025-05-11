@@ -10,6 +10,7 @@ use chrono::NaiveDate;
 use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate}};
+use crate::utils::empty_string_as_none;
 
 // Tab selector for task details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -26,6 +27,19 @@ pub enum TaskStatus {
     Planned,
     InProgress,
     Completed,
+}
+
+impl std::str::FromStr for TaskStatus {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "planned" => Ok(TaskStatus::Planned),
+            "in_progress" => Ok(TaskStatus::InProgress),
+            "completed" => Ok(TaskStatus::Completed),
+            _ => Err(format!("Invalid TaskStatus: {}", s)),
+        }
+    }
 }
 
 // Types for page endpoints
@@ -85,8 +99,10 @@ pub struct TaskApiDetailsTemplate {
 #[derive(Serialize, Deserialize)]
 pub struct TaskUpdateForm {
     pub name: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub description: Option<String>,
     pub site_id: i32,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
     pub period_start: NaiveDate,
     pub expected_period_end: NaiveDate,
@@ -95,8 +111,10 @@ pub struct TaskUpdateForm {
 #[derive(Serialize, Deserialize)]
 pub struct TaskCreateForm {
     pub name: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub description: Option<String>,
     pub site_id: i32,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
     pub period_start: NaiveDate,
     pub expected_period_end: NaiveDate,
@@ -106,12 +124,21 @@ pub struct TaskCreateForm {
 pub struct TaskListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub site_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub department_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub status: Option<TaskStatus>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub date_from: Option<NaiveDate>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub date_to: Option<NaiveDate>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub exceeded_deadline: Option<bool>,
 }
 
@@ -150,23 +177,23 @@ pub struct TaskMaterialsTemplate {
 pub struct TaskMaterialItem {
     pub material_id: i32,
     pub name: String,
-    pub expected_amount: f64,
-    pub actual_amount: Option<f64>,
+    pub expected_amount: f32,
+    pub actual_amount: Option<f32>,
     pub units: String,
-    pub cost: f64,
-    pub total_cost: f64,
-    pub excess: Option<f64>,
+    pub cost: f32,
+    pub total_cost: f32,
+    pub excess: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct TaskMaterialForm {
     pub material_id: i32,
-    pub expected_amount: f64,
+    pub expected_amount: f32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct TaskMaterialUpdateForm {
-    pub actual_amount: f64,
+    pub actual_amount: f32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -552,6 +579,17 @@ async fn tasks_list_api_handler(
         query_builder.push_bind(site_id);
     }
 
+    if let Some(department_id) = &filter.department_id {
+        if where_added {
+            query_builder.push(" AND EXISTS (SELECT 1 FROM area a WHERE a.department_id = ");
+        } else {
+            query_builder.push(" WHERE EXISTS (SELECT 1 FROM area a WHERE a.department_id = ");
+            where_added = true;
+        }
+        query_builder.push_bind(department_id);
+        query_builder.push(" AND a.id = s.area_id)");
+    }
+
     if let Some(brigade_id) = &filter.brigade_id {
         if where_added {
             query_builder.push(" AND t.brigade_id = ");
@@ -614,9 +652,103 @@ async fn tasks_list_api_handler(
         }
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - PROPERLY BIND PARAMETERS
+    let mut count_query_builder = sqlx::QueryBuilder::new(
+        "SELECT COUNT(*) FROM task t JOIN site s ON t.site_id = s.id"
+    );
+    
+    // Copy the same where conditions for the count query
+    let mut count_where_added = false;
+    
+    if let Some(name) = &filter.name {
+        count_query_builder.push(" WHERE t.name ILIKE ");
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_where_added = true;
+    }
+
+    if let Some(site_id) = &filter.site_id {
+        if count_where_added {
+            count_query_builder.push(" AND t.site_id = ");
+        } else {
+            count_query_builder.push(" WHERE t.site_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(site_id);
+    }
+
+    if let Some(department_id) = &filter.department_id {
+        if count_where_added {
+            count_query_builder.push(" AND EXISTS (SELECT 1 FROM area a WHERE a.department_id = ");
+        } else {
+            count_query_builder.push(" WHERE EXISTS (SELECT 1 FROM area a WHERE a.department_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(department_id);
+        count_query_builder.push(" AND a.id = s.area_id)");
+    }
+
+    if let Some(brigade_id) = &filter.brigade_id {
+        if count_where_added {
+            count_query_builder.push(" AND t.brigade_id = ");
+        } else {
+            count_query_builder.push(" WHERE t.brigade_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(brigade_id);
+    }
+
+    if let Some(status) = &filter.status {
+        if count_where_added {
+            count_query_builder.push(" AND ");
+        } else {
+            count_query_builder.push(" WHERE ");
+            count_where_added = true;
+        }
+
+        match status {
+            TaskStatus::Completed => {
+                count_query_builder.push("t.actual_period_end IS NOT NULL");
+            },
+            TaskStatus::InProgress => {
+                count_query_builder.push("t.actual_period_end IS NULL AND t.brigade_id IS NOT NULL");
+            },
+            TaskStatus::Planned => {
+                count_query_builder.push("t.brigade_id IS NULL");
+            },
+        }
+    }
+
+    if let Some(date_from) = &filter.date_from {
+        if count_where_added {
+            count_query_builder.push(" AND t.period_start >= ");
+        } else {
+            count_query_builder.push(" WHERE t.period_start >= ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(date_from);
+    }
+
+    if let Some(date_to) = &filter.date_to {
+        if count_where_added {
+            count_query_builder.push(" AND t.period_start <= ");
+        } else {
+            count_query_builder.push(" WHERE t.period_start <= ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(date_to);
+    }
+
+    if let Some(exceeded_deadline) = &filter.exceeded_deadline {
+        if *exceeded_deadline {
+            if count_where_added {
+                count_query_builder.push(" AND ((t.actual_period_end IS NOT NULL AND t.actual_period_end > t.expected_period_end) OR (t.actual_period_end IS NULL AND CURRENT_DATE > t.expected_period_end))");
+            } else {
+                count_query_builder.push(" WHERE ((t.actual_period_end IS NOT NULL AND t.actual_period_end > t.expected_period_end) OR (t.actual_period_end IS NULL AND CURRENT_DATE > t.expected_period_end))");
+            }
+        }
+    }
+    
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting tasks: {}</p>", e)),
     };
@@ -816,10 +948,10 @@ async fn task_create_handler(
 struct TaskMaterialRow {
     material_id: i32,
     name: String,
-    expected_amount: f64,
-    actual_amount: Option<f64>,
+    expected_amount: f32,
+    actual_amount: Option<f32>,
     units: String,
-    cost: f64,
+    cost: f32,
 }
 
 async fn task_materials_handler(
@@ -1059,6 +1191,51 @@ async fn task_update_material_handler(
     }
 }
 
+#[derive(Template, FromRow)]
+#[template(path = "tasks/api/update_material.html")]
+struct TaskUpdateMaterialTemplate {
+    task_id: i32,
+    material_id: i32,
+    material_name: String,
+    expected_amount: f32,
+    units: String,
+}
+
+async fn task_update_material_form_handler(
+    State(db): State<Database>,
+    Path((task_id, material_id)): Path<(i32, i32)>,
+) -> Html<String> {
+    // Get material details
+    let result = sqlx::query(
+        "SELECT m.name as material_name, m.units, e.expected_amount 
+         FROM expenditure e
+         JOIN material m ON e.material_id = m.id
+         WHERE e.task_id = $1 AND e.material_id = $2",
+    )
+    .bind(task_id)
+    .bind(material_id)
+    .fetch_optional(&*db.pool)
+    .await;
+
+    match result {
+        Ok(Some(row)) => {
+            let template = TaskUpdateMaterialTemplate {
+                task_id,
+                material_id,
+                material_name: row.get("material_name"),
+                expected_amount: row.get("expected_amount"),
+                units: row.get("units"),
+            };
+            match template.render() {
+                Ok(html) => Html::from(html),
+                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
+            }
+        },
+        Ok(None) => Html::from("<p>Material not found for this task</p>".to_string()),
+        Err(e) => Html::from(format!("<p>Error fetching material details: {}</p>", e)),
+    }
+}
+
 async fn task_complete_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
@@ -1165,4 +1342,8 @@ pub fn router() -> axum::Router<Database> {
         .route("/api/tasks/{id}/materials", post(task_add_material_handler))
         .route("/api/tasks/{id}/materials/{material_id}", put(task_update_material_handler))
         .route("/api/tasks/{id}/complete", put(task_complete_handler))
+        .route(
+            "/api/tasks/{id}/materials/{material_id}/update",
+            get(task_update_material_form_handler)
+        )
 }

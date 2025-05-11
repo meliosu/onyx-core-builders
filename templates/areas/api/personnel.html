@@ -20,9 +20,6 @@
     <table class="min-w-full divide-y divide-gray-300">
         <thead class="bg-gray-50">
             <tr>
-                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
-                    ID
-                </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Name
                 </th>
@@ -40,9 +37,6 @@
         <tbody class="divide-y divide-gray-200 bg-white">
             {% for person in personnel %}
             <tr class="hover:bg-gray-50">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-                    {{ person.id }}
-                </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {{ person.name }}
                 </td>
@@ -64,13 +58,17 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {% match person.position %}
-                        {% when Position::Master %}
+                        {% when Some(Position::Master) %}
                             <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
                                 Master
                             </span>
-                        {% when Position::Foreman %}
+                        {% when Some(Position::Foreman) %}
                             <span class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-800 ring-1 ring-inset ring-orange-600/20">
                                 Foreman
+                            </span>
+                        {% when None %}
+                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-800 ring-1 ring-inset ring-gray-600/20">
+                                Not Assigned
                             </span>
                     {% endmatch %}
                 </td>
@@ -88,80 +86,5 @@
             {% endfor %}
         </tbody>
     </table>
-</div>
-
-<!-- Pagination -->
-<div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
-    <div class="flex flex-1 justify-between sm:hidden">
-        {% if pagination.page_number > 1 %}
-        <button
-            hx-get="/api/areas/{{ id }}/personnel"
-            hx-target="#personnel-content"
-            hx-vals='{"page_number": {{ pagination.page_number - 1 }}, "page_size": {{ pagination.page_size }}}'
-            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-            Previous
-        </button>
-        {% endif %}
-        
-        <button
-            hx-get="/api/areas/{{ id }}/personnel"
-            hx-target="#personnel-content"
-            hx-vals='{"page_number": {{ pagination.page_number + 1 }}, "page_size": {{ pagination.page_size }}}'
-            class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-            Next
-        </button>
-    </div>
-    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div>
-            <p class="text-sm text-gray-700">
-                Showing page <span class="font-medium">{{ pagination.page_number }}</span>
-            </p>
-        </div>
-        <div>
-            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                {% if pagination.page_number > 1 %}
-                <button
-                    hx-get="/api/areas/{{ id }}/personnel"
-                    hx-target="#personnel-content"
-                    hx-vals='{"page_number": {{ pagination.page_number - 1 }}, "page_size": {{ pagination.page_size }}}'
-                    class="relative inline-flex items-center rounded-l-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                >
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                {% endif %}
-                
-                <!-- This is a simplified pagination example -->
-                {% for page in 1..6 %}  <!-- Assuming max pages is 5 -->
-                    {% if page == pagination.page_number %}
-                        <span
-                            class="relative z-10 inline-flex items-center bg-custom-primary text-white px-4 py-2 text-sm font-semibold focus:z-20"
-                        >
-                            {{ page }}
-                        </span>
-                    {% else %}
-                        <button
-                            hx-get="/api/areas/{{ id }}/personnel"
-                            hx-target="#personnel-content"
-                            hx-vals='{"page_number": {{ page }}, "page_size": {{ pagination.page_size }}}'
-                            class="relative inline-flex items-center bg-white px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                        >
-                            {{ page }}
-                        </button>
-                    {% endif %}
-                {% endfor %}
-                
-                <button
-                    hx-get="/api/areas/{{ id }}/personnel"
-                    hx-target="#personnel-content"
-                    hx-vals='{"page_number": {{ pagination.page_number + 1 }}, "page_size": {{ pagination.page_size }}}'
-                    class="relative inline-flex items-center rounded-r-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-                >
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </nav>
-        </div>
-    </div>
 </div>
 {% endif %}

@@ -14,39 +14,28 @@
         <div>
             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Department Name <span class="text-error">*</span></label>
             <input type="text" id="name" name="name" required value="{{ name }}"
-                   class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-secondary">
+                   class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
         </div>
 
         <div>
             <label for="supervisor_id" class="block text-sm font-medium text-gray-700 mb-1">Supervisor</label>
-            <div class="flex gap-2">
-                <input type="hidden" id="supervisor_id" name="supervisor_id" value="{% if let Some(id) = supervisor_id %}{{ id }}{% endif %}">
-                <input type="text" id="supervisor_display" readonly 
-                       value="{% if let Some(name) = supervisor_name %}{{ name }}{% endif %}"
-                       placeholder="Select supervisor" 
-                       class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
-                <button type="button" 
-                        hx-get="/api/selectors/technical-personnel" 
-                        hx-target="#supervisor-selector-modal"
-                        hx-vals='{"qualification": "engineer", "position": "master"}'
-                        class="bg-primary text-white px-4 py-2 rounded">
-                    <i class="fas fa-search"></i>
-                </button>
+            <div>
+                <select id="supervisor_id" name="supervisor_id"
+                        class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                        hx-get="/api/selectors/technical-personnel?selected_id={% if let Some(id) = supervisor_id %}{{ id }}{% endif %}"
+                        hx-trigger="load"
+                        hx-target="#supervisor_id">
+                    <option value="">Select a supervisor</option>
+                </select>
             </div>
         </div>
 
         <div class="flex justify-end space-x-4 pt-4 border-t">
             <a href="/departments/{{ id }}" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">Cancel</a>
-            <button type="submit" class="bg-secondary text-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+            <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
                 <i class="fas fa-save mr-2"></i> Save Changes
             </button>
         </div>
     </form>
 </div>
-
-<!-- Supervisor selector modal placeholder -->
-<div id="supervisor-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <!-- Technical personnel selector will be loaded here -->
-</div>
-
 {% endblock %}

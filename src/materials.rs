@@ -10,6 +10,7 @@ use sqlx::{FromRow, Row};
 
 use crate::database::Database;
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
+use crate::utils::empty_string_as_none;
 
 // Types for page endpoints
 
@@ -32,7 +33,7 @@ pub struct MaterialNewTemplate;
 pub struct MaterialEditTemplate {
     pub id: i32,
     pub name: String,
-    pub cost: f64,
+    pub cost: f32,
     pub units: String,
 }
 
@@ -43,24 +44,31 @@ pub struct MaterialEditTemplate {
 pub struct MaterialApiDetailsTemplate {
     pub id: i32,
     pub name: String,
-    pub cost: f64,
+    pub cost: f32,
     pub units: String,
-    pub total_estimated: f64,
-    pub total_actual: f64,
-    pub total_cost: f64,
+    pub total_estimated: f32,
+    pub total_actual: f32,
+    pub total_cost: f32,
+}
+
+// Add this new struct for usage statistics
+#[derive(sqlx::FromRow)]
+struct MaterialUsageStats {
+    total_estimated: f32,
+    total_actual: f32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct MaterialUpdateForm {
     pub name: String,
-    pub cost: f64,
+    pub cost: f32,
     pub units: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct MaterialCreateForm {
     pub name: String,
-    pub cost: f64,
+    pub cost: f32,
     pub units: String,
 }
 
@@ -68,9 +76,9 @@ pub struct MaterialCreateForm {
 pub struct MaterialListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
-    pub cost_min: Option<f64>,
-    pub cost_max: Option<f64>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub excess_usage: Option<bool>,
 }
 
@@ -86,10 +94,10 @@ pub struct MaterialListTemplate {
 pub struct MaterialListItem {
     pub id: i32,
     pub name: String,
-    pub cost: f64,
+    pub cost: f32,
     pub units: String,
-    pub estimated_spendings: f64,
-    pub actual_spendings: f64,
+    pub estimated_spendings: f32,
+    pub actual_spendings: f32,
     pub excess: bool,
 }
 
@@ -107,10 +115,10 @@ pub struct UsageListItem {
     pub task_name: String,
     pub site_id: i32,
     pub site_name: String,
-    pub expected_amount: f64,
-    pub actual_amount: f64,
-    pub excess_amount: f64,
-    pub total_cost: f64,
+    pub expected_amount: f32,
+    pub actual_amount: f32,
+    pub excess_amount: f32,
+    pub total_cost: f32,
 }
 
 // Handler functions for page endpoints
@@ -149,7 +157,7 @@ async fn material_new_handler(State(db): State<Database>) -> Html<String> {
 struct MaterialEditData {
     id: i32,
     name: String,
-    cost: f64,
+    cost: f32,
     units: String,
 }
 
@@ -193,7 +201,7 @@ async fn material_edit_handler(
 struct MaterialDetails {
     id: i32,
     name: String,
-    cost: f64,
+    cost: f32,
     units: String,
 }
 
@@ -219,13 +227,13 @@ async fn material_api_details_handler(
         }
     };
 
-    // Calculate usage statistics
-    let usage_stats = sqlx::query_as::<_, MaterialApiDetailsTemplate>(
+    // Calculate usage statistics - fixed to use MaterialUsageStats
+    let usage_stats = sqlx::query_as::<_, MaterialUsageStats>(
         "SELECT 
             COALESCE(SUM(e.expected_amount), 0) as total_estimated,
             COALESCE(SUM(e.actual_amount), 0) as total_actual
         FROM expenditure e
-        WHERE e.material_id = $1",
+        WHERE e.material_id = $1"
     )
     .bind(id)
     .fetch_one(&*db.pool)
@@ -233,10 +241,7 @@ async fn material_api_details_handler(
 
     let (total_estimated, total_actual, total_cost) = match usage_stats {
         Ok(stats) => {
-            let estimated = stats.total_estimated;
-            let actual = stats.total_actual;
-            let cost = actual * material.cost;
-            (estimated, actual, cost)
+            (stats.total_estimated, stats.total_actual, stats.total_actual * material.cost)
         },
         Err(e) => {
             return Html::from(format!("<p>Error fetching usage statistics: {}</p>", e));
@@ -357,10 +362,10 @@ async fn material_delete_handler(
 struct MaterialListRow {
     id: i32,
     name: String,
-    cost: f64,
+    cost: f32,
     units: String,
-    estimated_spendings: Option<f64>,
-    actual_spendings: Option<f64>,
+    estimated_spendings: Option<f32>,
+    actual_spendings: Option<f32>,
 }
 
 async fn materials_list_api_handler(
@@ -385,26 +390,6 @@ async fn materials_list_api_handler(
         where_added = true;
     }
 
-    if let Some(cost_min) = &filter.cost_min {
-        if where_added {
-            query_builder.push(" AND m.cost >= ");
-        } else {
-            query_builder.push(" WHERE m.cost >= ");
-            where_added = true;
-        }
-        query_builder.push_bind(cost_min);
-    }
-
-    if let Some(cost_max) = &filter.cost_max {
-        if where_added {
-            query_builder.push(" AND m.cost <= ");
-        } else {
-            query_builder.push(" WHERE m.cost <= ");
-            where_added = true;
-        }
-        query_builder.push_bind(cost_max);
-    }
-
     if let Some(excess_usage) = &filter.excess_usage {
         if *excess_usage {
             let subquery = " EXISTS (SELECT 1 FROM expenditure e WHERE e.material_id = m.id AND e.actual_amount > e.expected_amount)";
@@ -418,9 +403,31 @@ async fn materials_list_api_handler(
         }
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - REPLACE THIS SECTION
+    let mut count_query_builder = sqlx::QueryBuilder::new("SELECT COUNT(*) FROM material m");
+    
+    let mut count_where_added = false;
+
+    if let Some(name) = &filter.name {
+        count_query_builder.push(" WHERE m.name ILIKE ");
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_where_added = true;
+    }
+
+    if let Some(excess_usage) = &filter.excess_usage {
+        if *excess_usage {
+            let subquery = " EXISTS (SELECT 1 FROM expenditure e WHERE e.material_id = m.id AND e.actual_amount > e.expected_amount)";
+            if count_where_added {
+                count_query_builder.push(" AND ");
+            } else {
+                count_query_builder.push(" WHERE ");
+                count_where_added = true;
+            }
+            count_query_builder.push(subquery);
+        }
+    }
+
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting materials: {}</p>", e)),
     };
@@ -544,9 +551,9 @@ struct UsageRow {
     task_name: String,
     site_id: i32,
     site_name: String,
-    expected_amount: f64,
-    actual_amount: Option<f64>,
-    material_cost: f64,
+    expected_amount: f32,
+    actual_amount: Option<f32>,
+    material_cost: f32,
 }
 
 async fn material_usage_handler(

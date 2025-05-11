@@ -11,6 +11,9 @@ use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Qualification, SiteType, RiskLevel, Position}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
+use crate::utils::empty_string_as_none;
+use crate::utils::deserialize_from_str;
+use crate::utils::deserialize_checkbox;
 
 // Tab selector for site details
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -20,11 +23,10 @@ pub enum SiteTab {
     Materials,
     Equipment,
     Brigades,
-    Reports,
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "site_fields_type", rename_all="snake_case")] 
 pub enum SiteFields {
     PowerPlant(PowerPlantFields),
     Road(RoadFields),
@@ -36,14 +38,17 @@ pub enum SiteFields {
 // Site type-specific field structs
 #[derive(Serialize, Deserialize)]
 pub struct PowerPlantFields {
-    pub energy_output: f64,
+    #[serde(deserialize_with = "deserialize_from_str")]
+    pub energy_output: f32,
     pub energy_source: String,
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub is_grid_connected: bool,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct RoadFields {
-    pub length: f64,
+    #[serde(deserialize_with = "deserialize_from_str")]
+    pub length: f32,
     pub lanes: i32,
     pub surface: String,
 }
@@ -52,22 +57,26 @@ pub struct RoadFields {
 pub struct HousingFields {
     pub number_of_floors: i32,
     pub number_of_entrances: i32,
-    #[serde(rename = "type")]
-    pub type_: String,
+    pub housing_type: String,
     pub energy_efficiency: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct BridgeFields {
-    pub length: f64,
+    #[serde(deserialize_with = "deserialize_from_str")]
+    pub length: f32,
     pub road_material: String,
-    pub max_load: f64,
+    #[serde(deserialize_with = "deserialize_from_str")]
+    pub max_load: f32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct ParkFields {
-    pub area: f64,
+    #[serde(deserialize_with = "deserialize_from_str")]
+    pub area: f32,
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub has_playground: bool,
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub has_lighting: bool,
 }
 
@@ -87,7 +96,7 @@ pub struct SiteDetailsTemplate {
 #[template(path = "sites/new.html")]
 pub struct SiteNewTemplate;
 
-#[derive(Template, Serialize, Deserialize)]
+#[derive(Template)]
 #[template(path = "sites/edit.html")]
 pub struct SiteEditTemplate {
     pub id: i32,
@@ -97,7 +106,7 @@ pub struct SiteEditTemplate {
     pub area_name: String,
     pub client_id: i32,
     pub client_name: String,
-    pub location: String,
+    pub location: sqlx::postgres::types::PgPoint,
     pub risk_level: RiskLevel,
     pub description: Option<String>,
 }
@@ -111,10 +120,11 @@ pub struct SiteTabQuery {
 
 #[derive(Serialize, Deserialize)]
 pub struct SiteTypeFieldsQuery {
+    #[serde(rename = "type")]
     pub type_: SiteType,
 }
 
-#[derive(Template, Serialize, Deserialize)]
+#[derive(Template)]
 #[template(path = "sites/api/details.html")]
 pub struct SiteApiDetailsTemplate {
     pub id: i32,
@@ -124,7 +134,7 @@ pub struct SiteApiDetailsTemplate {
     pub area_name: String,
     pub client_id: i32,
     pub client_name: String,
-    pub location: String,
+    pub location: sqlx::postgres::types::PgPoint,
     pub risk_level: RiskLevel,
     pub description: Option<String>,
     pub tab: SiteTab,
@@ -134,32 +144,37 @@ pub struct SiteApiDetailsTemplate {
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "sites/api/type-fields.html")]
 pub struct SiteTypeFieldsTemplate {
+    #[serde(rename = "type")]
     pub type_: SiteType,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct SiteUpdateForm {
     pub name: String,
     pub area_id: i32,
     pub client_id: i32,
     #[serde(rename = "type")]
     pub type_: SiteType,
-    pub location: String,
+    #[serde(deserialize_with = "deserialize_from_str")]
+    pub location: sqlx::postgres::types::PgPoint,
     pub risk_level: RiskLevel,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub description: Option<String>,
     #[serde(flatten)]
     pub type_fields: SiteFields,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct SiteCreateForm {
     pub name: String,
     pub area_id: i32,
     pub client_id: i32,
     #[serde(rename = "type")]
     pub type_: SiteType,
-    pub location: String,
+    #[serde(deserialize_with = "deserialize_from_str")]
+    pub location: sqlx::postgres::types::PgPoint,
     pub risk_level: RiskLevel,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub description: Option<String>,
     #[serde(flatten)]
     pub type_fields: SiteFields,
@@ -169,12 +184,18 @@ pub struct SiteCreateForm {
 pub struct SiteListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub area_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub department_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub client_id: Option<i32>,
     #[serde(rename = "type")]
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub type_: Option<SiteType>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub status: Option<String>,
 }
 
@@ -191,6 +212,7 @@ pub struct SiteListItem {
     pub id: i32,
     pub name: String,
     #[serde(rename = "type")]
+    #[sqlx(rename = "type")]
     pub type_: SiteType,
     pub area_id: i32,
     pub area_name: String,
@@ -215,10 +237,11 @@ pub struct TaskListItem {
     pub name: String,
     pub brigade_id: Option<i32>,
     pub brigadier_name: Option<String>,
-    pub period_start: NaiveDateTime,
-    pub expected_period_end: NaiveDateTime,
-    pub actual_period_end: Option<NaiveDateTime>,
+    pub period_start: NaiveDate,
+    pub expected_period_end: NaiveDate,
+    pub actual_period_end: Option<NaiveDate>,
     pub status: String,
+    pub delay: Option<i32>,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -233,11 +256,11 @@ pub struct SiteMaterialsTemplate {
 pub struct MaterialListItem {
     pub id: i32,
     pub name: String,
-    pub expected_amount: f64,
-    pub actual_amount: Option<f64>,
+    pub expected_amount: f32,
+    pub actual_amount: Option<f32>,
     pub units: String,
-    pub cost: f64,
-    pub total_cost: f64,
+    pub cost: f32,
+    pub total_cost: f32,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -253,8 +276,8 @@ pub struct EquipmentListItem {
     pub id: i32,
     pub name: String,
     pub amount: i32,
-    pub period_start: NaiveDateTime,
-    pub period_end: NaiveDateTime,
+    pub period_start: NaiveDate,
+    pub period_end: NaiveDate,
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -270,26 +293,8 @@ pub struct BrigadeListItem {
     pub id: i32,
     pub brigadier_id: Option<i32>,
     pub brigadier_name: Option<String>,
-    pub worker_count: i32,
+    pub worker_count: i64,
     pub current_task: Option<String>,
-}
-
-#[derive(Template, Serialize, Deserialize)]
-#[template(path = "sites/api/reports.html")]
-pub struct SiteReportsTemplate {
-    pub id: i32,
-    pub reports: Vec<ReportListItem>,
-    pub pagination: Pagination,
-}
-
-#[derive(Serialize, Deserialize, FromRow)]
-pub struct ReportListItem {
-    pub task_id: i32,
-    pub task_name: String,
-    pub period_start: NaiveDateTime,
-    pub expected_period_end: NaiveDateTime,
-    pub actual_period_end: Option<NaiveDateTime>,
-    pub delay: i32,
 }
 
 // Helper structs for database operations
@@ -302,22 +307,23 @@ struct SiteBasicInfo {
     area_name: String,
     client_id: i32,
     client_name: String,
+    #[sqlx(rename = "type")]
     type_: SiteType,
-    location: String,
+    location: sqlx::postgres::types::PgPoint,
     risk_level: RiskLevel,
     description: Option<String>,
 }
 
 #[derive(FromRow)]
 struct PowerPlantData {
-    energy_output: f64,
+    energy_output: f32,
     energy_source: String,
     is_grid_connected: bool,
 }
 
 #[derive(FromRow)]
 struct RoadData {
-    length: f64,
+    length: f32,
     lanes: i32,
     surface: String,
 }
@@ -326,20 +332,20 @@ struct RoadData {
 struct HousingData {
     number_of_floors: i32,
     number_of_entrances: i32,
-    type_: String,
+    housing_type: String,
     energy_efficiency: String,
 }
 
 #[derive(FromRow)]
 struct BridgeData {
-    length: f64,
+    length: f32,
     road_material: String,
-    max_load: f64,
+    max_load: f32,
 }
 
 #[derive(FromRow)]
 struct ParkData {
-    area: f64,
+    area: f32,
     has_playground: bool,
     has_lighting: bool,
 }
@@ -499,7 +505,7 @@ async fn site_api_details_handler(
         },
         SiteType::Housing => {
             let housing_query = sqlx::query_as::<_, HousingData>(
-                "SELECT number_of_floors, number_of_entrances, type, energy_efficiency 
+                "SELECT number_of_floors, number_of_entrances, housing_type, energy_efficiency 
                  FROM housing 
                  WHERE site_id = $1"
             )
@@ -511,7 +517,7 @@ async fn site_api_details_handler(
                 Ok(Some(data)) => SiteFields::Housing(HousingFields {
                     number_of_floors: data.number_of_floors,
                     number_of_entrances: data.number_of_entrances,
-                    type_: data.type_,
+                    housing_type: data.housing_type,
                     energy_efficiency: data.energy_efficiency,
                 }),
                 Ok(None) => {
@@ -769,25 +775,25 @@ async fn site_update_handler(
             if current_type == SiteType::Housing {
                 sqlx::query(
                     "UPDATE housing 
-                     SET number_of_floors = $1, number_of_entrances = $2, type = $3, energy_efficiency = $4 
+                     SET number_of_floors = $1, number_of_entrances = $2, housing_type = $3, energy_efficiency = $4 
                      WHERE site_id = $5"
                 )
                 .bind(fields.number_of_floors)
                 .bind(fields.number_of_entrances)
-                .bind(&fields.type_)
+                .bind(&fields.housing_type)
                 .bind(&fields.energy_efficiency)
                 .bind(id)
                 .execute(&mut *tx)
                 .await
             } else {
                 sqlx::query(
-                    "INSERT INTO housing (site_id, number_of_floors, number_of_entrances, type, energy_efficiency) 
+                    "INSERT INTO housing (site_id, number_of_floors, number_of_entrances, housing_type, energy_efficiency) 
                      VALUES ($1, $2, $3, $4, $5)"
                 )
                 .bind(id)
                 .bind(fields.number_of_floors)
                 .bind(fields.number_of_entrances)
-                .bind(&fields.type_)
+                .bind(&fields.housing_type)
                 .bind(&fields.energy_efficiency)
                 .execute(&mut *tx)
                 .await
@@ -1110,9 +1116,85 @@ async fn sites_list_api_handler(
         }
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - PROPERLY BIND PARAMETERS
+    let mut count_query_builder = sqlx::QueryBuilder::new(
+        "SELECT COUNT(*) FROM site s
+         JOIN area a ON s.area_id = a.id 
+         JOIN department d ON a.department_id = d.id
+         JOIN client c ON s.client_id = c.id"
+    );
+    
+    let mut count_where_added = false;
+    
+    if let Some(area_id) = &filter.area_id {
+        count_query_builder.push(" WHERE s.area_id = ");
+        count_query_builder.push_bind(area_id);
+        count_where_added = true;
+    }
+
+    if let Some(department_id) = &filter.department_id {
+        if count_where_added {
+            count_query_builder.push(" AND a.department_id = ");
+        } else {
+            count_query_builder.push(" WHERE a.department_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(department_id);
+    }
+
+    if let Some(client_id) = &filter.client_id {
+        if count_where_added {
+            count_query_builder.push(" AND s.client_id = ");
+        } else {
+            count_query_builder.push(" WHERE s.client_id = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(client_id);
+    }
+
+    if let Some(type_) = &filter.type_ {
+        if count_where_added {
+            count_query_builder.push(" AND s.type = ");
+        } else {
+            count_query_builder.push(" WHERE s.type = ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(type_);
+    }
+
+    if let Some(name) = &filter.name {
+        if count_where_added {
+            count_query_builder.push(" AND s.name ILIKE ");
+        } else {
+            count_query_builder.push(" WHERE s.name ILIKE ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(format!("%{}%", name));
+    }
+
+    if let Some(status) = &filter.status {
+        if count_where_added {
+            count_query_builder.push(" AND ");
+        } else {
+            count_query_builder.push(" WHERE ");
+            count_where_added = true;
+        }
+        
+        match status.as_str() {
+            "in_progress" => {
+                count_query_builder.push("EXISTS (SELECT 1 FROM task t WHERE t.site_id = s.id AND t.actual_period_end IS NULL)");
+            },
+            "planned" => {
+                count_query_builder.push("NOT EXISTS (SELECT 1 FROM task t WHERE t.site_id = s.id)");
+            },
+            "completed" => {
+                count_query_builder.push("NOT EXISTS (SELECT 1 FROM task t WHERE t.site_id = s.id AND t.actual_period_end IS NULL) AND EXISTS (SELECT 1 FROM task t WHERE t.site_id = s.id)");
+            },
+            _ => {}
+        }
+    }
+    
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting sites: {}</p>", e)),
     };
@@ -1255,13 +1337,13 @@ async fn site_create_handler(
         },
         SiteFields::Housing(fields) => {
             sqlx::query(
-                "INSERT INTO housing (site_id, number_of_floors, number_of_entrances, type, energy_efficiency) 
+                "INSERT INTO housing (site_id, number_of_floors, number_of_entrances, housing_type, energy_efficiency) 
                  VALUES ($1, $2, $3, $4, $5)"
             )
             .bind(site_id)
             .bind(fields.number_of_floors)
             .bind(fields.number_of_entrances)
-            .bind(&fields.type_)
+            .bind(&fields.housing_type)
             .bind(&fields.energy_efficiency)
             .execute(&mut *tx)
             .await
@@ -1347,10 +1429,17 @@ async fn site_schedule_handler(
                     t.expected_period_end, 
                     t.actual_period_end,
                     CASE
-                        WHEN t.actual_period_end IS NOT NULL THEN 'Completed'
-                        WHEN t.brigade_id IS NOT NULL THEN 'In Progress'
-                        ELSE 'Planned'
-                    END as status
+                        WHEN t.actual_period_end IS NOT NULL THEN 'completed'
+                        WHEN t.brigade_id IS NOT NULL THEN 'in_progress'
+                        ELSE 'planned'
+                    END as status,
+                    CASE
+                        WHEN t.actual_period_end IS NULL AND CURRENT_DATE > t.expected_period_end THEN
+                            (CURRENT_DATE - t.expected_period_end)::integer
+                        WHEN t.actual_period_end IS NOT NULL THEN
+                            (t.actual_period_end - t.expected_period_end)::integer
+                        ELSE NULL
+                    END as delay
                 FROM task t
                 WHERE t.site_id = $1
                 ORDER BY 
@@ -1569,67 +1658,6 @@ async fn site_brigades_handler(
     }
 }
 
-async fn site_reports_handler(
-    State(db): State<Database>,
-    Path(id): Path<i32>,
-    Query(pagination): Query<Pagination>,
-) -> Html<String> {
-    // Check if site exists
-    let site_exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM site WHERE id = $1)")
-        .bind(id)
-        .fetch_one(&*db.pool)
-        .await;
-    
-    match site_exists {
-        Ok(true) => {
-            // Fetch task reports for this site
-            let reports_query = sqlx::query_as::<_, ReportListItem>(
-                "SELECT 
-                    t.id as task_id, 
-                    t.name as task_name,
-                    t.period_start,
-                    t.expected_period_end,
-                    t.actual_period_end,
-                    CASE
-                        WHEN t.actual_period_end IS NULL THEN 0
-                        ELSE EXTRACT(DAY FROM (t.actual_period_end - t.expected_period_end))::integer
-                    END as delay
-                FROM task t
-                WHERE t.site_id = $1 AND (t.actual_period_end IS NOT NULL OR
-                                         (t.actual_period_end IS NULL AND 
-                                          t.expected_period_end < CURRENT_TIMESTAMP))
-                ORDER BY t.period_start DESC
-                LIMIT $2 OFFSET $3"
-            )
-            .bind(id)
-            .bind(pagination.page_size as i32)
-            .bind((pagination.page_number as i32 - 1) * pagination.page_size as i32);
-            
-            let reports = match reports_query.fetch_all(&*db.pool).await {
-                Ok(reports) => reports,
-                Err(e) => return Html::from(format!("<p>Error fetching reports: {}</p>", e)),
-            };
-            
-            let template = SiteReportsTemplate {
-                id,
-                reports,
-                pagination,
-            };
-            
-            match template.render() {
-                Ok(html) => Html::from(html),
-                Err(e) => Html::from(format!("<p>Error rendering template: {}</p>", e)),
-            }
-        },
-        Ok(false) => {
-            Html::from(format!("<p>Site with ID {} does not exist</p>", id))
-        },
-        Err(e) => {
-            Html::from(format!("<p>Error checking site: {}</p>", e))
-        }
-    }
-}
-
 // Router setup
 pub fn router() -> axum::Router<Database> {
     axum::Router::new()
@@ -1649,5 +1677,4 @@ pub fn router() -> axum::Router<Database> {
         .route("/api/sites/{id}/materials", get(site_materials_handler))
         .route("/api/sites/{id}/equipment", get(site_equipment_handler))
         .route("/api/sites/{id}/brigades", get(site_brigades_handler))
-        .route("/api/sites/{id}/reports", get(site_reports_handler))
 }

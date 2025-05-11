@@ -8,9 +8,6 @@
     <table class="min-w-full divide-y divide-gray-300">
         <thead class="bg-gray-50">
             <tr>
-                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
-                    ID
-                </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Name
                 </th>
@@ -21,7 +18,7 @@
                     Position
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Assignment
+                    Area Assignment
                 </th>
                 <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                     <span class="sr-only">Actions</span>
@@ -31,9 +28,6 @@
         <tbody class="divide-y divide-gray-200 bg-white">
             {% for person in technical_personnel %}
             <tr class="hover:bg-gray-50">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-                    {{ person.id }}
-                </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {{ person.first_name }} {{ person.last_name }}
                 </td>
@@ -55,22 +49,17 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {% match person.position %}
-                        {% when Position::Master %}Master
-                        {% when Position::Foreman %}Foreman
+                        {% when Some(Position::Master) %}Master
+                        {% when Some(Position::Foreman) %}Foreman
+                        {% when None %}<span class="text-gray-400">Not assigned</span>
                     {% endmatch %}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    {% if let Some(dept_id) = person.department_id %}
-                        <a href="/departments/{{ dept_id }}" class="text-custom-primary hover:underline">
-                            {% if let Some(dept_name) = person.department_name %}{{ dept_name }}{% else %}Department #{{ dept_id }}{% endif %}
-                        </a>
-                    {% endif %}
                     {% if let Some(area_id) = person.area_id %}
                         <a href="/areas/{{ area_id }}" class="text-custom-primary hover:underline">
                             {% if let Some(area_name) = person.area_name %}{{ area_name }}{% else %}Area #{{ area_id }}{% endif %}
                         </a>
-                    {% endif %}
-                    {% if person.department_id.is_none() && person.area_id.is_none() %}
+                    {% else %}
                         <span class="text-gray-400">Not assigned</span>
                     {% endif %}
                 </td>

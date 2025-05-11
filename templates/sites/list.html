@@ -26,7 +26,7 @@
                 <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
                 <select id="type" name="type" class="px-3 py-2 border rounded w-full">
                     <option value="">All Types</option>
-                    <option value="powerplant">Power Plant</option>
+                    <option value="power_plant">Power Plant</option>
                     <option value="road">Road</option>
                     <option value="housing">Housing</option>
                     <option value="bridge">Bridge</option>
@@ -46,56 +46,38 @@
             
             <div>
                 <label for="department_id" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                <div class="flex gap-2">
-                    <input type="hidden" id="department_id" name="department_id">
-                    <input type="text" id="department_display" readonly placeholder="Select department" 
-                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer"
-                           hx-get="/api/selectors/departments" 
-                           hx-target="#department-selector-modal"
-                           hx-trigger="click">
-                    <button type="button" 
-                            hx-get="/api/selectors/departments" 
-                            hx-target="#department-selector-modal"
-                            class="bg-custom-primary text-white px-4 py-2 rounded">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                <select id="department_id" name="department_id" 
+                        class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                        hx-get="/api/selectors/departments" 
+                        hx-trigger="load"
+                        hx-target="#department_id">
+                    <option value="">All Departments</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             
             <div>
                 <label for="area_id" class="block text-sm font-medium text-gray-700 mb-1">Area</label>
-                <div class="flex gap-2">
-                    <input type="hidden" id="area_id" name="area_id">
-                    <input type="text" id="area_display" readonly placeholder="Select area" 
-                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer"
-                           hx-get="/api/selectors/areas" 
-                           hx-target="#area-selector-modal"
-                           hx-trigger="click">
-                    <button type="button" 
-                            hx-get="/api/selectors/areas" 
-                            hx-target="#area-selector-modal"
-                            class="bg-custom-primary text-white px-4 py-2 rounded">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                <select id="area_id" name="area_id" 
+                        class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                        hx-get="/api/selectors/areas" 
+                        hx-trigger="load"
+                        hx-target="#area_id">
+                    <option value="">All Areas</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             
             <div>
                 <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client</label>
-                <div class="flex gap-2">
-                    <input type="hidden" id="client_id" name="client_id">
-                    <input type="text" id="client_display" readonly placeholder="Select client" 
-                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer"
-                           hx-get="/api/selectors/clients" 
-                           hx-target="#client-selector-modal"
-                           hx-trigger="click">
-                    <button type="button" 
-                            hx-get="/api/selectors/clients" 
-                            hx-target="#client-selector-modal"
-                            class="bg-custom-primary text-white px-4 py-2 rounded">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+                <select id="client_id" name="client_id" 
+                        class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                        hx-get="/api/selectors/clients" 
+                        hx-trigger="load"
+                        hx-target="#client_id">
+                    <option value="">All Clients</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
             </div>
             
             <div>
@@ -138,41 +120,4 @@
         </div>
     </div>
 </div>
-
-<!-- Selector modal placeholders -->
-<div id="department-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <!-- Department selector will be loaded here -->
-</div>
-
-<div id="area-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <!-- Area selector will be loaded here -->
-</div>
-
-<div id="client-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <!-- Client selector will be loaded here -->
-</div>
-
-<!-- Notification container -->
-<div id="notification-container"></div>
-
-<script>
-// Minimal JS for handling selectors
-function selectDepartment(id, name) {
-    document.getElementById('department_id').value = id;
-    document.getElementById('department_display').value = name;
-    document.getElementById('department-selector-modal').classList.add('hidden');
-}
-
-function selectArea(id, name) {
-    document.getElementById('area_id').value = id;
-    document.getElementById('area_display').value = name;
-    document.getElementById('area-selector-modal').classList.add('hidden');
-}
-
-function selectClient(id, name) {
-    document.getElementById('client_id').value = id;
-    document.getElementById('client_display').value = name;
-    document.getElementById('client-selector-modal').classList.add('hidden');
-}
-</script>
 {% endblock %}

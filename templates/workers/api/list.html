@@ -8,17 +8,11 @@
     <table class="min-w-full divide-y divide-gray-300">
         <thead class="bg-gray-50">
             <tr>
-                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
-                    ID
-                </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Name
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Profession
-                </th>
-                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Brigade
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Role
@@ -31,9 +25,6 @@
         <tbody class="divide-y divide-gray-200 bg-white">
             {% for worker in workers %}
             <tr class="hover:bg-gray-50">
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-                    {{ worker.id }}
-                </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {{ worker.first_name }} {{ worker.last_name }}
                 </td>
@@ -60,17 +51,6 @@
                                 Mason
                             </span>
                     {% endmatch %}
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    {% if let Some(brigade_id) = worker.brigade_id %}
-                        {% if let Some(brigade_name) = worker.brigade_name %}
-                            <a href="/brigades/{{ brigade_id }}" class="text-custom-primary hover:underline">{{ brigade_name }}</a>
-                        {% else %}
-                            <a href="/brigades/{{ brigade_id }}" class="text-custom-primary hover:underline">Brigade #{{ brigade_id }}</a>
-                        {% endif %}
-                    {% else %}
-                        <span class="text-gray-400">Not assigned</span>
-                    {% endif %}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                     {% if worker.is_brigadier %}

@@ -10,10 +10,12 @@ use sqlx::{FromRow, Row};
 
 use crate::{database::Database, general::{Profession, Gender}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
+use crate::utils::empty_string_as_none;
+use crate::utils::deserialize_checkbox;
 
 // Profession-specific fields
 #[derive(Serialize, Deserialize)]
-#[serde(tag = "profession")]
+#[serde(tag = "profession_fields_type", rename_all = "snake_case")]
 pub enum ProfessionFields {
     Electrician(ElectricianFields),
     Plumber(PlumberFields),
@@ -46,6 +48,7 @@ pub struct DriverFields {
 
 #[derive(Serialize, Deserialize)]
 pub struct MasonFields {
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub hq_restoration_skills: bool,
 }
 
@@ -117,12 +120,15 @@ pub struct WorkerProfessionFieldsTemplate {
 pub struct WorkerUpdateForm {
     pub first_name: String,
     pub last_name: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub middle_name: Option<String>,
     pub gender: Gender,
     pub phone_number: String,
     pub salary: i32,
     pub profession: Profession,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub union_name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
     #[serde(flatten)]
     pub profession_fields: ProfessionFields,
@@ -132,12 +138,15 @@ pub struct WorkerUpdateForm {
 pub struct WorkerCreateForm {
     pub first_name: String,
     pub last_name: String,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub middle_name: Option<String>,
     pub gender: Gender,
     pub phone_number: String,
     pub salary: i32,
     pub profession: Profession,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub union_name: Option<String>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub brigade_id: Option<i32>,
     #[serde(flatten)]
     pub profession_fields: ProfessionFields,
@@ -147,9 +156,11 @@ pub struct WorkerCreateForm {
 pub struct WorkerListFilter {
     #[serde(flatten)]
     pub sort: Sort,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub profession: Option<Profession>,
-    pub brigade_id: Option<i32>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub is_brigadier: Option<bool>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
 }
 
@@ -167,8 +178,6 @@ pub struct WorkerListItem {
     pub first_name: String,
     pub last_name: String,
     pub profession: Profession,
-    pub brigade_id: Option<i32>,
-    pub brigade_name: Option<String>,
     pub is_brigadier: bool,
 }
 
@@ -929,20 +938,9 @@ async fn workers_list_api_handler(
             e.first_name, 
             e.last_name, 
             w.profession,
-            a.brigade_id,
-            CASE 
-                WHEN a.brigade_id IS NOT NULL THEN 
-                    (SELECT CONCAT(be.last_name, ' ', be.first_name) 
-                     FROM brigade b
-                     JOIN worker bw ON b.brigadier_id = bw.id
-                     JOIN employee be ON bw.id = be.id
-                     WHERE b.id = a.brigade_id)
-                ELSE NULL
-            END AS brigade_name,
-            CASE WHEN EXISTS (SELECT 1 FROM brigade b WHERE b.brigadier_id = w.id) THEN true ELSE false END as is_brigadier
+            CASE WHEN EXISTS (SELECT 1 FROM brigade b WHERE b.brigadier_id = w.id) THEN true ELSE false END AS is_brigadier
         FROM worker w
-        JOIN employee e ON w.id = e.id
-        LEFT JOIN assignment a ON w.id = a.worker_id"
+        JOIN employee e ON w.id = e.id"
     );
 
     let mut where_added = false;
@@ -952,16 +950,6 @@ async fn workers_list_api_handler(
         query_builder.push(" WHERE w.profession = ");
         query_builder.push_bind(profession);
         where_added = true;
-    }
-
-    if let Some(brigade_id) = &filter.brigade_id {
-        if where_added {
-            query_builder.push(" AND a.brigade_id = ");
-        } else {
-            query_builder.push(" WHERE a.brigade_id = ");
-            where_added = true;
-        }
-        query_builder.push_bind(brigade_id);
     }
 
     if let Some(is_brigadier) = &filter.is_brigadier {
@@ -993,9 +981,51 @@ async fn workers_list_api_handler(
         query_builder.push(")");
     }
 
-    // Count total results for pagination
-    let count_query = format!("SELECT COUNT(*) FROM ({}) as count_query", query_builder.sql());
-    let count = match sqlx::query_scalar::<_, i64>(&count_query).fetch_one(&*db.pool).await {
+    // Count total results for pagination - PROPERLY BIND PARAMETERS
+    let mut count_query_builder = sqlx::QueryBuilder::new(
+        "SELECT COUNT(*) FROM worker w 
+         JOIN employee e ON w.id = e.id
+         LEFT JOIN assignment a ON w.id = a.worker_id"
+    );
+    
+    let mut count_where_added = false;
+    
+    if let Some(profession) = &filter.profession {
+        count_query_builder.push(" WHERE w.profession = ");
+        count_query_builder.push_bind(profession);
+        count_where_added = true;
+    }
+
+    if let Some(is_brigadier) = &filter.is_brigadier {
+        let subquery = if *is_brigadier {
+            "EXISTS (SELECT 1 FROM brigade b WHERE b.brigadier_id = w.id)"
+        } else {
+            "NOT EXISTS (SELECT 1 FROM brigade b WHERE b.brigadier_id = w.id)"
+        };
+
+        if count_where_added {
+            count_query_builder.push(" AND ");
+        } else {
+            count_query_builder.push(" WHERE ");
+            count_where_added = true;
+        }
+        count_query_builder.push(subquery);
+    }
+
+    if let Some(name) = &filter.name {
+        if count_where_added {
+            count_query_builder.push(" AND (e.last_name ILIKE ");
+        } else {
+            count_query_builder.push(" WHERE (e.last_name ILIKE ");
+            count_where_added = true;
+        }
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_query_builder.push(" OR e.first_name ILIKE ");
+        count_query_builder.push_bind(format!("%{}%", name));
+        count_query_builder.push(")");
+    }
+    
+    let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
         Ok(count) => count,
         Err(e) => return Html::from(format!("<p>Error counting workers: {}</p>", e)),
     };

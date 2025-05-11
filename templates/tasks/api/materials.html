@@ -45,7 +45,7 @@
         </thead>
         <tbody class="divide-y divide-gray-200 bg-white">
             {% for material in materials %}
-            <tr class="hover:bg-gray-50 {% if material.excess.is_some() && material.excess.unwrap() > 0f64 %}bg-red-50{% endif %}">
+            <tr class="hover:bg-gray-50 {% if material.excess.is_some() && material.excess.unwrap() > 0.0 %}bg-red-50{% endif %}">
                 <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
                     {{ material.name }}
                 </td>
@@ -61,7 +61,7 @@
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm">
                     {% if let Some(excess) = material.excess %}
-                        {% if *excess > 0f64 %}
+                        {% if *excess > 0.0 %}
                             <span class="text-red-600 font-semibold">+{{ excess }} {{ material.units }}</span>
                         {% else %}
                             <span class="text-green-600 font-semibold">{{ excess }} {{ material.units }}</span>
@@ -71,14 +71,14 @@
                     {% endif %}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    ${{ material.cost }} / {{ material.units }}
+                    ₽{{ material.cost }} / {{ material.units }}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    ${{ material.total_cost }}
+                    ₽{{ material.total_cost }}
                 </td>
                 <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
                     {% if material.actual_amount.is_none() %}
-                        <button hx-get="/api/materials/{{ material.material_id }}"
+                        <button hx-get="/api/tasks/{{ id }}/materials/{{ material.material_id }}/update"
                                 hx-target="#update-material-modal-container"
                                 class="text-custom-primary hover:text-custom-secondary">
                             <i class="fas fa-pencil-alt mr-1"></i> Record Usage
@@ -153,5 +153,79 @@
 </div>
 {% endif %}
 
+<!-- Material Addition Modal -->
+<div id="add-material-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Add Material</h3>
+            <button onclick="document.getElementById('add-material-modal').classList.add('hidden')" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form hx-post="/api/tasks/{{ id }}/materials" 
+              hx-target="#materials-content"
+              hx-on::after-request="document.getElementById('add-material-modal').classList.add('hidden')"
+              class="space-y-4">
+              
+            <div>
+                <label for="material_id" class="block text-sm font-medium text-gray-700 mb-1">Material <span class="text-error">*</span></label>
+                <div class="flex gap-2">
+                    <input type="hidden" id="material_id" name="material_id" required>
+                    <input type="text" id="material_display" readonly placeholder="Select material" 
+                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer"
+                           onclick="document.getElementById('material-selector-modal').classList.remove('hidden')">
+                    <button type="button" 
+                            onclick="document.getElementById('material-selector-modal').classList.remove('hidden')"
+                            class="bg-custom-primary text-white px-4 py-2 rounded">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+              
+            <div>
+                <label for="expected_amount" class="block text-sm font-medium text-gray-700 mb-1">Expected Amount <span class="text-error">*</span></label>
+                <input type="number" id="expected_amount" name="expected_amount" step="0.01" min="0.01" required
+                      class="px-3 py-2 border rounded w-full">
+            </div>
+              
+            <div class="flex justify-end space-x-2 pt-4 border-t">
+                <button type="button" 
+                        onclick="document.getElementById('add-material-modal').classList.add('hidden')"
+                        class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                    <i class="fas fa-save mr-2"></i> Add
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Material selector modal -->
+<div id="material-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div id="material-selector-content" 
+         hx-get="/api/selectors/materials/modal"
+         hx-trigger="load">
+        <!-- Material selector will be loaded here -->
+        <div class="flex justify-center items-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
+        </div>
+    </div>
+</div>
+
 <!-- Container for Material Update Modal -->
 <div id="update-material-modal-container"></div>
+
+<script>
+function selectMaterial(id, name) {
+    document.getElementById('material_id').value = id;
+    document.getElementById('material_display').value = name;
+    document.getElementById('material-selector-modal').classList.add('hidden');
+}
+
+function showAddMaterialModal() {
+    document.getElementById('add-material-modal').classList.remove('hidden');
+}
+</script>

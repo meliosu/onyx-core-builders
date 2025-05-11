@@ -34,21 +34,6 @@
                 </select>
             </div>
             
-            <div>
-                <label for="brigade_id" class="block text-sm font-medium text-gray-700 mb-1">Brigade</label>
-                <div class="flex gap-2">
-                    <input type="hidden" id="brigade_id" name="brigade_id">
-                    <input type="text" id="brigade_display" readonly placeholder="Select brigade" 
-                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
-                    <button type="button" 
-                            hx-get="/api/selectors/brigades" 
-                            hx-target="#brigade-selector-modal"
-                            class="bg-custom-primary text-white px-4 py-2 rounded">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-            
             <div class="flex items-center mt-6">
                 <input type="checkbox" id="is_brigadier" name="is_brigadier" value="true"
                        class="h-4 w-4 text-custom-primary border-gray-300 rounded">
@@ -94,21 +79,4 @@
         </div>
     </div>
 </div>
-
-<!-- Selector modal placeholders -->
-<div id="brigade-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <!-- Brigade selector will be loaded here -->
-</div>
-
-<!-- Notification container -->
-<div id="notification-container"></div>
-
-<script>
-// Minimal JS for handling selectors
-function selectBrigade(id, name) {
-    document.getElementById('brigade_id').value = id;
-    document.getElementById('brigade_display').value = name;
-    document.getElementById('brigade-selector-modal').classList.add('hidden');
-}
-</script>
 {% endblock %}

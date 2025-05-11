@@ -24,7 +24,7 @@
                     Task
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Brigade
+                    Brigadier
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Start Date
@@ -34,6 +34,9 @@
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Actual End
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Delay (days)
                 </th>
                 <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                     Status
@@ -71,6 +74,31 @@
                         {{ actual_end.format("%Y-%m-%d") }}
                     {% else %}
                         <span class="text-gray-400">Not completed</span>
+                    {% endif %}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    {% if let Some(delay) = task.delay %}
+                        {% if *delay > 0 %}
+                            <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                                {{ delay }} days
+                            </span>
+                        {% elif *delay < 0 %}
+                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                {{ delay * -1 }} days early
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">
+                                On time
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        {% if task.actual_period_end.is_some() %}
+                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">
+                                On time
+                            </span>
+                        {% else %}
+                            <span class="text-gray-400">-</span>
+                        {% endif %}
                     {% endif %}
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm">
