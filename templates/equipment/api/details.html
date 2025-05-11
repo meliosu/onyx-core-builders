@@ -71,8 +71,7 @@
     <div class="p-6">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold">Allocation History</h3>
-            <button hx-get="#"
-                    hx-target="#allocation-form-modal"
+            <button onclick="document.getElementById('allocation-form-modal').classList.remove('hidden')"
                     class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90 text-sm">
                 <i class="fas fa-plus mr-2"></i> Create Allocation
             </button>

@@ -194,11 +194,11 @@ CREATE TABLE assignment (
 CREATE TABLE equipment_allocation (
     equipment_id INTEGER NOT NULL REFERENCES equipment(id),
     department_id INTEGER NOT NULL REFERENCES department(id),
-    site_id INTEGER NOT NULL REFERENCES site(id),
+    site_id INTEGER REFERENCES site(id),
     amount INTEGER NOT NULL CHECK (amount > 0),
     period_start DATE NOT NULL,
     period_end DATE NOT NULL,
-    PRIMARY KEY (equipment_id, department_id, site_id, period_start)
+    PRIMARY KEY (equipment_id, department_id, period_start)
 );
 
 CREATE TABLE expenditure (
