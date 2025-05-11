@@ -12,6 +12,7 @@ use crate::{database::Database, general::{Qualification, Position, Gender}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
 use crate::utils::empty_string_as_none;
 use crate::utils::deserialize_sequence;
+use crate::utils::deserialize_checkbox;
 
 // Qualification-specific fields
 #[derive(Serialize, Deserialize)]
@@ -121,6 +122,7 @@ pub struct TechnicalPersonnelUpdateForm {
     pub position: Option<Position>,
     pub education_level: String,
     pub software_skills: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub is_project_manager: bool,
     #[serde(flatten)]
     pub qualification_fields: QualificationFields,

@@ -42,7 +42,7 @@ pub struct PowerPlantFields {
     #[serde(deserialize_with = "deserialize_from_str")]
     pub energy_output: f32,
     pub energy_source: String,
-    #[serde(deserialize_with = "deserialize_checkbox")]
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub is_grid_connected: bool,
 }
 
@@ -75,9 +75,9 @@ pub struct BridgeFields {
 pub struct ParkFields {
     #[serde(deserialize_with = "deserialize_from_str")]
     pub area: f32,
-    #[serde(deserialize_with = "deserialize_checkbox")]
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub has_playground: bool,
-    #[serde(deserialize_with = "deserialize_checkbox")]
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub has_lighting: bool,
 }
 

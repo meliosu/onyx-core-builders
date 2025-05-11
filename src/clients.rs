@@ -11,6 +11,7 @@ use sqlx::{FromRow, Row};
 use crate::{database::Database, general::{SiteType, NotificationResult, NotificationTemplate}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo};
 use crate::utils::empty_string_as_none;
+use crate::utils::deserialize_checkbox;
 
 // Types for page endpoints
 
@@ -71,6 +72,7 @@ pub struct ClientUpdateForm {
     pub address: String,
     pub contact_person_email: String,
     pub contact_person_name: String,
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub is_vip: bool,
 }
 
@@ -81,6 +83,7 @@ pub struct ClientCreateForm {
     pub address: String,
     pub contact_person_email: String,
     pub contact_person_name: String,
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub is_vip: bool,
 }
 

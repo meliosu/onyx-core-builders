@@ -79,10 +79,6 @@ pub struct MaterialListFilter {
     #[serde(default, deserialize_with="empty_string_as_none")]
     pub name: Option<String>,
     #[serde(default, deserialize_with="empty_string_as_none")]
-    pub cost_min: Option<f32>,
-    #[serde(default, deserialize_with="empty_string_as_none")]
-    pub cost_max: Option<f32>,
-    #[serde(default, deserialize_with="empty_string_as_none")]
     pub excess_usage: Option<bool>,
 }
 
@@ -394,26 +390,6 @@ async fn materials_list_api_handler(
         where_added = true;
     }
 
-    if let Some(cost_min) = &filter.cost_min {
-        if where_added {
-            query_builder.push(" AND m.cost >= ");
-        } else {
-            query_builder.push(" WHERE m.cost >= ");
-            where_added = true;
-        }
-        query_builder.push_bind(cost_min);
-    }
-
-    if let Some(cost_max) = &filter.cost_max {
-        if where_added {
-            query_builder.push(" AND m.cost <= ");
-        } else {
-            query_builder.push(" WHERE m.cost <= ");
-            where_added = true;
-        }
-        query_builder.push_bind(cost_max);
-    }
-
     if let Some(excess_usage) = &filter.excess_usage {
         if *excess_usage {
             let subquery = " EXISTS (SELECT 1 FROM expenditure e WHERE e.material_id = m.id AND e.actual_amount > e.expected_amount)";
@@ -436,26 +412,6 @@ async fn materials_list_api_handler(
         count_query_builder.push(" WHERE m.name ILIKE ");
         count_query_builder.push_bind(format!("%{}%", name));
         count_where_added = true;
-    }
-
-    if let Some(cost_min) = &filter.cost_min {
-        if count_where_added {
-            count_query_builder.push(" AND m.cost >= ");
-        } else {
-            count_query_builder.push(" WHERE m.cost >= ");
-            count_where_added = true;
-        }
-        count_query_builder.push_bind(cost_min);
-    }
-
-    if let Some(cost_max) = &filter.cost_max {
-        if count_where_added {
-            count_query_builder.push(" AND m.cost <= ");
-        } else {
-            count_query_builder.push(" WHERE m.cost <= ");
-            count_where_added = true;
-        }
-        count_query_builder.push_bind(cost_max);
     }
 
     if let Some(excess_usage) = &filter.excess_usage {

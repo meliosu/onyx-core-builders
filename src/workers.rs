@@ -11,6 +11,7 @@ use sqlx::{FromRow, Row};
 use crate::{database::Database, general::{Profession, Gender}};
 use crate::general::{Pagination, Sort, SortDirection, QueryInfo, NotificationResult, NotificationTemplate};
 use crate::utils::empty_string_as_none;
+use crate::utils::deserialize_checkbox;
 
 // Profession-specific fields
 #[derive(Serialize, Deserialize)]
@@ -47,6 +48,7 @@ pub struct DriverFields {
 
 #[derive(Serialize, Deserialize)]
 pub struct MasonFields {
+    #[serde(default, deserialize_with = "deserialize_checkbox")]
     pub hq_restoration_skills: bool,
 }
 
