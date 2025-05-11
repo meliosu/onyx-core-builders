@@ -3,6 +3,6 @@
 {% else %}
     <option value="">Select task</option>
     {% for task in tasks %}
-        <option value="{{ task.id }}" {% if query.selected_id == Some(*task.id) %}selected{% endif %}>{{ task.name }}</option>
+        <option value="{{ task.id }}" {% if query.selected_id == Some(*task.id) %}selected{% endif %}>{{ task.name }}, {{ task.site_name }}</option>
     {% endfor %}
 {% endif %}
