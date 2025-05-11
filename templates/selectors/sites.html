@@ -2,6 +2,7 @@
     <option value="">No sites found</option>
 {% else %}
     <option value="">Select site</option>
+    <option value="0" {% if query.selected_id == Some(0) %}selected{% endif %}>No site</option>
     {% for site in sites %}
         <option value="{{ site.id }}" {% if query.selected_id == Some(*site.id) %}selected{% endif %}>{{ site.name }}</option>
     {% endfor %}

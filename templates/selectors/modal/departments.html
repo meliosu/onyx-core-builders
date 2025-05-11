@@ -1,0 +1,13 @@
+{% if departments.is_empty() %}
+    <div class="text-center py-8 text-gray-500">
+        <p>No departments found.</p>
+    </div>
+{% else %}
+    <div class="divide-y divide-gray-200">
+        {% for department in departments %}
+            <div class="py-3 hover:bg-gray-50 cursor-pointer px-4 rounded" onclick="selectDepartment('{{ department.id }}', '{{ department.name }}')">
+                <p class="font-medium text-gray-800">{{ department.name }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

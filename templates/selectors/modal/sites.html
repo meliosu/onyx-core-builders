@@ -1,0 +1,32 @@
+<div class="py-3 hover:bg-gray-50 cursor-pointer px-4 rounded mb-2 border-b" onclick="clearSiteSelection()">
+    <p class="font-medium text-gray-800">No site (Department storage)</p>
+    <p class="text-sm text-gray-500">Allocate equipment to department storage</p>
+</div>
+
+{% if sites.is_empty() %}
+    <div class="text-center py-8 text-gray-500">
+        <p>No sites found.</p>
+    </div>
+{% else %}
+    <div class="divide-y divide-gray-200">
+        {% for site in sites %}
+            <div class="py-3 hover:bg-gray-50 cursor-pointer px-4 rounded" onclick="selectSite('{{ site.id }}', '{{ site.name }}')">
+                <p class="font-medium text-gray-800">{{ site.name }}</p>
+                <p class="text-xs text-gray-500">
+                    {% match site.type_ %}
+                        {% when SiteType::PowerPlant %}
+                            Power Plant
+                        {% when SiteType::Road %}
+                            Road
+                        {% when SiteType::Housing %}
+                            Housing
+                        {% when SiteType::Bridge %}
+                            Bridge
+                        {% when SiteType::Park %}
+                            Park
+                    {% endmatch %}
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

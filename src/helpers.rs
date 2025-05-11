@@ -875,6 +875,130 @@ async fn materials_modal_selector_handler(
     }
 }
 
+#[derive(Template)]
+#[template(path = "selectors/modal/departments.html")]
+pub struct DepartmentModalSelectorTemplate {
+    pub departments: Vec<DepartmentSelectorItem>,
+    pub query: DepartmentQuery,
+}
+
+async fn departments_modal_selector_handler(
+    State(db): State<Database>,
+    Query(q): Query<DepartmentQuery>,
+    Form(filter): Form<DepartmentFilter>,
+) -> Html<String> {
+    let mut query_builder = sqlx::QueryBuilder::new("SELECT id, name FROM department");
+
+    if let Some(name) = &filter.name {
+        query_builder.push(" WHERE name ILIKE ");
+        query_builder.push_bind(format!("%{}%", name));
+    }
+
+    query_builder.push(" ORDER BY name");
+
+    let query = query_builder.build_query_as::<DepartmentSelectorItem>();
+    let departments = match query.fetch_all(&*db.pool).await {
+        Ok(departments) => departments,
+        Err(err) => {
+            return Html::from(format!("<p class=\"text-error\">Error loading departments: {}</p>", err));
+        }
+    };
+
+    let template = DepartmentModalSelectorTemplate { 
+        departments,
+        query: q,
+    };
+    match template.render() {
+        Ok(html) => Html::from(html),
+        Err(err) => Html::from(format!("<p class=\"text-error\">Error rendering template: {}</p>", err)),
+    }
+}
+
+#[derive(Template)]
+#[template(path = "selectors/modal/sites.html")]
+pub struct SiteModalSelectorTemplate {
+    pub sites: Vec<SiteSelectorItem>,
+    pub query: SiteQuery,
+}
+
+async fn sites_modal_selector_handler(
+    State(db): State<Database>,
+    Query(q): Query<SiteQuery>,
+    Form(filter): Form<SiteFilter>,
+) -> Html<String> {
+    let mut query_builder = sqlx::QueryBuilder::new(
+        "SELECT id, name, type FROM site"
+    );
+
+    let mut where_added = false;
+
+    if let Some(area_id) = &q.area_id {
+        query_builder.push(" WHERE area_id = ");
+        query_builder.push_bind(area_id);
+        where_added = true;
+    }
+
+    if let Some(department_id) = &q.department_id {
+        if where_added {
+            query_builder.push(" AND EXISTS (SELECT 1 FROM area a WHERE a.id = site.area_id AND a.department_id = ");
+        } else {
+            query_builder.push(" WHERE EXISTS (SELECT 1 FROM area a WHERE a.id = site.area_id AND a.department_id = ");
+            where_added = true;
+        }
+        query_builder.push_bind(department_id);
+        query_builder.push(")");
+    }
+
+    if let Some(client_id) = &q.client_id {
+        if where_added {
+            query_builder.push(" AND client_id = ");
+        } else {
+            query_builder.push(" WHERE client_id = ");
+            where_added = true;
+        }
+        query_builder.push_bind(client_id);
+    }
+
+    if let Some(type_) = &q.type_ {
+        if where_added {
+            query_builder.push(" AND type = ");
+        } else {
+            query_builder.push(" WHERE type = ");
+            where_added = true;
+        }
+        query_builder.push_bind(type_);
+    }
+
+    if let Some(name) = &filter.name {
+        if where_added {
+            query_builder.push(" AND name ILIKE ");
+        } else {
+            query_builder.push(" WHERE name ILIKE ");
+            where_added = true;
+        }
+        query_builder.push_bind(format!("%{}%", name));
+    }
+
+    query_builder.push(" ORDER BY name");
+
+    let query = query_builder.build_query_as::<SiteSelectorItem>();
+    let sites = match query.fetch_all(&*db.pool).await {
+        Ok(sites) => sites,
+        Err(err) => {
+            return Html::from(format!("<p class=\"text-error\">Error loading sites: {}</p>", err));
+        }
+    };
+
+    let template = SiteModalSelectorTemplate { 
+        sites,
+        query: q,
+    };
+    match template.render() {
+        Ok(html) => Html::from(html),
+        Err(err) => Html::from(format!("<p class=\"text-error\">Error rendering template: {}</p>", err)),
+    }
+}
+
 // Task selectors
 async fn tasks_selector_handler(
     State(db): State<Database>,
@@ -979,4 +1103,6 @@ pub fn router() -> axum::Router<Database> {
         .route("/api/selectors/materials", get(materials_selector_handler))
         .route("/api/selectors/tasks", get(tasks_selector_handler))
         .route("/api/selectors/materials/modal", get(materials_modal_selector_handler))
+        .route("/api/selectors/departments/modal", get(departments_modal_selector_handler))
+        .route("/api/selectors/sites/modal", get(sites_modal_selector_handler))
 }
