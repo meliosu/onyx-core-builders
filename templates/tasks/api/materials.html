@@ -1,0 +1,231 @@
+<div class="mb-4 flex justify-between items-center">
+    <h3 class="text-lg font-semibold">Materials</h3>
+    <button onclick="showAddMaterialModal()" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90 text-sm">
+        <i class="fas fa-plus mr-2"></i> Add Material
+    </button>
+</div>
+
+{% if materials.is_empty() %}
+<div class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+    <i class="fas fa-boxes text-4xl mb-3"></i>
+    <p>No materials have been added to this task yet.</p>
+    <p class="mt-2">
+        <button onclick="showAddMaterialModal()" class="text-custom-secondary hover:underline">
+            Add a new material
+        </button>
+    </p>
+</div>
+{% else %}
+<div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-300">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                    Material
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Expected
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Actual
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Excess
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Unit Cost
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Total Cost
+                </th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <span class="sr-only">Actions</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+            {% for material in materials %}
+            <tr class="hover:bg-gray-50 {% if material.excess.is_some() && material.excess.unwrap() > 0.0 %}bg-red-50{% endif %}">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
+                    {{ material.name }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {{ material.expected_amount }} {{ material.units }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {% if let Some(amount) = material.actual_amount %}
+                        {{ amount }} {{ material.units }}
+                    {% else %}
+                        <span class="text-gray-400">Not recorded</span>
+                    {% endif %}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    {% if let Some(excess) = material.excess %}
+                        {% if *excess > 0.0 %}
+                            <span class="text-red-600 font-semibold">+{{ excess }} {{ material.units }}</span>
+                        {% else %}
+                            <span class="text-green-600 font-semibold">{{ excess }} {{ material.units }}</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-gray-400">-</span>
+                    {% endif %}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    ₽{{ material.cost }} / {{ material.units }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    ₽{{ material.total_cost }}
+                </td>
+                <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
+                    {% if material.actual_amount.is_none() %}
+                        <button hx-get="/api/tasks/{{ id }}/materials/{{ material.material_id }}/update"
+                                hx-target="#update-material-modal-container"
+                                class="text-custom-primary hover:text-custom-secondary">
+                            <i class="fas fa-pencil-alt mr-1"></i> Record Usage
+                        </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+    <div class="flex flex-1 justify-between sm:hidden">
+        {% if pagination.page_number > 1 %}
+        <button
+            hx-get="/api/tasks/{{ id }}/materials"
+            hx-target="#materials-content"
+            hx-vals='{"page_number": {{ pagination.page_number - 1 }}, "page_size": {{ pagination.page_size }}}'
+            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+            Previous
+        </button>
+        {% endif %}
+        
+        <button
+            hx-get="/api/tasks/{{ id }}/materials"
+            hx-target="#materials-content"
+            hx-vals='{"page_number": {{ pagination.page_number + 1 }}, "page_size": {{ pagination.page_size }}}'
+            class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+            Next
+        </button>
+    </div>
+    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm text-gray-700">
+                Showing page <span class="font-medium">{{ pagination.page_number }}</span>
+            </p>
+        </div>
+        <div>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                {% if pagination.page_number > 1 %}
+                <button
+                    hx-get="/api/tasks/{{ id }}/materials"
+                    hx-target="#materials-content"
+                    hx-vals='{"page_number": {{ pagination.page_number - 1 }}, "page_size": {{ pagination.page_size }}}'
+                    class="relative inline-flex items-center rounded-l-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                >
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                {% endif %}
+                
+                <span
+                    class="relative z-10 inline-flex items-center bg-custom-primary text-white px-4 py-2 text-sm font-semibold focus:z-20"
+                >
+                    {{ pagination.page_number }}
+                </span>
+                
+                <button
+                    hx-get="/api/tasks/{{ id }}/materials"
+                    hx-target="#materials-content"
+                    hx-vals='{"page_number": {{ pagination.page_number + 1 }}, "page_size": {{ pagination.page_size }}}'
+                    class="relative inline-flex items-center rounded-r-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                >
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Material Addition Modal -->
+<div id="add-material-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Add Material</h3>
+            <button onclick="document.getElementById('add-material-modal').classList.add('hidden')" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form hx-post="/api/tasks/{{ id }}/materials" 
+              hx-target="#materials-content"
+              hx-on::after-request="document.getElementById('add-material-modal').classList.add('hidden')"
+              class="space-y-4">
+              
+            <div>
+                <label for="material_id" class="block text-sm font-medium text-gray-700 mb-1">Material <span class="text-error">*</span></label>
+                <div class="flex gap-2">
+                    <input type="hidden" id="material_id" name="material_id" required>
+                    <input type="text" id="material_display" readonly placeholder="Select material" 
+                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer"
+                           onclick="document.getElementById('material-selector-modal').classList.remove('hidden')">
+                    <button type="button" 
+                            onclick="document.getElementById('material-selector-modal').classList.remove('hidden')"
+                            class="bg-custom-primary text-white px-4 py-2 rounded">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+              
+            <div>
+                <label for="expected_amount" class="block text-sm font-medium text-gray-700 mb-1">Expected Amount <span class="text-error">*</span></label>
+                <input type="number" id="expected_amount" name="expected_amount" step="0.01" min="0.01" required
+                      class="px-3 py-2 border rounded w-full">
+            </div>
+              
+            <div class="flex justify-end space-x-2 pt-4 border-t">
+                <button type="button" 
+                        onclick="document.getElementById('add-material-modal').classList.add('hidden')"
+                        class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                    <i class="fas fa-save mr-2"></i> Add
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Material selector modal -->
+<div id="material-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div id="material-selector-content" 
+         hx-get="/api/selectors/materials/modal"
+         hx-trigger="load">
+        <!-- Material selector will be loaded here -->
+        <div class="flex justify-center items-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Container for Material Update Modal -->
+<div id="update-material-modal-container"></div>
+
+<script>
+function selectMaterial(id, name) {
+    document.getElementById('material_id').value = id;
+    document.getElementById('material_display').value = name;
+    document.getElementById('material-selector-modal').classList.add('hidden');
+}
+
+function showAddMaterialModal() {
+    document.getElementById('add-material-modal').classList.remove('hidden');
+}
+</script>

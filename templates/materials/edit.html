@@ -1,0 +1,47 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Edit Material{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Edit Material: {{ name }}</h2>
+    </div>
+
+    <form hx-put="/api/materials/{{ id }}" 
+          hx-target="#notification-container"
+          class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Material Name <span class="text-error">*</span></label>
+                <input type="text" id="name" name="name" required value="{{ name }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="cost" class="block text-sm font-medium text-gray-700 mb-1">Cost per Unit <span class="text-error">*</span></label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">$</span>
+                    <input type="number" id="cost" name="cost" step="0.01" min="0" required 
+                           value="{{ cost }}"
+                           class="pl-8 px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+                </div>
+            </div>
+            
+            <div>
+                <label for="units" class="block text-sm font-medium text-gray-700 mb-1">Units of Measurement <span class="text-error">*</span></label>
+                <input type="text" id="units" name="units" required 
+                       value="{{ units }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4 pt-4 border-t">
+            <a href="/materials/{{ id }}" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">Cancel</a>
+            <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

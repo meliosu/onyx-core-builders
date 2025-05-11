@@ -1,0 +1,123 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Sites{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Sites List</h2>
+        <a href="/sites/new" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+            <i class="fas fa-plus mr-2"></i> New Site
+        </a>
+    </div>
+
+    <div class="mb-4">
+        <form hx-get="/api/sites" 
+              hx-target="#sites-list"
+              hx-trigger="submit"
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input type="text" id="name" name="name" placeholder="Search by name" 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            
+            <div>
+                <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <select id="type" name="type" class="px-3 py-2 border rounded w-full">
+                    <option value="">All Types</option>
+                    <option value="power_plant">Power Plant</option>
+                    <option value="road">Road</option>
+                    <option value="housing">Housing</option>
+                    <option value="bridge">Bridge</option>
+                    <option value="park">Park</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select id="status" name="status" class="px-3 py-2 border rounded w-full">
+                    <option value="">All Statuses</option>
+                    <option value="planned">Planned</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="department_id" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                <select id="department_id" name="department_id" 
+                        class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                        hx-get="/api/selectors/departments" 
+                        hx-trigger="load"
+                        hx-target="#department_id">
+                    <option value="">All Departments</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
+            </div>
+            
+            <div>
+                <label for="area_id" class="block text-sm font-medium text-gray-700 mb-1">Area</label>
+                <select id="area_id" name="area_id" 
+                        class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                        hx-get="/api/selectors/areas" 
+                        hx-trigger="load"
+                        hx-target="#area_id">
+                    <option value="">All Areas</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
+            </div>
+            
+            <div>
+                <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client</label>
+                <select id="client_id" name="client_id" 
+                        class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                        hx-get="/api/selectors/clients" 
+                        hx-trigger="load"
+                        hx-target="#client_id">
+                    <option value="">All Clients</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
+            </div>
+            
+            <div>
+                <label for="sort_by" class="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                <select id="sort_by" name="sort_by" class="px-3 py-2 border rounded w-full">
+                    <option value="name">Name</option>
+                    <option value="type">Type</option>
+                    <option value="area_name">Area</option>
+                    <option value="department_name">Department</option>
+                    <option value="client_name">Client</option>
+                    <option value="status">Status</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="sort_direction" class="block text-sm font-medium text-gray-700 mb-1">Sort Direction</label>
+                <select id="sort_direction" name="sort_direction" class="px-3 py-2 border rounded w-full">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+            
+            <div class="md:col-span-2 lg:col-span-1">
+                <label class="invisible block text-sm font-medium text-gray-700 mb-1">Search</label>
+                <button type="submit" class="bg-custom-primary text-white px-4 py-2 rounded font-medium hover:bg-opacity-90 w-full">
+                    <i class="fas fa-search mr-2"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="sites-list" 
+         hx-get="/api/sites" 
+         hx-trigger="load"
+         hx-vals='{"page_number": 1, "page_size": 10, "sort_by": "name", "sort_direction": "asc"}'
+         class="min-h-[300px]">
+        <!-- Site list will be loaded here via HTMX -->
+        <div class="flex justify-center items-center h-[300px]">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-custom-secondary"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

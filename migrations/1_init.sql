@@ -7,6 +7,7 @@ CREATE TYPE worker_profession AS ENUM ('electrician', 'plumber', 'welder', 'driv
 CREATE TYPE personnel_qualification AS ENUM ('technician', 'technologist', 'engineer');
 CREATE TYPE personnel_position AS ENUM ('master', 'foreman');
 CREATE TYPE employee_class AS ENUM ('worker', 'technical_personnel');
+CREATE TYPE fuel_type AS ENUM ('gasoline', 'diesel', 'electric', 'hybrid');
 
 -- Main Tables
 
@@ -81,14 +82,14 @@ CREATE TABLE equipment (
     name TEXT NOT NULL,
     amount INTEGER NOT NULL CHECK (amount >= 0),
     purchase_date DATE NOT NULL,
-    purchase_cost NUMERIC(10, 2) NOT NULL,
-    fuel_type TEXT
+    purchase_cost REAL NOT NULL,
+    fuel_type fuel_type
 );
 
 CREATE TABLE material (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    cost NUMERIC(10, 2) NOT NULL,
+    cost REAL NOT NULL,
     units TEXT NOT NULL
 );
 
@@ -96,14 +97,14 @@ CREATE TABLE material (
 
 CREATE TABLE power_plant (
     site_id INTEGER PRIMARY KEY REFERENCES site(id),
-    energy_output NUMERIC(10, 2) NOT NULL, 
+    energy_output REAL NOT NULL, 
     energy_source TEXT NOT NULL,
     is_grid_connected BOOLEAN NOT NULL
 );
 
 CREATE TABLE road (
     site_id INTEGER PRIMARY KEY REFERENCES site(id),
-    length NUMERIC(10, 2) NOT NULL, 
+    length REAL NOT NULL, 
     lanes INTEGER NOT NULL,
     surface TEXT NOT NULL
 );
@@ -112,27 +113,27 @@ CREATE TABLE housing (
     site_id INTEGER PRIMARY KEY REFERENCES site(id),
     number_of_floors INTEGER NOT NULL,
     number_of_entrances INTEGER NOT NULL,
-    type TEXT NOT NULL,
+    housing_type TEXT NOT NULL,
     energy_efficiency TEXT NOT NULL
 );
 
 CREATE TABLE bridge (
     site_id INTEGER PRIMARY KEY REFERENCES site(id),
-    length NUMERIC(10, 2) NOT NULL, 
+    length REAL NOT NULL, 
     road_material TEXT NOT NULL,
-    max_load NUMERIC(10, 2) NOT NULL 
+    max_load REAL NOT NULL 
 );
 
 CREATE TABLE park (
     site_id INTEGER PRIMARY KEY REFERENCES site(id),
-    area NUMERIC(10, 2) NOT NULL, 
+    area REAL NOT NULL, 
     has_playground BOOLEAN NOT NULL,
     has_lighting BOOLEAN NOT NULL
 );
 
-CREATE TABLE electrirican (
+CREATE TABLE electrician (
     id INTEGER PRIMARY KEY REFERENCES worker(id),
-    voltage_specializaition TEXT NOT NULL
+    voltage_specialization TEXT NOT NULL
 );
 
 CREATE TABLE plumber (
@@ -197,13 +198,16 @@ CREATE TABLE equipment_allocation (
     amount INTEGER NOT NULL CHECK (amount > 0),
     period_start DATE NOT NULL,
     period_end DATE NOT NULL,
-    PRIMARY KEY (equipment_id, department_id, site_id, period_start)
+    PRIMARY KEY (equipment_id, department_id, period_start)
 );
 
 CREATE TABLE expenditure (
     task_id INTEGER NOT NULL REFERENCES task(id),
     material_id INTEGER NOT NULL REFERENCES material(id),
-    expected_amount NUMERIC(10, 2) NOT NULL,
-    actuial_amount NUMERIC(10, 2),
+    expected_amount REAL NOT NULL,
+    actual_amount REAL,
     PRIMARY KEY (task_id, material_id)
 );
+
+ALTER TABLE technical_personnel 
+ADD COLUMN area_id INTEGER REFERENCES area(id);

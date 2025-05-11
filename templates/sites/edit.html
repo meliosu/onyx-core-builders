@@ -1,0 +1,99 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Edit Site{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Edit Site: {{ name }}</h2>
+    </div>
+
+    <form hx-put="/api/sites/{{ id }}" 
+          hx-target="#notification-container"
+          class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Site Name <span class="text-error">*</span></label>
+                <input type="text" id="name" name="name" required value="{{ name }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Site Type <span class="text-error">*</span></label>
+                <select id="type" name="type" required
+                        hx-get="/api/sites/type-fields"
+                        hx-target="#type-specific-fields"
+                        hx-trigger="change"
+                        class="px-3 py-2 border rounded w-full">
+                    <option value="powerplant" {% if type_ == SiteType::PowerPlant %}selected{% endif %}>Power Plant</option>
+                    <option value="road" {% if type_ == SiteType::Road %}selected{% endif %}>Road</option>
+                    <option value="housing" {% if type_ == SiteType::Housing %}selected{% endif %}>Housing</option>
+                    <option value="bridge" {% if type_ == SiteType::Bridge %}selected{% endif %}>Bridge</option>
+                    <option value="park" {% if type_ == SiteType::Park %}selected{% endif %}>Park</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="area_id" class="block text-sm font-medium text-gray-700 mb-1">Area <span class="text-error">*</span></label>
+                <select id="area_id" name="area_id" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/areas?selected_id={{ area_id }}" 
+                       hx-trigger="load"
+                       hx-target="#area_id">
+                    <option value="">Select an area</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
+            </div>
+            
+            <div>
+                <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client <span class="text-error">*</span></label>
+                <select id="client_id" name="client_id" required
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/clients?selected_id={{ client_id }}" 
+                       hx-trigger="load"
+                       hx-target="#client_id">
+                    <option value="">Select a client</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
+            </div>
+            
+            <div>
+                <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location <span class="text-error">*</span></label>
+                <input type="text" id="location" name="location" required value="{{ location.x}}{{ ","}}{{ location.y }}" 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            
+            <div>
+                <label for="risk_level" class="block text-sm font-medium text-gray-700 mb-1">Risk Level <span class="text-error">*</span></label>
+                <select id="risk_level" name="risk_level" required class="px-3 py-2 border rounded w-full">
+                    <option value="low" {% if risk_level == RiskLevel::Low %}selected{% endif %}>Low</option>
+                    <option value="medium" {% if risk_level == RiskLevel::Medium %}selected{% endif %}>Medium</option>
+                    <option value="high" {% if risk_level == RiskLevel::High %}selected{% endif %}>High</option>
+                </select>
+            </div>
+            
+            <div class="col-span-2">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea id="description" name="description" rows="3" 
+                          class="px-3 py-2 border rounded w-full">{% if let Some(desc) = description %}{{ desc }}{% endif %}</textarea>
+            </div>
+        </div>
+        
+        <!-- Type-specific fields -->
+        <div id="type-specific-fields" class="border-t pt-6 mt-6"
+             hx-get="/api/sites/type-fields?type={{ type_ | lowercase }}"
+             hx-trigger="load" hx-target="this">
+            <div class="flex justify-center items-center h-10">
+                <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-custom-secondary"></div>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4 pt-4 border-t">
+            <a href="/sites/{{ id }}" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">Cancel</a>
+            <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

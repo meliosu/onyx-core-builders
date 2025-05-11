@@ -1,0 +1,120 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Create New Site{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Create New Site</h2>
+    </div>
+
+    <form hx-post="/api/sites" 
+          hx-target="#notification-container"
+          class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Site Name <span class="text-error">*</span></label>
+                <input type="text" id="name" name="name" required 
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Site Type <span class="text-error">*</span></label>
+                <select id="type" name="type" required
+                        hx-get="/api/sites/type-fields"
+                        hx-target="#type-specific-fields"
+                        hx-trigger="change"
+                        class="px-3 py-2 border rounded w-full">
+                    <option value="">Select Type</option>
+                    <option value="powerplant">Power Plant</option>
+                    <option value="road">Road</option>
+                    <option value="housing">Housing</option>
+                    <option value="bridge">Bridge</option>
+                    <option value="park">Park</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="area_id" class="block text-sm font-medium text-gray-700 mb-1">Area <span class="text-error">*</span></label>
+                <select id="area_id" name="area_id" required 
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/areas" 
+                       hx-trigger="load"
+                       hx-target="#area_id">
+                    <option value="">Select an area</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
+            </div>
+            
+            <div>
+                <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client <span class="text-error">*</span></label>
+                <select id="client_id" name="client_id" required 
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/clients" 
+                       hx-trigger="load"
+                       hx-target="#client_id">
+                    <option value="">Select a client</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
+            </div>
+            
+            <div>
+                <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location <span class="text-error">*</span></label>
+                <input type="text" id="location" name="location" required placeholder="latitude,longitude" 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            
+            <div>
+                <label for="risk_level" class="block text-sm font-medium text-gray-700 mb-1">Risk Level <span class="text-error">*</span></label>
+                <select id="risk_level" name="risk_level" required class="px-3 py-2 border rounded w-full">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+            
+            <div class="col-span-2">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea id="description" name="description" rows="3" 
+                          class="px-3 py-2 border rounded w-full"></textarea>
+            </div>
+        </div>
+        
+        <!-- Type-specific fields will be loaded here -->
+        <div id="type-specific-fields" class="border-t pt-6 mt-6">
+            <div class="text-center text-gray-500">
+                Please select a site type to load specific fields
+            </div>
+        </div>
+
+        <!-- Add this hidden field to provide the tag for SiteFields enum -->
+        <input type="hidden" id="site_fields_type" name="site_fields_type" value="">
+
+        <div class="flex justify-end space-x-4 pt-4 border-t">
+            <a href="/sites" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">Cancel</a>
+            <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                <i class="fas fa-save mr-2"></i> Create Site
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the site type dropdown
+        const typeSelect = document.getElementById('type');
+        
+        // Function to update the hidden type field
+        function updateTypeField() {
+            const siteType = typeSelect.value;
+            document.getElementById('site_fields_type').value = siteType;
+        }
+        
+        // Update on page load and whenever the dropdown changes
+        typeSelect.addEventListener('change', updateTypeField);
+        
+        // Initial setup
+        updateTypeField();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% if materials.is_empty() %}
+    <option value="">No materials found</option>
+{% else %}
+    <option value="">Select material</option>
+    {% for material in materials %}
+        <option value="{{ material.id }}" {% if query.selected_id == Some(*material.id) %}selected{% endif %}>{{ material.name }} ({{ material.units }})</option>
+    {% endfor %}
+{% endif %}

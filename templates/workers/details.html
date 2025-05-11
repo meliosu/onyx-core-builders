@@ -1,0 +1,15 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Worker Details{% endblock %}
+
+{% block content %}
+<div id="worker-content"
+     hx-get="/api/workers/{{ id }}"
+     hx-trigger="load"
+     class="min-h-[500px]">
+    <!-- Worker details will be loaded here via HTMX -->
+    <div class="flex justify-center items-center h-[500px]">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-custom-secondary"></div>
+    </div>
+</div>
+{% endblock %}

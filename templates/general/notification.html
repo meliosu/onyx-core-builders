@@ -1,0 +1,37 @@
+<div id="notification" 
+     class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 p-4 rounded shadow-lg w-full max-w-md {% match result %}{% when NotificationResult::Success %}bg-success text-white{% when NotificationResult::Error %}bg-error text-white{% endmatch %}">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            {% match result %}
+                {% when NotificationResult::Success %}
+                    <i class="fas fa-check-circle mr-3 text-xl"></i>
+                {% when NotificationResult::Error %}
+                    <i class="fas fa-exclamation-circle mr-3 text-xl"></i>
+            {% endmatch %}
+            <p>
+                {% if let Some(msg) = message %}
+                    {{ msg }}
+                {% else %}
+                    {% match result %}
+                        {% when NotificationResult::Success %}
+                            Operation completed successfully
+                        {% when NotificationResult::Error %}
+                            An error occurred
+                    {% endmatch %}
+                {% endif %}
+            </p>
+        </div>
+        <button class="text-white hover:text-gray-200 ml-4" onclick="this.parentNode.parentNode.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    {% if let Some(url) = redirect %}
+        <div hx-get="{{ url }}" 
+             hx-trigger="load delay:1.2s" 
+             hx-target="body" 
+             hx-swap="outerHTML"
+             class="hidden">
+        </div>
+    {% endif %}
+</div>

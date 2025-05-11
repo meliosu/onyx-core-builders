@@ -1,0 +1,63 @@
+{% match profession %}
+    {% when Profession::Electrician %}
+        <h3 class="text-lg font-semibold mb-4">Electrician Specific Fields</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="voltage_specialization" class="block text-sm font-medium text-gray-700 mb-1">Voltage Specialization <span class="text-error">*</span></label>
+                <input type="text" id="voltage_specialization" name="voltage_specialization" required placeholder="E.g., Low Voltage, High Voltage" 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+        </div>
+        <input type="hidden" name="profession_fields_type" value="electrician">
+    
+    {% when Profession::Plumber %}
+        <h3 class="text-lg font-semibold mb-4">Plumber Specific Fields</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="pipe_specialization" class="block text-sm font-medium text-gray-700 mb-1">Pipe Specialization <span class="text-error">*</span></label>
+                <input type="text" id="pipe_specialization" name="pipe_specialization" required placeholder="E.g., PVC, Copper, Cast Iron" 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+        </div>
+        <input type="hidden" name="profession_fields_type" value="plumber">
+    
+    {% when Profession::Welder %}
+        <h3 class="text-lg font-semibold mb-4">Welder Specific Fields</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="welding_machine" class="block text-sm font-medium text-gray-700 mb-1">Welding Machine <span class="text-error">*</span></label>
+                <input type="text" id="welding_machine" name="welding_machine" required placeholder="E.g., MIG, TIG, Arc" 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+        </div>
+        <input type="hidden" name="profession_fields_type" value="welder">
+    
+    {% when Profession::Driver %}
+        <h3 class="text-lg font-semibold mb-4">Driver Specific Fields</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="vehicle_type" class="block text-sm font-medium text-gray-700 mb-1">Vehicle Type <span class="text-error">*</span></label>
+                <input type="text" id="vehicle_type" name="vehicle_type" required placeholder="E.g., Truck, Bulldozer, Crane" 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            <div>
+                <label for="number_of_accidents" class="block text-sm font-medium text-gray-700 mb-1">Number of Accidents <span class="text-error">*</span></label>
+                <input type="number" id="number_of_accidents" name="number_of_accidents" min="0" required value="0"
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+        </div>
+        <input type="hidden" name="profession_fields_type" value="driver">
+    
+    {% when Profession::Mason %}
+        <h3 class="text-lg font-semibold mb-4">Mason Specific Fields</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="flex items-center">
+                <input type="checkbox" id="hq_restoration_skills" name="hq_restoration_skills" value="true" 
+                       class="h-4 w-4 text-custom-secondary focus:ring-custom-secondary border-gray-300 rounded">
+                <label for="hq_restoration_skills" class="ml-2 block text-sm text-gray-900">
+                    Has HQ Restoration Skills
+                </label>
+            </div>
+        </div>
+        <input type="hidden" name="profession_fields_type" value="mason">
+{% endmatch %}

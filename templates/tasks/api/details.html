@@ -1,0 +1,261 @@
+<div class="bg-white shadow rounded-lg">
+    <!-- Task Info -->
+    <div class="p-6 border-b">
+        <div class="flex justify-between">
+            <div>
+                <h2 class="text-xl font-semibold mb-4">{{ name }}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Site:</span> 
+                            <a href="/sites/{{ site_id }}" class="text-custom-primary hover:underline">
+                                {{ site_name }}
+                            </a>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            {% if brigade_id.is_some() && brigade_name.is_some() %}
+                            <span class="font-medium">Brigade:</span> 
+                            <a href="/brigades/{{ brigade_id.as_ref().unwrap() }}" class="text-custom-primary hover:underline">
+                                {{ brigade_name.as_ref().unwrap() }}
+                            </a>
+                            {% else %}
+                                Unassigned
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Start Date:</span> 
+                            {{ period_start.format("%B %d, %Y") }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Expected End Date:</span> 
+                            {{ expected_period_end.format("%B %d, %Y") }}
+                        </p>
+                    </div>
+                    {% if let Some(actual_end) = actual_period_end %}
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Actual End Date:</span> 
+                            {{ actual_end.format("%B %d, %Y") }}
+                        </p>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Status:</span> 
+                            {% match status %}
+                                {% when TaskStatus::Planned %}
+                                    <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                                        Planned
+                                    </span>
+                                {% when TaskStatus::InProgress %}
+                                    <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-700/10">
+                                        In Progress
+                                    </span>
+                                {% when TaskStatus::Completed %}
+                                    <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10">
+                                        Completed
+                                    </span>
+                            {% endmatch %}
+                        </p>
+                    </div>
+                </div>
+                {% if let Some(desc) = description %}
+                <div class="mt-4">
+                    <p class="text-sm text-gray-600">
+                        <span class="font-medium">Description:</span><br>
+                        {{ desc }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="flex space-x-2 w-[320px]">
+                <a href="/tasks/{{ id }}/edit" 
+                   class="inline-flex items-center justify-center bg-custom-primary text-white px-4 py-2 rounded font-medium hover:bg-opacity-90 transition-colors w-1/2">
+                    <i class="fas fa-edit mr-2"></i>Edit
+                </a>
+                <button hx-delete="/api/tasks/{{ id }}"
+                        hx-confirm="Are you sure you want to delete this task? This action cannot be undone."
+                        hx-target="#notification-container"
+                        class="inline-flex items-center justify-center bg-error text-white px-4 py-2 rounded font-medium hover:bg-opacity-90 transition-colors w-1/2">
+                    <i class="fas fa-trash-alt mr-2"></i>Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs navigation -->
+    <div class="border-b">
+        <div class="flex">
+            <button class="px-6 py-3 border-r {% if tab == TaskTab::Materials %}text-custom-secondary border-b-2 border-b-custom-secondary -mb-px{% endif %}"
+                    hx-get="/api/tasks/{{ id }}"
+                    hx-target="#task-content"
+                    hx-vals='{"tab": "materials"}'
+                    hx-push-url="false">
+                <i class="fas fa-boxes mr-2"></i> Materials
+            </button>
+            <button class="px-6 py-3 {% if tab == TaskTab::Progress %}text-custom-secondary border-b-2 border-b-custom-secondary -mb-px{% endif %}"
+                    hx-get="/api/tasks/{{ id }}"
+                    hx-target="#task-content"
+                    hx-vals='{"tab": "progress"}'
+                    hx-push-url="false">
+                <i class="fas fa-tasks mr-2"></i> Progress
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab content -->
+    <div class="p-6">
+        {% match tab %}
+            {% when TaskTab::Materials %}
+                <div id="materials-content"
+                     hx-get="/api/tasks/{{ id }}/materials"
+                     hx-trigger="load"
+                     hx-vals='{"page_number": 1, "page_size": 10}'>
+                    <div class="flex justify-center items-center h-40">
+                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-custom-secondary"></div>
+                    </div>
+                </div>
+            {% when TaskTab::Progress %}
+                <div class="bg-white p-6 rounded-lg border">
+                    <h3 class="text-lg font-semibold mb-4">Task Progress</h3>
+                    
+                    {% match status %}
+                        {% when TaskStatus::Planned %}
+                            <div class="mb-6">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-600">This task is planned but has not started yet.</p>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
+                                        hx-put="/api/tasks/{{ id }}"
+                                        hx-target="#task-content"
+                                        hx-vals='{"status": "in_progress"}'>
+                                    <i class="fas fa-play mr-2"></i> Start Task
+                                </button>
+                            </div>
+                        {% when TaskStatus::InProgress %}
+                            <div class="mb-6">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 50%"></div>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-600">This task is in progress.</p>
+                            </div>
+
+                            <form hx-put="/api/tasks/{{ id }}/complete"
+                                  hx-target="#task-content"
+                                  class="space-y-4">
+                                <div>
+                                    <label for="actual_period_end" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Completion Date <span class="text-error">*</span>
+                                    </label>
+                                    <input type="date" id="actual_period_end" name="actual_period_end" required
+                                           class="px-3 py-2 border rounded w-full md:w-64">
+                                </div>
+                                <div class="flex justify-end">
+                                    <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                                        <i class="fas fa-check-circle mr-2"></i> Complete Task
+                                    </button>
+                                </div>
+                            </form>
+                        {% when TaskStatus::Completed %}
+                            <div class="mb-6">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-green-500 h-2.5 rounded-full" style="width: 100%"></div>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-600">
+                                    This task was completed on {{ actual_period_end.unwrap().format("%B %d, %Y") }}.
+                                    {% if actual_period_end.unwrap() > expected_period_end %}
+                                        <span class="text-red-500">
+                                            ({{ (actual_period_end.unwrap().signed_duration_since(*expected_period_end).num_days()) }} days late)
+                                        </span>
+                                    {% else %}
+                                        <span class="text-green-500">
+                                            (Completed on time)
+                                        </span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                    {% endmatch %}
+                </div>
+        {% endmatch %}
+    </div>
+</div>
+
+<!-- Material Addition Modal -->
+<div id="add-material-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Add Material</h3>
+            <button onclick="document.getElementById('add-material-modal').classList.add('hidden')" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form hx-post="/api/tasks/{{ id }}/materials" 
+              hx-target="#materials-content"
+              hx-on::after-request="document.getElementById('add-material-modal').classList.add('hidden')"
+              class="space-y-4">
+              
+            <div>
+                <label for="material_id" class="block text-sm font-medium text-gray-700 mb-1">Material <span class="text-error">*</span></label>
+                <div class="flex gap-2">
+                    <input type="hidden" id="material_id" name="material_id" required>
+                    <input type="text" id="material_display" readonly placeholder="Select material" 
+                           class="px-3 py-2 border rounded w-full bg-gray-50 cursor-pointer">
+                    <button type="button" 
+                            hx-get="/api/selectors/materials" 
+                            hx-target="#material-selector-modal"
+                            class="bg-custom-primary text-white px-4 py-2 rounded">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+              
+            <div>
+                <label for="expected_amount" class="block text-sm font-medium text-gray-700 mb-1">Expected Amount <span class="text-error">*</span></label>
+                <input type="number" id="expected_amount" name="expected_amount" step="0.01" min="0.01" required
+                      class="px-3 py-2 border rounded w-full">
+            </div>
+              
+            <div class="flex justify-end space-x-2 pt-4 border-t">
+                <button type="button" 
+                        onclick="document.getElementById('add-material-modal').classList.add('hidden')"
+                        class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                    <i class="fas fa-save mr-2"></i> Add
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Material selector modal -->
+<div id="material-selector-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <!-- Material selector will be loaded here -->
+</div>
+
+<!-- Notification container -->
+<div id="notification-container"></div>
+
+<script>
+function selectMaterial(id, name) {
+    document.getElementById('material_id').value = id;
+    document.getElementById('material_display').value = name;
+    document.getElementById('material-selector-modal').classList.add('hidden');
+}
+
+function showAddMaterialModal() {
+    document.getElementById('add-material-modal').classList.remove('hidden');
+}
+</script>

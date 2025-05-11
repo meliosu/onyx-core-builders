@@ -1,0 +1,16 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Department Details{% endblock %}
+
+{% block content %}
+<div id="department-content"
+     hx-get="/api/departments/{{ id }}"
+     hx-trigger="load"
+     hx-vals='{"tab": "areas"}'
+     class="min-h-[500px]">
+    <!-- Department details will be loaded here via HTMX -->
+    <div class="flex justify-center items-center h-[500px]">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-custom-secondary"></div>
+    </div>
+</div>
+{% endblock %}

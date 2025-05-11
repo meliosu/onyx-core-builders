@@ -1,0 +1,188 @@
+<!-- Filter form -->
+<div class="mb-6 bg-gray-50 p-4 rounded-lg border">
+    <form class="space-y-4" hx-get="/api/brigades/{{ id }}/tasks" hx-target="#tasks-content" hx-push-url="false">
+        <input type="hidden" name="page_number" value="1">
+        <input type="hidden" name="page_size" value="{{ pagination.page_size }}">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Task Name</label>
+                <input type="text" id="name" name="name" value="{{ filters.name.clone().unwrap_or_default() }}" 
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date (from)</label>
+                <input type="date" id="start_date" name="start_date" {% if let Some(start_date) = filters.start_date %}value="{{ start_date }}{% endif %}" 
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date (until)</label>
+                <input type="date" id="end_date" name="end_date" {% if let Some(end_date) = filters.end_date %}value="{{ end_date }}{% endif %}" 
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+        </div>
+        
+        <div class="flex justify-end space-x-2">
+            <button type="submit" class="bg-custom-secondary text-custom-primary px-3 py-2 rounded font-medium hover:bg-opacity-90">
+                <i class="fas fa-search mr-2"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+{% if tasks.is_empty() %}
+<div class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+    <i class="fas fa-clipboard-list text-4xl mb-3"></i>
+    <p>No task history found for this brigade{% if filters.name.is_some() || filters.start_date.is_some() || filters.end_date.is_some() %} with the selected filters{% endif %}.</p>
+</div>
+{% else %}
+<div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-300">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                    Task Name
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Site
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Start Date
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    End Date
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Status
+                </th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <span class="sr-only">Actions</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+            {% for task in tasks %}
+            <tr class="hover:bg-gray-50">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
+                    {{ task.name }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <a href="/sites/{{ task.site_id }}" class="text-custom-primary hover:underline">
+                        {{ task.site_name }}
+                    </a>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {{ task.period_start.format("%Y-%m-%d") }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {% if let Some(end) = task.period_end %}
+                        {{ end.format("%Y-%m-%d") }}
+                    {% else %}
+                        <span class="text-gray-400">In Progress</span>
+                    {% endif %}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    {% match task.status.as_str() %}
+                        {% when "planned" %}
+                            <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                                Planned
+                            </span>
+                        {% when "in_progress" %}
+                            <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-700/10">
+                                In Progress
+                            </span>
+                        {% when "completed" %}
+                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-700/10">
+                                Completed
+                            </span>
+                        {% when _ %}
+                            {{ task.status }}
+                    {% endmatch %}
+                </td>
+                <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
+                    <a href="/tasks/{{ task.id }}" class="text-custom-primary hover:text-custom-secondary">
+                        <i class="fas fa-eye mr-1"></i> View
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+    <div class="flex flex-1 justify-between sm:hidden">
+        {% if pagination.page_number > 1 %}
+        <button
+            hx-get="/api/brigades/{{ id }}/tasks"
+            hx-target="#tasks-content"
+            hx-vals='{"page_number": {{ pagination.page_number - 1 }}, "page_size": {{ pagination.page_size }}, 
+                      "name": "{{ filters.name.clone().unwrap_or_default() }}", 
+                      "start_date": "{{ filters.start_date.unwrap_or_default() }}", 
+                      "end_date": "{{ filters.end_date.unwrap_or_default() }}"}'
+            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+            Previous
+        </button>
+        {% endif %}
+        
+        <button
+            hx-get="/api/brigades/{{ id }}/tasks"
+            hx-target="#tasks-content"
+            hx-vals='{"page_number": {{ pagination.page_number + 1 }}, "page_size": {{ pagination.page_size }}, 
+                      "name": "{{ filters.name.clone().unwrap_or_default() }}", 
+                      "start_date": "{% if let Some(start_date) = filters.start_date %}{{ start_date }}{% endif %}", 
+                      "end_date": "{% if let Some(end_date) = filters.end_date %}{{ end_date }}{% endif %}"}'
+            class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+            Next
+        </button>
+    </div>
+    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm text-gray-700">
+                Showing page <span class="font-medium">{{ pagination.page_number }}</span>
+            </p>
+        </div>
+        <div>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                {% if pagination.page_number > 1 %}
+                <button
+                    hx-get="/api/brigades/{{ id }}/tasks"
+                    hx-target="#tasks-content"
+                    hx-vals='{"page_number": {{ pagination.page_number - 1 }}, "page_size": {{ pagination.page_size }}, 
+                              "name": "{{ filters.name.clone().unwrap_or_default() }}", 
+                              "start_date": "{% if let Some(start_date) = filters.start_date %}{{ start_date }}{% endif %}", 
+                              "end_date": "{% if let Some(end_date) = filters.end_date %}{{ end_date }}{% endif %}"}'
+                    class="relative inline-flex items-center rounded-l-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                >
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                {% endif %}
+                
+                <!-- We show a simpler pagination here since we don't have query_info -->
+                <span
+                    class="relative z-10 inline-flex items-center bg-custom-primary text-white px-4 py-2 text-sm font-semibold focus:z-20"
+                >
+                    {{ pagination.page_number }}
+                </span>
+                
+                <button
+                    hx-get="/api/brigades/{{ id }}/tasks"
+                    hx-target="#tasks-content"
+                    hx-vals='{"page_number": {{ pagination.page_number + 1 }}, "page_size": {{ pagination.page_size }}, 
+                              "name": "{{ filters.name.clone().unwrap_or_default() }}", 
+                              "start_date": "{% if let Some(start_date) = filters.start_date %}{{ start_date }}{% endif %}", 
+                              "end_date": "{% if let Some(end_date) = filters.end_date %}{{ end_date }}{% endif %}"}'
+                    class="relative inline-flex items-center rounded-r-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                >
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endif %}

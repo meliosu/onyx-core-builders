@@ -1,0 +1,8 @@
+{% if workers.is_empty() %}
+    <option value="">No workers found</option>
+{% else %}
+    <option value="">Select worker</option>
+    {% for worker in workers %}
+        <option value="{{ worker.id }}" {% if query.selected_id == Some(*worker.id) %}selected{% endif %}>{{ worker.name }}</option>
+    {% endfor %}
+{% endif %}

@@ -1,0 +1,8 @@
+{% if brigades.is_empty() %}
+    <option value="">No brigades found</option>
+{% else %}
+    <option value="">Select brigadier</option>
+    {% for brigade in brigades %}
+        <option value="{{ brigade.id }}" {% if query.selected_id == Some(*brigade.id) %}selected{% endif %}> {{ brigade.brigadier_name }}</option>
+    {% endfor %}
+{% endif %}

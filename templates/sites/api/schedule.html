@@ -1,0 +1,198 @@
+<div class="mb-4 flex justify-between items-center">
+    <h3 class="text-lg font-semibold">Construction Schedule</h3>
+    <a href="/tasks/new?site_id={{ id }}" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90 text-sm">
+        <i class="fas fa-plus mr-2"></i> Add Task
+    </a>
+</div>
+
+{% if tasks.is_empty() %}
+<div class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+    <i class="fas fa-calendar-alt text-4xl mb-3"></i>
+    <p>No tasks found for this site.</p>
+    <p class="mt-2">
+        <a href="/tasks/new?site_id={{ id }}" class="text-custom-secondary hover:underline">
+            Add a new task
+        </a>
+    </p>
+</div>
+{% else %}
+<div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-300">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                    Task
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Brigadier
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Start Date
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Expected End
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Actual End
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Delay (days)
+                </th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                    Status
+                </th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <span class="sr-only">Actions</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+            {% for task in tasks %}
+            <tr class="hover:bg-gray-50">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
+                    {{ task.name }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {% if let Some(brigadier_name) = task.brigadier_name %}
+                        {% if let Some(brigade_id) = task.brigade_id %}
+                            <a href="/brigades/{{ brigade_id }}" class="text-custom-primary hover:underline">{{ brigadier_name }}</a>
+                        {% else %}
+                            {{ brigadier_name }}
+                        {% endif %}
+                    {% else %}
+                        <span class="text-gray-400">Not assigned</span>
+                    {% endif %}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {{ task.period_start.format("%Y-%m-%d") }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {{ task.expected_period_end.format("%Y-%m-%d") }}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    {% if let Some(actual_end) = task.actual_period_end %}
+                        {{ actual_end.format("%Y-%m-%d") }}
+                    {% else %}
+                        <span class="text-gray-400">Not completed</span>
+                    {% endif %}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    {% if let Some(delay) = task.delay %}
+                        {% if *delay > 0 %}
+                            <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                                {{ delay }} days
+                            </span>
+                        {% elif *delay < 0 %}
+                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                {{ delay * -1 }} days early
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">
+                                On time
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        {% if task.actual_period_end.is_some() %}
+                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">
+                                On time
+                            </span>
+                        {% else %}
+                            <span class="text-gray-400">-</span>
+                        {% endif %}
+                    {% endif %}
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                    {% match task.status.as_str() %}
+                        {% when "planned" %}
+                            <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-800 ring-1 ring-inset ring-blue-600/20">
+                                Planned
+                            </span>
+                        {% when "in_progress" %}
+                            <span class="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
+                                In Progress
+                            </span>
+                        {% when "completed" %}
+                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-800 ring-1 ring-inset ring-green-600/20">
+                                Completed
+                            </span>
+                        {% when _ %}
+                            {{ task.status }}
+                    {% endmatch %}
+                </td>
+                <td class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium">
+                    <div class="flex justify-end space-x-2">
+                        <a href="/tasks/{{ task.id }}" class="text-custom-primary hover:text-custom-secondary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="/tasks/{{ task.id }}/edit" class="text-custom-primary hover:text-custom-secondary">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4">
+    <div class="flex flex-1 justify-between sm:hidden">
+        {% if pagination.page_number > 1 %}
+        <button
+            hx-get="/api/sites/{{ id }}/schedule"
+            hx-target="#schedule-content"
+            hx-vals='{"page_number": {{ pagination.page_number - 1 }}, "page_size": {{ pagination.page_size }}}'
+            class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+            Previous
+        </button>
+        {% endif %}
+        
+        <button
+            hx-get="/api/sites/{{ id }}/schedule"
+            hx-target="#schedule-content"
+            hx-vals='{"page_number": {{ pagination.page_number + 1 }}, "page_size": {{ pagination.page_size }}}'
+            class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        >
+            Next
+        </button>
+    </div>
+    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <div>
+            <p class="text-sm text-gray-700">
+                Showing page <span class="font-medium">{{ pagination.page_number }}</span>
+            </p>
+        </div>
+        <div>
+            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                {% if pagination.page_number > 1 %}
+                <button
+                    hx-get="/api/sites/{{ id }}/schedule"
+                    hx-target="#schedule-content"
+                    hx-vals='{"page_number": {{ pagination.page_number - 1 }}, "page_size": {{ pagination.page_size }}}'
+                    class="relative inline-flex items-center rounded-l-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                >
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                {% endif %}
+                
+                <span
+                    class="relative z-10 inline-flex items-center bg-custom-primary text-white px-4 py-2 text-sm font-semibold focus:z-20"
+                >
+                    {{ pagination.page_number }}
+                </span>
+                
+                <button
+                    hx-get="/api/sites/{{ id }}/schedule"
+                    hx-target="#schedule-content"
+                    hx-vals='{"page_number": {{ pagination.page_number + 1 }}, "page_size": {{ pagination.page_size }}}'
+                    class="relative inline-flex items-center rounded-r-md bg-white px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                >
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endif %}

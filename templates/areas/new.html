@@ -1,0 +1,52 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Create New Area{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Create New Area</h2>
+    </div>
+
+    <form hx-post="/api/areas" 
+          hx-target="#notification-container"
+          class="space-y-6">
+        <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Area Name <span class="text-error">*</span></label>
+            <input type="text" id="name" name="name" required 
+                   class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+        </div>
+
+        <div>
+            <label for="department_id" class="block text-sm font-medium text-gray-700 mb-1">Department <span class="text-error">*</span></label>
+            <select id="department_id" name="department_id" required
+                    class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                    hx-get="/api/selectors/departments"
+                    hx-trigger="load"
+                    hx-target="#department_id">
+                <option value="">Select a department</option>
+                <!-- Options will be loaded via HTMX -->
+            </select>
+        </div>
+
+        <div>
+            <label for="supervisor_id" class="block text-sm font-medium text-gray-700 mb-1">Supervisor</label>
+            <select id="supervisor_id" name="supervisor_id"
+                    class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                    hx-get="/api/selectors/technical-personnel"
+                    hx-trigger="load"
+                    hx-target="#supervisor_id">
+                <option value="">Select a supervisor</option>
+                <!-- Options will be loaded via HTMX -->
+            </select>
+        </div>
+
+        <div class="flex justify-end space-x-4 pt-4 border-t">
+            <a href="/areas" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">Cancel</a>
+            <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                <i class="fas fa-save mr-2"></i> Create Area
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% if areas.is_empty() %}
+    <option value="">No areas found</option>
+{% else %}
+    <option value="">Select area</option>
+    {% for area in areas %}
+        <option value="{{ area.id }}" {% if query.selected_id == Some(*area.id) %}selected{% endif %}>{{ area.name }}</option>
+    {% endfor %}
+{% endif %}

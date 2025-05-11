@@ -1,0 +1,123 @@
+{% match type_ %}
+    {% when SiteType::PowerPlant %}
+        <h3 class="text-lg font-semibold mb-4">Power Plant Specific Fields</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="energy_output" class="block text-sm font-medium text-gray-700 mb-1">Energy Output (MW) <span class="text-error">*</span></label>
+                <input type="number" id="energy_output" name="energy_output" step="0.01" required 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            <div>
+                <label for="energy_source" class="block text-sm font-medium text-gray-700 mb-1">Energy Source <span class="text-error">*</span></label>
+                <input type="text" id="energy_source" name="energy_source" required 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" id="is_grid_connected" name="is_grid_connected" 
+                       class="h-4 w-4 text-custom-secondary focus:ring-custom-secondary border-gray-300 rounded">
+                <label for="is_grid_connected" class="ml-2 block text-sm text-gray-900">Connected to Grid</label>
+            </div>
+        </div>
+    {% when SiteType::Road %}
+        <h3 class="text-lg font-semibold mb-4">Road Specific Fields</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label for="length" class="block text-sm font-medium text-gray-700 mb-1">Length (meters) <span class="text-error">*</span></label>
+                <input type="number" id="length" name="length" step="0.01" required 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            <div>
+                <label for="lanes" class="block text-sm font-medium text-gray-700 mb-1">Number of Lanes <span class="text-error">*</span></label>
+                <input type="number" id="lanes" name="lanes" min="1" required 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            <div>
+                <label for="surface" class="block text-sm font-medium text-gray-700 mb-1">Surface Type <span class="text-error">*</span></label>
+                <select id="surface" name="surface" required class="px-3 py-2 border rounded w-full">
+                    <option value="">Select Surface</option>
+                    <option value="asphalt">Asphalt</option>
+                    <option value="concrete">Concrete</option>
+                    <option value="gravel">Gravel</option>
+                    <option value="dirt">Dirt</option>
+                    <option value="cobblestone">Cobblestone</option>
+                </select>
+            </div>
+        </div>
+    {% when SiteType::Housing %}
+        <h3 class="text-lg font-semibold mb-4">Housing Specific Fields</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="number_of_floors" class="block text-sm font-medium text-gray-700 mb-1">Number of Floors <span class="text-error">*</span></label>
+                <input type="number" id="number_of_floors" name="number_of_floors" min="1" required 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            <div>
+                <label for="number_of_entrances" class="block text-sm font-medium text-gray-700 mb-1">Number of Entrances <span class="text-error">*</span></label>
+                <input type="number" id="number_of_entrances" name="number_of_entrances" min="1" required 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            <div>
+                <label for="housing_type" class="block text-sm font-medium text-gray-700 mb-1">Housing Type <span class="text-error">*</span></label>
+                <select id="housing_type" name="housing_type" required class="px-3 py-2 border rounded w-full">
+                    <option value="">Select Type</option>
+                    <option value="apartment">Apartment</option>
+                    <option value="residential">Residential</option>
+                    <option value="townhouse">Townhouse</option>
+                    <option value="villa">Villa</option>
+                    <option value="dormitory">Dormitory</option>
+                </select>
+            </div>
+            <div>
+                <label for="energy_efficiency" class="block text-sm font-medium text-gray-700 mb-1">Energy Efficiency <span class="text-error">*</span></label>
+                <select id="energy_efficiency" name="energy_efficiency" required class="px-3 py-2 border rounded w-full">
+                    <option value="">Select Efficiency</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+        </div>
+    {% when SiteType::Bridge %}
+        <h3 class="text-lg font-semibold mb-4">Bridge Specific Fields</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label for="length" class="block text-sm font-medium text-gray-700 mb-1">Length (meters) <span class="text-error">*</span></label>
+                <input type="number" id="length" name="length" step="0.01" required 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            <div>
+                <label for="road_material" class="block text-sm font-medium text-gray-700 mb-1">Road Material <span class="text-error">*</span></label>
+                <select id="road_material" name="road_material" required class="px-3 py-2 border rounded w-full">
+                    <option value="">Select Material</option>
+                    <option value="asphalt">Asphalt</option>
+                    <option value="concrete">Concrete</option>
+                    <option value="steel">Steel</option>
+                    <option value="wood">Wood</option>
+                </select>
+            </div>
+            <div>
+                <label for="max_load" class="block text-sm font-medium text-gray-700 mb-1">Maximum Load (tons) <span class="text-error">*</span></label>
+                <input type="number" id="max_load" name="max_load" step="0.1" required 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+        </div>
+    {% when SiteType::Park %}
+        <h3 class="text-lg font-semibold mb-4">Park Specific Fields</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label for="area" class="block text-sm font-medium text-gray-700 mb-1">Area (sq km) <span class="text-error">*</span></label>
+                <input type="number" id="area" name="area" step="0.01" required 
+                       class="px-3 py-2 border rounded w-full">
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" id="has_playground" name="has_playground" 
+                       class="h-4 w-4 text-custom-secondary focus:ring-custom-secondary border-gray-300 rounded">
+                <label for="has_playground" class="ml-2 block text-sm text-gray-900">Has Playground</label>
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" id="has_lighting" name="has_lighting" 
+                       class="h-4 w-4 text-custom-secondary focus:ring-custom-secondary border-gray-300 rounded">
+                <label for="has_lighting" class="ml-2 block text-sm text-gray-900">Has Lighting</label>
+            </div>
+        </div>
+{% endmatch %}

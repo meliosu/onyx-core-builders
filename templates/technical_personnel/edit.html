@@ -1,0 +1,128 @@
+{% extends "general/index.html" %}
+
+{% block page_title %}Edit Technical Personnel{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Edit Technical Personnel: {{ first_name }} {{ last_name }}</h2>
+    </div>
+
+    <form hx-put="/api/technical-personnel/{{ id }}" 
+          hx-target="#notification-container"
+          class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-error">*</span></label>
+                <input type="text" id="first_name" name="first_name" required value="{{ first_name }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name <span class="text-error">*</span></label>
+                <input type="text" id="last_name" name="last_name" required value="{{ last_name }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="middle_name" class="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
+                <input type="text" id="middle_name" name="middle_name" 
+                       {% if let Some(middle) = middle_name %}value="{{ middle }}"{% endif %}
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender <span class="text-error">*</span></label>
+                <select id="gender" name="gender" required class="px-3 py-2 border rounded w-full">
+                    <option value="male" {% if gender == Gender::Male %}selected{% endif %}>Male</option>
+                    <option value="female" {% if gender == Gender::Female %}selected{% endif %}>Female</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number <span class="text-error">*</span></label>
+                <input type="tel" id="phone_number" name="phone_number" required value="{{ phone_number }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="salary" class="block text-sm font-medium text-gray-700 mb-1">Salary <span class="text-error">*</span></label>
+                <input type="number" id="salary" name="salary" required min="0" value="{{ salary }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="qualification" class="block text-sm font-medium text-gray-700 mb-1">Qualification <span class="text-error">*</span></label>
+                <select id="qualification" name="qualification" required
+                        hx-get="/api/technical-personnel/qualification-fields"
+                        hx-target="#qualification-specific-fields"
+                        hx-trigger="change"
+                        class="px-3 py-2 border rounded w-full">
+                    <option value="technician" {% if qualification == Qualification::Technician %}selected{% endif %}>Technician</option>
+                    <option value="technologist" {% if qualification == Qualification::Technologist %}selected{% endif %}>Technologist</option>
+                    <option value="engineer" {% if qualification == Qualification::Engineer %}selected{% endif %}>Engineer</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                <select id="position" name="position" class="px-3 py-2 border rounded w-full">
+                    <option value="">None</option>
+                    <option value="master" {% if position == Some(Position::Master) %}selected{% endif %}>Master</option>
+                    <option value="foreman" {% if position == Some(Position::Foreman) %}selected{% endif %}>Foreman</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="education_level" class="block text-sm font-medium text-gray-700 mb-1">Education Level <span class="text-error">*</span></label>
+                <input type="text" id="education_level" name="education_level" required value="{{ education_level }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div>
+                <label for="software_skills" class="block text-sm font-medium text-gray-700 mb-1">Software Skills</label>
+                <input type="text" id="software_skills" name="software_skills" 
+                       value="{{ software_skills.join(",") }}"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary">
+            </div>
+            
+            <div class="flex items-center">
+                <input type="checkbox" id="is_project_manager" name="is_project_manager" value="true" 
+                       {% if is_project_manager %}checked{% endif %}
+                       class="h-4 w-4 text-custom-primary focus:ring-custom-primary border-gray-300 rounded">
+                <label for="is_project_manager" class="ml-2 block text-sm text-gray-900">
+                    Project Manager
+                </label>
+            </div>
+
+            <div>
+                <label for="area_id" class="block text-sm font-medium text-gray-700 mb-1">Area Assignment</label>
+                <select id="area_id" name="area_id"
+                       class="px-3 py-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-custom-secondary"
+                       hx-get="/api/selectors/areas"
+                       hx-trigger="load"
+                       hx-target="#area_id">
+                    <option value="">Not assigned to an area</option>
+                    <!-- Options will be loaded via HTMX -->
+                </select>
+            </div>
+        </div>
+        
+        <!-- Qualification-specific fields will be loaded here -->
+        <div id="qualification-specific-fields" class="border-t pt-6 mt-6"
+             hx-get="/api/technical-personnel/qualification-fields?qualification={{ qualification | lowercase }}"
+             hx-trigger="load" hx-target="this">
+            <div class="flex justify-center items-center h-[40px]">
+                <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-custom-secondary"></div>
+            </div>
+        </div>
+
+        <div class="flex justify-end space-x-4 pt-4 border-t">
+            <a href="/technical-personnel/{{ id }}" class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-100">Cancel</a>
+            <button type="submit" class="bg-custom-secondary text-custom-primary px-4 py-2 rounded font-medium hover:bg-opacity-90">
+                <i class="fas fa-save mr-2"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

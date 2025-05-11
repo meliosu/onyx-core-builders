@@ -1,0 +1,8 @@
+{% if personnel.is_empty() %}
+    <option value="">No technical personnel found</option>
+{% else %}
+    <option value="">Select technical personnel</option>
+    {% for person in personnel %}
+        <option value="{{ person.id }}" {% if query.selected_id == Some(*person.id) %}selected{% endif %}>{{ person.name }}</option>
+    {% endfor %}
+{% endif %}

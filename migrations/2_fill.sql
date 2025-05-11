@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Fill database with synthetic data
 
 -- Insert clients
@@ -14,17 +12,17 @@ INSERT INTO client (name, inn, address, contact_person_email, contact_person_nam
 ('Highway Authority', '8901234567', '505 Highway Blvd, Roadcity', 'info@highways.gov', 'Paul Road', FALSE);
 
 -- Insert employees (Technical personnel)
-INSERT INTO employee (id, class, first_name, last_name, middle_name, gender, photo, salary, phone_number) VALUES
-(1, 'technical_personnel', 'Dmitri', 'Petrov', 'Nikolaevich', 'male', 'photos/dmitri.jpg', 90000, '+7-900-123-4567'),
-(2, 'technical_personnel', 'Elena', 'Ivanova', NULL, 'female', 'photos/elena.jpg', 85000, '+7-900-234-5678'),
-(3, 'technical_personnel', 'Sergei', 'Smirnov', 'Aleksandrovich', 'male', NULL, 95000, '+7-900-345-6789'),
-(4, 'technical_personnel', 'Olga', 'Kuznetsova', 'Ivanovna', 'female', 'photos/olga.jpg', 88000, '+7-900-456-7890'),
-(5, 'technical_personnel', 'Mikhail', 'Volkov', 'Petrovich', 'male', 'photos/mikhail.jpg', 92000, '+7-900-567-8901'),
-(6, 'technical_personnel', 'Natalia', 'Sokolova', NULL, 'female', NULL, 87000, '+7-900-678-9012'),
-(7, 'technical_personnel', 'Vladimir', 'Novikov', 'Sergeevich', 'male', 'photos/vladimir.jpg', 94000, '+7-900-789-0123'),
-(8, 'technical_personnel', 'Tatiana', 'Morozova', 'Dmitrievna', 'female', 'photos/tatiana.jpg', 86000, '+7-900-890-1234'),
-(9, 'technical_personnel', 'Alexander', 'Lebedev', 'Mikhailovich', 'male', NULL, 91000, '+7-900-901-2345'),
-(10, 'technical_personnel', 'Ekaterina', 'Kozlova', 'Vladimirovna', 'female', 'photos/ekaterina.jpg', 89000, '+7-900-012-3456');
+INSERT INTO employee (class, first_name, last_name, middle_name, gender, photo, salary, phone_number) VALUES
+('technical_personnel', 'Dmitri', 'Petrov', 'Nikolaevich', 'male', NULL, 90000, '+7-900-123-4567'),
+('technical_personnel', 'Elena', 'Ivanova', NULL, 'female', NULL, 85000, '+7-900-234-5678'),
+('technical_personnel', 'Sergei', 'Smirnov', 'Aleksandrovich', 'male', NULL, 95000, '+7-900-345-6789'),
+('technical_personnel', 'Olga', 'Kuznetsova', 'Ivanovna', 'female', NULL, 88000, '+7-900-456-7890'),
+('technical_personnel', 'Mikhail', 'Volkov', 'Petrovich', 'male', NULL, 92000, '+7-900-567-8901'),
+('technical_personnel', 'Natalia', 'Sokolova', NULL, 'female', NULL, 87000, '+7-900-678-9012'),
+('technical_personnel', 'Vladimir', 'Novikov', 'Sergeevich', 'male', NULL, 94000, '+7-900-789-0123'),
+('technical_personnel', 'Tatiana', 'Morozova', 'Dmitrievna', 'female', NULL, 86000, '+7-900-890-1234'),
+('technical_personnel', 'Alexander', 'Lebedev', 'Mikhailovich', 'male', NULL, 91000, '+7-900-901-2345'),
+('technical_personnel', 'Ekaterina', 'Kozlova', 'Vladimirovna', 'female', NULL, 89000, '+7-900-012-3456');
 
 -- Insert technical personnel details
 INSERT INTO technical_personnel (id, qualification, position, education_level, software_skills, is_project_manager) VALUES
@@ -57,22 +55,22 @@ INSERT INTO engineer (id, pe_license_id) VALUES
 (9, 56789);
 
 -- Insert employees (Workers)
-INSERT INTO employee (id, class, first_name, last_name, middle_name, gender, photo, salary, phone_number) VALUES
-(11, 'worker', 'Ivan', 'Kuznetsov', 'Petrovich', 'male', 'photos/ivan.jpg', 50000, '+7-900-456-7890'),
-(12, 'worker', 'Anna', 'Sokolova', NULL, 'female', 'photos/anna.jpg', 48000, '+7-900-567-8901'),
-(13, 'worker', 'Maxim', 'Volkov', 'Sergeevich', 'male', NULL, 52000, '+7-900-678-9012'),
-(14, 'worker', 'Maria', 'Vasilyeva', 'Alexandrovna', 'female', 'photos/maria.jpg', 49000, '+7-900-789-0123'),
-(15, 'worker', 'Andrey', 'Fedorov', 'Ivanovich', 'male', 'photos/andrey.jpg', 51000, '+7-900-890-1234'),
-(16, 'worker', 'Sofia', 'Bogdanova', NULL, 'female', NULL, 48500, '+7-900-901-2345'),
-(17, 'worker', 'Nikolai', 'Semyonov', 'Dmitrievich', 'male', 'photos/nikolai.jpg', 53000, '+7-900-012-3456'),
-(18, 'worker', 'Anastasia', 'Petrova', 'Mikhailovna', 'female', 'photos/anastasia.jpg', 49500, '+7-900-123-4567'),
-(19, 'worker', 'Pavel', 'Mikhailov', 'Sergeevich', 'male', NULL, 52500, '+7-900-234-5678'),
-(20, 'worker', 'Yulia', 'Orlova', 'Andreevna', 'female', 'photos/yulia.jpg', 48000, '+7-900-345-6789'),
-(21, 'worker', 'Igor', 'Popov', 'Nikolaevich', 'male', 'photos/igor.jpg', 51500, '+7-900-456-7890'),
-(22, 'worker', 'Alina', 'Nikitina', NULL, 'female', NULL, 49000, '+7-900-567-8901'),
-(23, 'worker', 'Roman', 'Zaitsev', 'Vladimirovich', 'male', 'photos/roman.jpg', 54000, '+7-900-678-9012'),
-(24, 'worker', 'Ksenia', 'Volkova', 'Petrovna', 'female', 'photos/ksenia.jpg', 50000, '+7-900-789-0123'),
-(25, 'worker', 'Denis', 'Stepanov', 'Alexandrovich', 'male', NULL, 53500, '+7-900-890-1234');
+INSERT INTO employee (class, first_name, last_name, middle_name, gender, photo, salary, phone_number) VALUES
+('worker', 'Ivan', 'Kuznetsov', 'Petrovich', 'male', NULL, 50000, '+7-900-456-7890'),
+('worker', 'Anna', 'Sokolova', NULL, 'female', NULL, 48000, '+7-900-567-8901'),
+('worker', 'Maxim', 'Volkov', 'Sergeevich', 'male', NULL, 52000, '+7-900-678-9012'),
+('worker', 'Maria', 'Vasilyeva', 'Alexandrovna', 'female', NULL, 49000, '+7-900-789-0123'),
+('worker', 'Andrey', 'Fedorov', 'Ivanovich', 'male', NULL, 51000, '+7-900-890-1234'),
+('worker', 'Sofia', 'Bogdanova', NULL, 'female', NULL, 48500, '+7-900-901-2345'),
+('worker', 'Nikolai', 'Semyonov', 'Dmitrievich', 'male', NULL, 53000, '+7-900-012-3456'),
+('worker', 'Anastasia', 'Petrova', 'Mikhailovna', 'female', NULL, 49500, '+7-900-123-4567'),
+('worker', 'Pavel', 'Mikhailov', 'Sergeevich', 'male', NULL, 52500, '+7-900-234-5678'),
+('worker', 'Yulia', 'Orlova', 'Andreevna', 'female', NULL, 48000, '+7-900-345-6789'),
+('worker', 'Igor', 'Popov', 'Nikolaevich', 'male', NULL, 51500, '+7-900-456-7890'),
+('worker', 'Alina', 'Nikitina', NULL, 'female', NULL, 49000, '+7-900-567-8901'),
+('worker', 'Roman', 'Zaitsev', 'Vladimirovich', 'male', NULL, 54000, '+7-900-678-9012'),
+('worker', 'Ksenia', 'Volkova', 'Petrovna', 'female', NULL, 50000, '+7-900-789-0123'),
+('worker', 'Denis', 'Stepanov', 'Alexandrovich', 'male', NULL, 53500, '+7-900-890-1234');
 
 -- Insert worker details
 INSERT INTO worker (id, profession, union_name) VALUES
@@ -93,7 +91,7 @@ INSERT INTO worker (id, profession, union_name) VALUES
 (25, 'mason', NULL);
 
 -- Insert specialized worker details
-INSERT INTO electrirican (id, voltage_specializaition) VALUES
+INSERT INTO electrician (id, voltage_specialization) VALUES
 (11, 'High Voltage'),
 (16, 'Low Voltage'),
 (21, 'Industrial');
@@ -119,30 +117,42 @@ INSERT INTO mason (id, hq_restoration_skills) VALUES
 (25, TRUE);
 
 -- Insert departments
-INSERT INTO department (id, supervisor_id, name) VALUES
-(1, 1, 'Residential Construction'),
-(2, 5, 'Infrastructure Development'),
-(3, 7, 'Energy Systems'),
-(4, 10, 'Urban Planning');
+INSERT INTO department (supervisor_id, name) VALUES
+(1, 'Residential Construction'),
+(5, 'Infrastructure Development'),
+(7, 'Energy Systems'),
+(10, 'Urban Planning');
 
 -- Insert areas
-INSERT INTO area (id, department_id, supervisor_id, name) VALUES
-(1, 1, 2, 'North District Housing'),
-(2, 1, 3, 'South District Housing'),
-(3, 2, 4, 'Highway Development'),
-(4, 2, 6, 'Bridge Construction'),
-(5, 3, 8, 'Power Plant Development'),
-(6, 3, 9, 'Renewable Energy'),
-(7, 4, 3, 'Urban Parks'),
-(8, 4, 6, 'City Infrastructure');
+INSERT INTO area (department_id, supervisor_id, name) VALUES
+(1, 2, 'North District Housing'),
+(1, 3, 'South District Housing'),
+(2, 4, 'Highway Development'),
+(2, 6, 'Bridge Construction'),
+(3, 8, 'Power Plant Development'),
+(3, 9, 'Renewable Energy'),
+(4, 3, 'Urban Parks'),
+(4, 6, 'City Infrastructure');
+
+-- Update technical personnel with area assignments
+UPDATE technical_personnel SET area_id = 1 WHERE id = 1;
+UPDATE technical_personnel SET area_id = 1 WHERE id = 2;
+UPDATE technical_personnel SET area_id = 2 WHERE id = 3;
+UPDATE technical_personnel SET area_id = 3 WHERE id = 4;
+UPDATE technical_personnel SET area_id = 4 WHERE id = 5;
+UPDATE technical_personnel SET area_id = 3 WHERE id = 6;
+UPDATE technical_personnel SET area_id = 5 WHERE id = 7;
+UPDATE technical_personnel SET area_id = 6 WHERE id = 8;
+UPDATE technical_personnel SET area_id = 7 WHERE id = 9;
+UPDATE technical_personnel SET area_id = 8 WHERE id = 10;
 
 -- Insert brigades
-INSERT INTO brigade (id, brigadier_id) VALUES
-(1, 11),
-(2, 13),
-(3, 15),
-(4, 18),
-(5, 21);
+INSERT INTO brigade (brigadier_id) VALUES
+(11),
+(13),
+(15),
+(18),
+(21);
 
 -- Insert worker assignments to brigades
 INSERT INTO assignment (brigade_id, worker_id) VALUES
@@ -167,20 +177,20 @@ INSERT INTO assignment (brigade_id, worker_id) VALUES
 (5, 25);
 
 -- Insert sites
-INSERT INTO site (id, name, area_id, client_id, type, location, risk_level, description) VALUES
-(1, 'Green Valley Residences', 1, 6, 'housing', POINT(55.7558, 37.6173), 'low', 'Modern residential complex with 4 buildings'),
-(2, 'Sunset Heights Apartments', 2, 3, 'housing', POINT(55.7517, 37.6256), 'medium', 'Luxury apartment complex with amenities'),
-(3, 'City Bypass Highway', 3, 7, 'road', POINT(55.7439, 37.6317), 'medium', '15km bypass around the northern part of the city'),
-(4, 'River Cross Bridge', 4, 4, 'bridge', POINT(55.7522, 37.6156), 'high', 'Cable-stayed bridge across the main river'),
-(5, 'Solar Farm Alpha', 6, 2, 'power_plant', POINT(55.7553, 37.6215), 'medium', '50 MW solar power plant'),
-(6, 'Natural Gas Power Station', 5, 2, 'power_plant', POINT(55.7485, 37.6236), 'high', '200 MW gas-fired power station'),
-(7, 'Central City Park', 7, 5, 'park', POINT(55.7539, 37.6208), 'low', 'Urban park with recreational facilities'),
-(8, 'Highway 95 Extension', 3, 8, 'road', POINT(55.7578, 37.6196), 'medium', 'Extension of Highway 95 with 4 lanes'),
-(9, 'Riverside Apartments', 1, 6, 'housing', POINT(55.7456, 37.6184), 'low', 'Apartment complex near the river'),
-(10, 'Pedestrian Bridge', 4, 1, 'bridge', POINT(55.7612, 37.6236), 'medium', 'Pedestrian bridge connecting two districts');
+INSERT INTO site (name, area_id, client_id, type, location, risk_level, description) VALUES
+('Green Valley Residences', 1, 6, 'housing', POINT(55.7558, 37.6173), 'low', 'Modern residential complex with 4 buildings'),
+('Sunset Heights Apartments', 2, 3, 'housing', POINT(55.7517, 37.6256), 'medium', 'Luxury apartment complex with amenities'),
+('City Bypass Highway', 3, 7, 'road', POINT(55.7439, 37.6317), 'medium', '15km bypass around the northern part of the city'),
+('River Cross Bridge', 4, 4, 'bridge', POINT(55.7522, 37.6156), 'high', 'Cable-stayed bridge across the main river'),
+('Solar Farm Alpha', 6, 2, 'power_plant', POINT(55.7553, 37.6215), 'medium', '50 MW solar power plant'),
+('Natural Gas Power Station', 5, 2, 'power_plant', POINT(55.7485, 37.6236), 'high', '200 MW gas-fired power station'),
+('Central City Park', 7, 5, 'park', POINT(55.7539, 37.6208), 'low', 'Urban park with recreational facilities'),
+('Highway 95 Extension', 3, 8, 'road', POINT(55.7578, 37.6196), 'medium', 'Extension of Highway 95 with 4 lanes'),
+('Riverside Apartments', 1, 6, 'housing', POINT(55.7456, 37.6184), 'low', 'Apartment complex near the river'),
+('Pedestrian Bridge', 4, 1, 'bridge', POINT(55.7612, 37.6236), 'medium', 'Pedestrian bridge connecting two districts');
 
 -- Insert specific site details
-INSERT INTO housing (site_id, number_of_floors, number_of_entrances, type, energy_efficiency) VALUES
+INSERT INTO housing (site_id, number_of_floors, number_of_entrances, housing_type, energy_efficiency) VALUES
 (1, 12, 4, 'Apartment Complex', 'high'),
 (2, 18, 2, 'Luxury Condominiums', 'high'),
 (9, 8, 3, 'Standard Apartments', 'medium');
@@ -201,17 +211,17 @@ INSERT INTO park (site_id, area, has_playground, has_lighting) VALUES
 (7, 2.5, TRUE, TRUE);
 
 -- Insert equipment
-INSERT INTO equipment (id, name, amount, purchase_date, purchase_cost, fuel_type) VALUES
-(1, 'Tower Crane', 5, '2020-03-15', 1200000.00, NULL),
-(2, 'Excavator', 8, '2019-07-22', 450000.00, 'Diesel'),
-(3, 'Bulldozer', 6, '2021-01-10', 380000.00, 'Diesel'),
-(4, 'Concrete Mixer', 12, '2020-11-05', 95000.00, 'Electric'),
-(5, 'Dump Truck', 15, '2019-05-18', 250000.00, 'Diesel'),
-(6, 'Forklift', 10, '2021-08-30', 120000.00, 'Propane'),
-(7, 'Backhoe Loader', 7, '2020-02-12', 280000.00, 'Diesel'),
-(8, 'Scaffolding Set', 25, '2019-12-03', 45000.00, NULL),
-(9, 'Generator', 20, '2021-04-25', 35000.00, 'Diesel'),
-(10, 'Welding Machine', 15, '2020-09-17', 18000.00, 'Electric');
+INSERT INTO equipment (name, amount, purchase_date, purchase_cost, fuel_type) VALUES
+('Tower Crane', 5, '2020-03-15', 1200000.00, NULL),
+('Excavator', 8, '2019-07-22', 450000.00, 'diesel'),
+('Bulldozer', 6, '2021-01-10', 380000.00, 'diesel'),
+('Concrete Mixer', 12, '2020-11-05', 95000.00, 'electric'),
+('Dump Truck', 15, '2019-05-18', 250000.00, 'diesel'),
+('Forklift', 10, '2021-08-30', 120000.00, 'diesel'),
+('Backhoe Loader', 7, '2020-02-12', 280000.00, 'diesel'),
+('Scaffolding Set', 25, '2019-12-03', 45000.00, NULL),
+('Generator', 20, '2021-04-25', 35000.00, 'gasoline'),
+('Welding Machine', 15, '2020-09-17', 18000.00, 'electric');
 
 -- Insert equipment allocations
 INSERT INTO equipment_allocation (equipment_id, department_id, site_id, amount, period_start, period_end) VALUES
@@ -247,52 +257,52 @@ INSERT INTO equipment_allocation (equipment_id, department_id, amount, period_st
 (10, 4, 6, '2022-01-01', '2022-12-31');
 
 -- Insert materials
-INSERT INTO material (id, name, cost, units) VALUES
-(1, 'Concrete', 120.00, 'cubic meter'),
-(2, 'Steel Rebar', 950.00, 'ton'),
-(3, 'Bricks', 0.75, 'piece'),
-(4, 'Sand', 40.00, 'cubic meter'),
-(5, 'Gravel', 45.00, 'cubic meter'),
-(6, 'Wood Lumber', 600.00, 'cubic meter'),
-(7, 'Glass', 85.00, 'square meter'),
-(8, 'PVC Pipes', 12.50, 'meter'),
-(9, 'Copper Wire', 8.75, 'meter'),
-(10, 'Asphalt', 110.00, 'ton'),
-(11, 'Paint', 15.00, 'liter'),
-(12, 'Insulation', 18.50, 'square meter'),
-(13, 'Tiles', 25.00, 'square meter'),
-(14, 'Cement', 7.50, 'kilogram'),
-(15, 'Solar Panels', 250.00, 'piece');
+INSERT INTO material (name, cost, units) VALUES
+('Concrete', 120.00, 'cubic meter'),
+('Steel Rebar', 950.00, 'ton'),
+('Bricks', 0.75, 'piece'),
+('Sand', 40.00, 'cubic meter'),
+('Gravel', 45.00, 'cubic meter'),
+('Wood Lumber', 600.00, 'cubic meter'),
+('Glass', 85.00, 'square meter'),
+('PVC Pipes', 12.50, 'meter'),
+('Copper Wire', 8.75, 'meter'),
+('Asphalt', 110.00, 'ton'),
+('Paint', 15.00, 'liter'),
+('Insulation', 18.50, 'square meter'),
+('Tiles', 25.00, 'square meter'),
+('Cement', 7.50, 'kilogram'),
+('Solar Panels', 250.00, 'piece');
 
 -- Insert tasks
-INSERT INTO task (id, site_id, brigade_id, period_start, expected_period_end, actual_period_end, name, description) VALUES
+INSERT INTO task (site_id, brigade_id, period_start, expected_period_end, actual_period_end, name, description) VALUES
 -- Housing site tasks
-(1, 1, 1, '2022-01-15', '2022-03-30', '2022-04-05', 'Foundation Construction', 'Excavation and concrete foundation work'),
-(2, 1, 2, '2022-04-10', '2022-06-30', '2022-06-25', 'Structural Framework', 'Steel framework and concrete pouring'),
-(3, 1, 3, '2022-07-05', '2022-09-15', NULL, 'Interior Work', 'Plumbing, electrical, and interior finishing'),
-(4, 2, 4, '2022-02-20', '2022-05-10', '2022-05-20', 'Foundation Construction', 'Excavation and concrete foundation work'),
-(5, 2, 5, '2022-06-01', '2022-08-20', NULL, 'Structural Framework', 'Steel framework and concrete pouring'),
+(1, 1, '2022-01-15', '2022-03-30', '2022-04-05', 'Foundation Construction', 'Excavation and concrete foundation work'),
+(1, 2, '2022-04-10', '2022-06-30', '2022-06-25', 'Structural Framework', 'Steel framework and concrete pouring'),
+(1, 3, '2022-07-05', '2022-09-15', NULL, 'Interior Work', 'Plumbing, electrical, and interior finishing'),
+(2, 4, '2022-02-20', '2022-05-10', '2022-05-20', 'Foundation Construction', 'Excavation and concrete foundation work'),
+(2, 5, '2022-06-01', '2022-08-20', NULL, 'Structural Framework', 'Steel framework and concrete pouring'),
 -- Road site tasks
-(6, 3, 2, '2022-03-10', '2022-05-25', '2022-06-10', 'Ground Preparation', 'Clearing and grading work'),
-(7, 3, 3, '2022-06-15', '2022-08-30', NULL, 'Asphalt Laying', 'Asphalt paving for highway'),
+(3, 2, '2022-03-10', '2022-05-25', '2022-06-10', 'Ground Preparation', 'Clearing and grading work'),
+(3, 3, '2022-06-15', '2022-08-30', NULL, 'Asphalt Laying', 'Asphalt paving for highway'),
 -- Bridge site tasks
-(8, 4, 1, '2022-01-25', '2022-04-15', '2022-04-20', 'Foundation Work', 'Pier and abutment foundation construction'),
-(9, 4, 4, '2022-05-01', '2022-07-30', NULL, 'Steel Structure', 'Steel beam and cable installation'),
+(4, 1, '2022-01-25', '2022-04-15', '2022-04-20', 'Foundation Work', 'Pier and abutment foundation construction'),
+(4, 4, '2022-05-01', '2022-07-30', NULL, 'Steel Structure', 'Steel beam and cable installation'),
 -- Power plant site tasks
-(10, 5, 5, '2022-04-15', '2022-07-10', '2022-07-15', 'Solar Panel Installation', 'Installation of solar panel arrays'),
-(11, 6, 3, '2022-05-20', '2022-08-15', '2022-09-01', 'Generator Installation', 'Installation of gas turbine generators'),
+(5, 5, '2022-04-15', '2022-07-10', '2022-07-15', 'Solar Panel Installation', 'Installation of solar panel arrays'),
+(6, 3, '2022-05-20', '2022-08-15', '2022-09-01', 'Generator Installation', 'Installation of gas turbine generators'),
 -- Park site tasks
-(12, 7, 1, '2022-01-15', '2022-03-15', '2022-03-10', 'Land Preparation', 'Clearing and landscaping'),
-(13, 7, 5, '2022-03-20', '2022-05-30', '2022-06-05', 'Path Construction', 'Construction of walking paths and installations'),
+(7, 1, '2022-01-15', '2022-03-15', '2022-03-10', 'Land Preparation', 'Clearing and landscaping'),
+(7, 5, '2022-03-20', '2022-05-30', '2022-06-05', 'Path Construction', 'Construction of walking paths and installations'),
 -- More tasks
-(14, 8, 2, '2022-03-15', '2022-06-10', NULL, 'Road Bed Preparation', 'Ground preparation and drainage installation'),
-(15, 9, 4, '2022-02-20', '2022-05-15', '2022-05-30', 'Foundation Construction', 'Excavation and foundation work'),
-(16, 9, 1, '2022-06-05', '2022-09-20', NULL, 'Building Construction', 'Main structure construction'),
-(17, 10, 5, '2022-01-25', '2022-04-10', '2022-04-25', 'Foundation Work', 'Foundation construction for bridge supports'),
-(18, 10, 3, '2022-05-01', '2022-07-20', '2022-08-05', 'Bridge Structure', 'Main structure and surface construction');
+(8, 2, '2022-03-15', '2022-06-10', NULL, 'Road Bed Preparation', 'Ground preparation and drainage installation'),
+(9, 4, '2022-02-20', '2022-05-15', '2022-05-30', 'Foundation Construction', 'Excavation and foundation work'),
+(9, 1, '2022-06-05', '2022-09-20', NULL, 'Building Construction', 'Main structure construction'),
+(10, 5, '2022-01-25', '2022-04-10', '2022-04-25', 'Foundation Work', 'Foundation construction for bridge supports'),
+(10, 3, '2022-05-01', '2022-07-20', '2022-08-05', 'Bridge Structure', 'Main structure and surface construction');
 
 -- Insert material expenditures
-INSERT INTO expenditure (task_id, material_id, expected_amount, actuial_amount) VALUES
+INSERT INTO expenditure (task_id, material_id, expected_amount, actual_amount) VALUES
 -- Foundation Construction (Housing)
 (1, 1, 250.0, 275.5), -- Concrete
 (1, 2, 15.0, 16.2),   -- Steel Rebar
@@ -379,5 +389,3 @@ INSERT INTO expenditure (task_id, material_id, expected_amount, actuial_amount) 
 (18, 2, 25.0, 26.5),    -- Steel Rebar
 (18, 6, 15.0, 16.0),    -- Wood Lumber
 (18, 1, 65.0, 68.0);    -- Concrete
-
-COMMIT;
