@@ -72,6 +72,11 @@
         .bg-error {
             background-color: var(--color-error);
         }
+
+        .active-nav-item {
+            background-color: var(--color-gray-800);
+            border-left: 3px solid var(--color-secondary);
+        }
     </style>
 </head>
 
@@ -176,6 +181,26 @@
             </main>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get current path
+            const currentPath = window.location.pathname;
+            
+            // Find all sidebar navigation links
+            const navLinks = document.querySelectorAll('nav a');
+            
+            // Loop through links to find and highlight the matching one
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                
+                // Check if current path starts with this link path (to handle sub-paths)
+                if (currentPath === linkPath || 
+                    (linkPath !== '/' && currentPath.startsWith(linkPath))) {
+                    link.classList.add('active-nav-item');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
