@@ -791,7 +791,7 @@ async fn worker_add_handler(
     let template = NotificationTemplate {
         result: notification_result,
         message,
-        redirect: None,
+        redirect: Some(format!("/brigades/{id}?tab=workers"))
     };
 
     match template.render() {
