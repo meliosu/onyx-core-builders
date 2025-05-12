@@ -263,12 +263,21 @@ pub struct MaterialListItem {
     pub total_cost: f32,
 }
 
+#[derive(Serialize, Deserialize, Default)]
+pub struct EquipmentFilter {
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub start_date: Option<NaiveDate>,
+    #[serde(default, deserialize_with="empty_string_as_none")]
+    pub end_date: Option<NaiveDate>,
+}
+
 #[derive(Template, Serialize, Deserialize)]
 #[template(path = "sites/api/equipment.html")]
 pub struct SiteEquipmentTemplate {
     pub id: i32,
     pub equipment: Vec<EquipmentListItem>,
     pub pagination: Pagination,
+    pub filters: EquipmentFilter,  // Add filters to template
 }
 
 #[derive(Serialize, Deserialize, FromRow)]
@@ -295,6 +304,7 @@ pub struct BrigadeListItem {
     pub brigadier_name: Option<String>,
     pub worker_count: i64,
     pub current_task: Option<String>,
+    pub completed_tasks: Option<String>,
 }
 
 // Helper structs for database operations
@@ -1544,6 +1554,7 @@ async fn site_equipment_handler(
     State(db): State<Database>,
     Path(id): Path<i32>,
     Query(pagination): Query<Pagination>,
+    Query(filters): Query<EquipmentFilter>,  // Add filters parameter
 ) -> Html<String> {
     // Check if site exists
     let site_exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM site WHERE id = $1)")
@@ -1553,8 +1564,8 @@ async fn site_equipment_handler(
     
     match site_exists {
         Ok(true) => {
-            // Fetch equipment allocations for this site
-            let equipment_query = sqlx::query_as::<_, EquipmentListItem>(
+            // Build query with filters
+            let mut query_builder = sqlx::QueryBuilder::new(
                 "SELECT 
                     e.id, 
                     e.name, 
@@ -1563,23 +1574,70 @@ async fn site_equipment_handler(
                     ea.period_end
                 FROM equipment e
                 JOIN equipment_allocation ea ON e.id = ea.equipment_id
-                WHERE ea.site_id = $1
-                ORDER BY ea.period_start DESC
-                LIMIT $2 OFFSET $3"
-            )
-            .bind(id)
-            .bind(pagination.page_size as i32)
-            .bind((pagination.page_number as i32 - 1) * pagination.page_size as i32);
+                WHERE ea.site_id = "
+            );
             
-            let equipment = match equipment_query.fetch_all(&*db.pool).await {
+            query_builder.push_bind(id);
+            
+            // Add date range filters if provided
+            if let Some(start_date) = filters.start_date {
+                query_builder.push(" AND ea.period_end >= ");
+                query_builder.push_bind(start_date);
+            }
+            
+            if let Some(end_date) = filters.end_date {
+                query_builder.push(" AND ea.period_start <= ");
+                query_builder.push_bind(end_date);
+            }
+            
+            // Add ordering and pagination
+            query_builder.push(" ORDER BY ea.period_start DESC LIMIT ");
+            query_builder.push_bind(pagination.page_size as i32);
+            query_builder.push(" OFFSET ");
+            query_builder.push_bind((pagination.page_number as i32 - 1) * pagination.page_size as i32);
+            
+            // Execute query
+            let equipment = match query_builder.build_query_as::<EquipmentListItem>().fetch_all(&*db.pool).await {
                 Ok(equipment) => equipment,
                 Err(e) => return Html::from(format!("<p>Error fetching equipment: {}</p>", e)),
             };
             
+            // Count total filtered equipment allocations for pagination
+            let mut count_query_builder = sqlx::QueryBuilder::new(
+                "SELECT COUNT(*) 
+                 FROM equipment_allocation 
+                 WHERE site_id = "
+            );
+            
+            count_query_builder.push_bind(id);
+            
+            // Add the same filters to count query
+            if let Some(start_date) = filters.start_date {
+                count_query_builder.push(" AND period_end >= ");
+                count_query_builder.push_bind(start_date);
+            }
+            
+            if let Some(end_date) = filters.end_date {
+                count_query_builder.push(" AND period_start <= ");
+                count_query_builder.push_bind(end_date);
+            }
+            
+            let count = match count_query_builder.build_query_scalar::<i64>().fetch_one(&*db.pool).await {
+                Ok(count) => count,
+                Err(e) => return Html::from(format!("<p>Error counting equipment allocations: {}</p>", e)),
+            };
+            
+            // Calculate pagination info
+            let num_pages = (count as f64 / pagination.page_size as f64).ceil() as u32;
+            
             let template = SiteEquipmentTemplate {
                 id,
                 equipment,
-                pagination,
+                pagination: Pagination {
+                    page_number: pagination.page_number,
+                    page_size: pagination.page_size,
+                },
+                filters,  // Pass filters to template
             };
             
             match template.render() {
@@ -1622,7 +1680,10 @@ async fn site_brigades_handler(
                     (SELECT t.name 
                      FROM task t 
                      WHERE t.brigade_id = b.id AND t.site_id = $1 AND t.actual_period_end IS NULL
-                     LIMIT 1) as current_task
+                     LIMIT 1) as current_task,
+                    (SELECT STRING_AGG(CONCAT(t.id, ':', t.name), '|')
+                     FROM task t
+                     WHERE t.brigade_id = b.id AND t.site_id = $1 AND t.actual_period_end IS NOT NULL) as completed_tasks
                 FROM brigade b
                 JOIN task t ON b.id = t.brigade_id
                 WHERE t.site_id = $1
