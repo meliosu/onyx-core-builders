@@ -128,11 +128,11 @@ INSERT INTO area (department_id, supervisor_id, name) VALUES
 (1, 2, 'North District Housing'),
 (1, 3, 'South District Housing'),
 (2, 4, 'Highway Development'),
-(2, 6, 'Bridge Construction'),
-(3, 8, 'Power Plant Development'),
-(3, 9, 'Renewable Energy'),
-(4, 3, 'Urban Parks'),
-(4, 6, 'City Infrastructure');
+(2, 5, 'Bridge Construction'),
+(3, 7, 'Power Plant Development'),
+(3, 8, 'Renewable Energy'),
+(4, 9, 'Urban Parks'),
+(4, 10, 'City Infrastructure');
 
 -- Update technical personnel with area assignments
 UPDATE technical_personnel SET area_id = 1 WHERE id = 1;

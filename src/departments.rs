@@ -134,6 +134,8 @@ pub struct EquipmentListItem {
     pub id: i32,
     pub name: String,
     pub amount: u32,
+    pub period_start: String, // Added field
+    pub period_end: String,   // Added field
 }
 
 #[derive(Template, Serialize, Deserialize)]
@@ -610,6 +612,8 @@ struct DepartmentEquipmentRow {
     id: i32,
     name: String,
     amount: i32,
+    period_start: chrono::NaiveDate,
+    period_end: chrono::NaiveDate,
 }
 
 async fn department_equipment_handler(
@@ -618,7 +622,8 @@ async fn department_equipment_handler(
 ) -> Html<String> {
     // Query equipment for this department
     let query = sqlx::query_as::<_, DepartmentEquipmentRow>(
-        "SELECT e.id, e.name, COALESCE(ea.amount, 0) as amount
+        "SELECT e.id, e.name, COALESCE(ea.amount, 0) as amount,
+         ea.period_start, ea.period_end
          FROM equipment e
          LEFT JOIN equipment_allocation ea ON e.id = ea.equipment_id
          WHERE ea.department_id = $1
@@ -636,6 +641,8 @@ async fn department_equipment_handler(
         id: e.id,
         name: e.name,
         amount: e.amount as u32,
+        period_start: e.period_start.format("%Y-%m-%d").to_string(),
+        period_end: e.period_end.format("%Y-%m-%d").to_string(),
     }).collect();
 
     let template = DepartmentEquipmentTemplate { 
